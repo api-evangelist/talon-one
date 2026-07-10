@@ -1,0 +1,70 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Talon.One
+providerId: talon-one
+created: '2026-07-10'
+modified: '2026-07-10'
+reconciled: false
+tags:
+- Promotions
+- Loyalty
+- Coupons
+- Rate Limiting
+- Quotas
+description: >-
+  Talon.One runs as a managed, per-customer deployment, and it does not publish a
+  single fixed public numeric rate limit for the Integration or Management API.
+  Effective throughput is governed by the customer's contracted data volume (the
+  transaction / session volume the platform is sized for) and by the capacity of
+  their dedicated deployment, negotiated in the enterprise agreement, rather than
+  by a universal per-minute request cap. In practice the real-time Integration API
+  (customer session and event evaluation) is engineered for high-throughput,
+  low-latency inline calls during checkout, while the Management API is used for
+  lower-frequency administrative and export operations. Some bulk operations
+  (for example large coupon generation) are offered as asynchronous endpoints
+  (coupons_async) specifically to avoid overloading synchronous request paths.
+notes: >-
+  No universal numeric per-endpoint rate limit is documented publicly as of the
+  review date; limits are deployment- and contract-specific. Use the asynchronous
+  bulk endpoints for large coupon or import jobs, batch loyalty card creation, and
+  paginate list endpoints (the *_no_total variants) for large result sets.
+  Confirm concrete throughput guarantees and any per-endpoint limits with
+  Talon.One for your deployment.
+sources:
+- https://docs.talon.one
+- https://docs.talon.one/integration-api
+- https://www.talon.one/api-documentation
+responseCodes:
+  throttled: 429
+limits:
+- name: Integration API Throughput
+  scope: deployment
+  metric: requests
+  limit: contract/deployment-bound
+  notes: Real-time session and event evaluation sized to the customer's contracted data volume and dedicated deployment capacity.
+- name: Management API Requests
+  scope: account
+  metric: requests
+  limit: not published
+  notes: No fixed public numeric request-rate limit is documented for administrative Management API calls.
+- name: Promotion Data Volume
+  scope: account
+  metric: transactions
+  limit: per plan
+  notes: Overall usage is bounded by the contracted promotion/transaction data-volume band rather than a per-minute cap.
+- name: Bulk Coupon Generation
+  scope: campaign
+  metric: jobs
+  limit: use async endpoint
+  notes: Large coupon batches use POST .../coupons_async to avoid synchronous request limits.
+policies:
+- name: Asynchronous Bulk Operations
+  description: Large coupon creation and imports are provided as asynchronous jobs (e.g. coupons_async) to keep synchronous request paths responsive.
+- name: Pagination
+  description: List endpoints offer no_total variants for cursor/offset pagination over large result sets to reduce load.
+- name: Backoff Strategy
+  description: Clients should implement exponential backoff with jitter and honor Retry-After on any 429 responses.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

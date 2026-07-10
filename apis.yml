@@ -1,0 +1,191 @@
+aid: talon-one
+url: https://raw.githubusercontent.com/api-evangelist/talon-one/refs/heads/main/apis.yml
+name: Talon.One
+kind: company
+description: Talon.One is an enterprise promotion, loyalty, and incentives engine
+  that lets teams build and run coupons, discounts, referrals, bundles, giveaways,
+  and multi-tier loyalty programs from a single rules-based platform. It exposes two
+  primary REST APIs. The Integration API pushes real-time customer sessions, profiles,
+  and events into the rules engine and returns the effects (discounts, awarded
+  loyalty points, accepted coupons) to apply in the calling application. The
+  Management API programmatically administers applications, campaigns, rulesets,
+  coupons, loyalty programs, audiences, custom attributes, collections, and
+  analytics exports that back the Campaign Manager. Talon.One is delivered as a
+  managed, per-customer deployment; each account calls its own base URL
+  (https://yourbaseurl.talon.one) and authenticates with an API key whose prefix
+  distinguishes the Integration key (ApiKey-v1) from the Management key
+  (ManagementKey-v1).
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Promotions
+- Loyalty
+- Coupons
+- Incentives
+- Campaigns
+- Personalization
+- MarTech
+- Rules Engine
+created: '2026-07-10'
+modified: '2026-07-10'
+specificationVersion: '0.19'
+apis:
+- aid: talon-one:talon-one-integration-api
+  name: Talon.One Integration API
+  tags:
+  - Integration
+  - Customer Sessions
+  - Customer Profiles
+  - Events
+  - Real Time
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.talon.one/integration-api
+  baseURL: https://yourbaseurl.talon.one
+  properties:
+  - url: https://docs.talon.one/docs/dev/integration-api/api-effects
+    type: Documentation
+  - url: https://docs.talon.one/integration-api
+    type: APIReference
+  - url: openapi/talon-one-openapi.yml
+    type: OpenAPI
+  - url: collections/talon-one.postman_collection.json
+    type: PostmanCollection
+  - url: collections/talon-one.opencollection.json
+    type: OpenCollection
+  description: Real-time surface that pushes customer sessions, customer profiles,
+    and custom events into the Talon.One rules engine and returns the effects to
+    apply - accepted coupons and referrals, discounts, awarded loyalty points, and
+    triggered messages. Update a customer session (PUT /v2/customer_sessions/{id}),
+    submit events (POST /v2/events), sync profiles, and reserve coupons. Authenticated
+    with an Integration API key prefixed ApiKey-v1.
+- aid: talon-one:talon-one-management-api
+  name: Talon.One Management API
+  tags:
+  - Management
+  - Applications
+  - Rulesets
+  - Administration
+  - Exports
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.talon.one/management-api
+  baseURL: https://yourbaseurl.talon.one
+  properties:
+  - url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
+    type: Documentation
+  - url: https://docs.talon.one/management-api
+    type: APIReference
+  - url: openapi/talon-one-openapi.yml
+    type: OpenAPI
+  - url: collections/talon-one.postman_collection.json
+    type: PostmanCollection
+  - url: collections/talon-one.opencollection.json
+    type: OpenCollection
+  description: Administrative surface that backs the Campaign Manager. Manage
+    Applications, campaigns, rulesets, custom attributes, audiences, collections,
+    accounts, and users, and pull analytics and effect/coupon exports. Includes
+    endpoints such as GET /v1/applications, GET and PUT
+    /v1/applications/{applicationId}/campaigns/{campaignId}, and
+    GET /v1/exports. Authenticated with a Management API key prefixed
+    ManagementKey-v1 or a session bearer token from POST /v1/sessions.
+- aid: talon-one:talon-one-campaigns-api
+  name: Talon.One Campaigns API
+  tags:
+  - Campaigns
+  - Rulesets
+  - Rules
+  - Analytics
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.talon.one/docs/product/campaigns/overview
+  baseURL: https://yourbaseurl.talon.one
+  properties:
+  - url: https://docs.talon.one/docs/product/campaigns/overview
+    type: Documentation
+  - url: https://docs.talon.one/management-api
+    type: APIReference
+  - url: openapi/talon-one-openapi.yml
+    type: OpenAPI
+  - url: collections/talon-one.postman_collection.json
+    type: PostmanCollection
+  - url: collections/talon-one.opencollection.json
+    type: OpenCollection
+  description: The Management-API resources for building and operating promotion
+    campaigns - create, list, update, copy, and delete campaigns under an
+    Application, manage their rulesets, and export campaign analytics and triggered
+    effects. Endpoints are scoped under
+    /v1/applications/{applicationId}/campaigns and .../rulesets.
+- aid: talon-one:talon-one-coupons-api
+  name: Talon.One Coupons API
+  tags:
+  - Coupons
+  - Discount Codes
+  - Referrals
+  - Reservations
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
+  baseURL: https://yourbaseurl.talon.one
+  properties:
+  - url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
+    type: Documentation
+  - url: https://docs.talon.one/management-api
+    type: APIReference
+  - url: openapi/talon-one-openapi.yml
+    type: OpenAPI
+  - url: collections/talon-one.postman_collection.json
+    type: PostmanCollection
+  - url: collections/talon-one.opencollection.json
+    type: OpenCollection
+  description: Coupon lifecycle across both APIs - generate coupons in bulk
+    (POST /v1/applications/{applicationId}/campaigns/{campaignId}/coupons and
+    .../coupons_async), list and update individual codes, and reserve or release a
+    coupon against a customer profile at redemption time via the Integration API
+    (POST and DELETE /v1/coupon_reservations/{couponValue}). Referral codes are
+    created via POST /v1/referrals.
+- aid: talon-one:talon-one-loyalty-api
+  name: Talon.One Loyalty API
+  tags:
+  - Loyalty
+  - Points
+  - Loyalty Cards
+  - Tiers
+  - Rewards
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.talon.one/docs/product/loyalty-programs/overview
+  baseURL: https://yourbaseurl.talon.one
+  properties:
+  - url: https://docs.talon.one/docs/product/loyalty-programs/overview
+    type: Documentation
+  - url: https://docs.talon.one/management-api
+    type: APIReference
+  - url: openapi/talon-one-openapi.yml
+    type: OpenAPI
+  - url: collections/talon-one.postman_collection.json
+    type: PostmanCollection
+  - url: collections/talon-one.opencollection.json
+    type: OpenCollection
+  description: Profile-based and card-based loyalty. Read balances, points, and
+    transactions (GET /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/points),
+    activate pending points, and link or unlink loyalty cards through the Integration
+    API, while the Management API adds points, lists programs, creates cards in
+    batches, and exports loyalty balances. Supports multi-tier programs and
+    subledgers.
+common:
+- type: GitHubOrganization
+  url: https://github.com/talon-one
+- type: LinkedIn
+  url: https://www.linkedin.com/company/talon-one
+- type: Website
+  url: https://www.talon.one
+- type: Documentation
+  url: https://docs.talon.one
+- type: SignUp
+  url: https://www.talon.one/demo
+- type: Plans
+  url: plans/talon-one-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/talon-one-rate-limits.yml
+- type: FinOps
+  url: finops/talon-one-finops.yml
+- url: https://www.talon.one/blog
+  type: Blog
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

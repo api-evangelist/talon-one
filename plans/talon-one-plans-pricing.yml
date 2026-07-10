@@ -1,0 +1,111 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Talon.One
+providerId: talon-one
+created: '2026-07-10'
+modified: '2026-07-10'
+reconciled: false
+tags:
+- Promotions
+- Loyalty
+- Coupons
+- Incentives
+- Plans
+description: >-
+  Talon.One is sold as an enterprise SaaS platform with custom, contact-sales
+  pricing rather than public self-service tiers. Talon.One publicly names three
+  package levels - Starter, Professional, and Enterprise - and prices each on the
+  volume of data used to run promotions (transaction / session volume) rather than
+  on a public per-API-call rate. All packages include unlimited access to the
+  product features; the difference is scale, support, and platform capabilities.
+  Access is granted through a sales engagement and demo. There is no public free
+  tier or public per-request price for the Integration or Management API; API use
+  is included in the platform subscription. Exact figures are not reconciled here.
+notes: >-
+  Third-party marketplaces suggest entry pricing on the order of ~EUR 1,500/month
+  with additional implementation cost, but Talon.One does not publish official
+  numbers. Package names (Starter / Professional / Enterprise) and the
+  data-volume-based model come from Talon.One's pricing page. Confirm current
+  packages, volume bands, and terms directly with Talon.One sales during
+  reconciliation.
+sources:
+- https://www.talon.one/pricing
+- https://www.talon.one/api-documentation
+- https://docs.talon.one
+plans:
+- id: talon-one-starter
+  name: Starter
+  type: subscription
+  description: >-
+    Entry package for teams beginning with promotions, coupons, and basic
+    loyalty. Includes full access to the Integration and Management APIs within a
+    lower data-volume band. Custom, contact-sales pricing.
+  entries:
+  - label: Promotion Data Volume
+    name: starter_data_volume
+    type: usage
+    metric: transactions
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: custom (contact sales; volume-banded)
+    userMultiplied: false
+  elements:
+  - name: Integration API
+  - name: Management API
+  - name: Coupons and Discounts
+  - name: Basic Loyalty
+- id: talon-one-professional
+  name: Professional
+  type: subscription
+  description: >-
+    Mid-tier package for scaling promotion and loyalty programs across more
+    Applications and higher data volumes, with advanced campaign features and
+    additional support. Custom, contact-sales pricing.
+  entries:
+  - label: Promotion Data Volume
+    name: professional_data_volume
+    type: usage
+    metric: transactions
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: custom (contact sales; higher volume band)
+    userMultiplied: false
+  elements:
+  - name: Everything in Starter
+  - name: Multi-Tier Loyalty
+  - name: Referrals and Bundles
+  - name: Audiences and Segmentation
+  - name: Advanced Analytics Exports
+- id: talon-one-enterprise
+  name: Enterprise
+  type: enterprise
+  description: >-
+    Enterprise package for high-volume, mission-critical promotion and loyalty
+    operations, with a dedicated per-customer deployment (own base URL and deploy
+    region), SLAs, security reviews, SSO, premium support, and negotiated terms.
+    Contact Talon.One.
+  entries:
+  - label: Enterprise Agreement
+    name: enterprise
+    type: flat
+    metric: contract
+    limit: -1
+    timeFrame: year
+    geo: global
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  elements:
+  - name: Dedicated Deployment and Deploy Region
+  - name: Custom Volume Pricing
+  - name: SLAs and Premium Support
+  - name: SSO and Security Reviews
+  - name: Professional Services and Onboarding
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

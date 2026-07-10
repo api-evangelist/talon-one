@@ -1,0 +1,242 @@
+{
+  "info": {
+    "name": "Talon.One API",
+    "description": "Talon.One is an enterprise promotion, loyalty, and incentives engine. This collection covers both public REST surfaces. The Integration API (v1/v2 customer_sessions, customer_profiles, events, coupon_reservations, referrals, loyalty) pushes real-time customer data into the rules engine and returns effects to apply. The Management API (v1 applications, campaigns, coupons, loyalty_programs, audiences, attributes, exports) administers the resources behind the Campaign Manager. Talon.One runs as a per-customer deployment: set baseUrl to your own deployment domain (https://yourbaseurl.talon.one). Integration keys use the ApiKey-v1 prefix; Management keys use the ManagementKey-v1 prefix - set the Authorization header accordingly per request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://yourbaseurl.talon.one", "type": "string" },
+    { "key": "integrationKey", "value": "ApiKey-v1 REPLACE_WITH_INTEGRATION_KEY", "type": "string" },
+    { "key": "managementKey", "value": "ManagementKey-v1 REPLACE_WITH_MANAGEMENT_KEY", "type": "string" },
+    { "key": "customerSessionId", "value": "", "type": "string" },
+    { "key": "integrationId", "value": "", "type": "string" },
+    { "key": "loyaltyProgramId", "value": "", "type": "string" },
+    { "key": "applicationId", "value": "", "type": "string" },
+    { "key": "campaignId", "value": "", "type": "string" },
+    { "key": "couponValue", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Integration API",
+      "item": [
+        {
+          "name": "Update customer session",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "{{integrationKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"customerSession\": {\n    \"profileId\": \"{{integrationId}}\",\n    \"state\": \"open\",\n    \"cartItems\": [\n      { \"name\": \"Sneakers\", \"sku\": \"SKU-123\", \"quantity\": 1, \"price\": 89.99 }\n    ],\n    \"couponCodes\": []\n  },\n  \"responseContent\": [\"customerSession\", \"triggeredCampaigns\", \"loyalty\"]\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/customer_sessions/{{customerSessionId}}", "host": ["{{baseUrl}}"], "path": ["v2", "customer_sessions", "{{customerSessionId}}"] },
+            "description": "Update or create a customer session and evaluate the Application's campaigns, returning the effects to apply."
+          }
+        },
+        {
+          "name": "Get customer session",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{integrationKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v2/customer_sessions/{{customerSessionId}}", "host": ["{{baseUrl}}"], "path": ["v2", "customer_sessions", "{{customerSessionId}}"] },
+            "description": "Retrieve a customer session by its integration ID."
+          }
+        },
+        {
+          "name": "Track event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{integrationKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"profileId\": \"{{integrationId}}\",\n  \"type\": \"pageView\",\n  \"attributes\": {}\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/events", "host": ["{{baseUrl}}"], "path": ["v2", "events"] },
+            "description": "Submit a custom event that can trigger campaign rules and return effects."
+          }
+        },
+        {
+          "name": "Update customer profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "{{integrationKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"attributes\": {\n    \"tier\": \"gold\"\n  }\n}" },
+            "url": { "raw": "{{baseUrl}}/v2/customer_profiles/{{integrationId}}", "host": ["{{baseUrl}}"], "path": ["v2", "customer_profiles", "{{integrationId}}"] },
+            "description": "Update or create a customer profile identified by its integration ID."
+          }
+        },
+        {
+          "name": "Get customer inventory",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{integrationKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/customer_profiles/{{integrationId}}/inventory", "host": ["{{baseUrl}}"], "path": ["v1", "customer_profiles", "{{integrationId}}", "inventory"] },
+            "description": "Return the coupons, referrals, loyalty balances, and giveaways available to a customer profile."
+          }
+        },
+        {
+          "name": "Reserve coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{integrationKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"integrationIds\": [\"{{integrationId}}\"]\n}" },
+            "url": { "raw": "{{baseUrl}}/v1/coupon_reservations/{{couponValue}}", "host": ["{{baseUrl}}"], "path": ["v1", "coupon_reservations", "{{couponValue}}"] },
+            "description": "Reserve a coupon code for one or more customer profiles."
+          }
+        },
+        {
+          "name": "Create referral code",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{integrationKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"campaignId\": {{campaignId}},\n  \"advocateProfileIntegrationId\": \"{{integrationId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/v1/referrals", "host": ["{{baseUrl}}"], "path": ["v1", "referrals"] },
+            "description": "Create a referral code for an advocate in a referral campaign."
+          }
+        },
+        {
+          "name": "Get customer's loyalty points",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{integrationKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/loyalty_programs/{{loyaltyProgramId}}/profile/{{integrationId}}/points", "host": ["{{baseUrl}}"], "path": ["v1", "loyalty_programs", "{{loyaltyProgramId}}", "profile", "{{integrationId}}", "points"] },
+            "description": "Return the active, pending, and expired loyalty points for a customer in a program."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Management API",
+      "item": [
+        {
+          "name": "List Applications",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/applications", "host": ["{{baseUrl}}"], "path": ["v1", "applications"] },
+            "description": "List all Applications in the account."
+          }
+        },
+        {
+          "name": "Get Application",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/applications/{{applicationId}}", "host": ["{{baseUrl}}"], "path": ["v1", "applications", "{{applicationId}}"] },
+            "description": "Get a single Application by ID."
+          }
+        },
+        {
+          "name": "List campaigns",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/applications/{{applicationId}}/campaigns", "host": ["{{baseUrl}}"], "path": ["v1", "applications", "{{applicationId}}", "campaigns"] },
+            "description": "List the campaigns in an Application."
+          }
+        },
+        {
+          "name": "Create campaign",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{managementKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Summer Sale\",\n  \"description\": \"20% off selected items\",\n  \"state\": \"enabled\",\n  \"features\": [\"coupons\"]\n}" },
+            "url": { "raw": "{{baseUrl}}/v1/applications/{{applicationId}}/campaigns", "host": ["{{baseUrl}}"], "path": ["v1", "applications", "{{applicationId}}", "campaigns"] },
+            "description": "Create a new campaign in an Application."
+          }
+        },
+        {
+          "name": "Get campaign",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/applications/{{applicationId}}/campaigns/{{campaignId}}", "host": ["{{baseUrl}}"], "path": ["v1", "applications", "{{applicationId}}", "campaigns", "{{campaignId}}"] },
+            "description": "Get a single campaign by ID."
+          }
+        },
+        {
+          "name": "Create coupons",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{managementKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"numberOfCoupons\": 100,\n  \"usageLimit\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/v1/applications/{{applicationId}}/campaigns/{{campaignId}}/coupons", "host": ["{{baseUrl}}"], "path": ["v1", "applications", "{{applicationId}}", "campaigns", "{{campaignId}}", "coupons"] },
+            "description": "Generate one or more coupon codes for a campaign."
+          }
+        },
+        {
+          "name": "List loyalty programs",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/loyalty_programs", "host": ["{{baseUrl}}"], "path": ["v1", "loyalty_programs"] },
+            "description": "List the loyalty programs in the account."
+          }
+        },
+        {
+          "name": "Add points to customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "{{managementKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"points\": 100,\n  \"name\": \"Welcome bonus\"\n}" },
+            "url": { "raw": "{{baseUrl}}/v1/loyalty_programs/{{loyaltyProgramId}}/profile/{{integrationId}}/add_points", "host": ["{{baseUrl}}"], "path": ["v1", "loyalty_programs", "{{loyaltyProgramId}}", "profile", "{{integrationId}}", "add_points"] },
+            "description": "Add loyalty points to a customer profile in a program (Management key)."
+          }
+        },
+        {
+          "name": "List custom attributes",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/attributes", "host": ["{{baseUrl}}"], "path": ["v1", "attributes"] },
+            "description": "List the custom attributes defined in the account."
+          }
+        },
+        {
+          "name": "List audiences",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/audiences", "host": ["{{baseUrl}}"], "path": ["v1", "audiences"] },
+            "description": "List the audiences in the account."
+          }
+        },
+        {
+          "name": "Export campaign analytics",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/applications/{{applicationId}}/campaign_analytics/export", "host": ["{{baseUrl}}"], "path": ["v1", "applications", "{{applicationId}}", "campaign_analytics", "export"] },
+            "description": "Export campaign analytics for an Application as CSV."
+          }
+        },
+        {
+          "name": "Get exports",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "{{managementKey}}" } ],
+            "url": { "raw": "{{baseUrl}}/v1/exports", "host": ["{{baseUrl}}"], "path": ["v1", "exports"] },
+            "description": "List the exports created in the account."
+          }
+        }
+      ]
+    }
+  ]
+}

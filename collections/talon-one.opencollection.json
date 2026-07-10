@@ -1,0 +1,221 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Talon.One API",
+    "version": "1.0",
+    "description": "Talon.One promotion, loyalty, and incentives engine. Covers the Integration API (real-time customer sessions, profiles, events, coupon reservations, referrals, loyalty balances) and the Management API (applications, campaigns, coupons, loyalty programs, audiences, attributes, exports). Set baseUrl to your per-customer deployment domain. Integration keys use the ApiKey-v1 prefix; Management keys use the ManagementKey-v1 prefix - set the Authorization header per request."
+  },
+  "items": [
+    {
+      "info": { "name": "Integration API", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "Update customer session", "type": "http" },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/customer_sessions/:customerSessionId",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "params": [ { "name": "customerSessionId", "value": "", "type": "path", "description": "The integration ID of the customer session." } ],
+            "body": { "type": "json", "data": "{\"customerSession\":{\"profileId\":\"\",\"state\":\"open\",\"cartItems\":[]},\"responseContent\":[\"customerSession\",\"triggeredCampaigns\",\"loyalty\"]}" }
+          },
+          "docs": "Update or create a customer session and evaluate the Application's campaigns, returning the effects to apply."
+        },
+        {
+          "info": { "name": "Get customer session", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v2/customer_sessions/:customerSessionId",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" } ],
+            "params": [ { "name": "customerSessionId", "value": "", "type": "path", "description": "The integration ID of the customer session." } ]
+          },
+          "docs": "Retrieve a customer session by its integration ID."
+        },
+        {
+          "info": { "name": "Track event", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/events",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "body": { "type": "json", "data": "{\"profileId\":\"\",\"type\":\"pageView\",\"attributes\":{}}" }
+          },
+          "docs": "Submit a custom event that can trigger campaign rules and return effects."
+        },
+        {
+          "info": { "name": "Update customer profile", "type": "http" },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/customer_profiles/:integrationId",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "params": [ { "name": "integrationId", "value": "", "type": "path", "description": "The integration ID of the customer profile." } ],
+            "body": { "type": "json", "data": "{\"attributes\":{}}" }
+          },
+          "docs": "Update or create a customer profile identified by its integration ID."
+        },
+        {
+          "info": { "name": "Get customer inventory", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/customer_profiles/:integrationId/inventory",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" } ],
+            "params": [ { "name": "integrationId", "value": "", "type": "path", "description": "The integration ID of the customer profile." } ]
+          },
+          "docs": "Return the coupons, referrals, loyalty balances, and giveaways available to a customer profile."
+        },
+        {
+          "info": { "name": "Reserve coupon", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/coupon_reservations/:couponValue",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "params": [ { "name": "couponValue", "value": "", "type": "path", "description": "The coupon code value." } ],
+            "body": { "type": "json", "data": "{\"integrationIds\":[]}" }
+          },
+          "docs": "Reserve a coupon code for one or more customer profiles."
+        },
+        {
+          "info": { "name": "Create referral code", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/referrals",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "body": { "type": "json", "data": "{\"campaignId\":0,\"advocateProfileIntegrationId\":\"\"}" }
+          },
+          "docs": "Create a referral code for an advocate in a referral campaign."
+        },
+        {
+          "info": { "name": "Get customer's loyalty points", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/points",
+            "headers": [ { "name": "Authorization", "value": "ApiKey-v1 {{integrationKey}}" } ],
+            "params": [ { "name": "loyaltyProgramId", "value": "", "type": "path", "description": "The identifier of the loyalty program." }, { "name": "integrationId", "value": "", "type": "path", "description": "The integration ID of the customer profile." } ]
+          },
+          "docs": "Return the active, pending, and expired loyalty points for a customer in a program."
+        }
+      ]
+    },
+    {
+      "info": { "name": "Management API", "type": "folder" },
+      "items": [
+        {
+          "info": { "name": "List Applications", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/applications",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ]
+          },
+          "docs": "List all Applications in the account."
+        },
+        {
+          "info": { "name": "Get Application", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/applications/:applicationId",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ],
+            "params": [ { "name": "applicationId", "value": "", "type": "path", "description": "The ID of the Application." } ]
+          },
+          "docs": "Get a single Application by ID."
+        },
+        {
+          "info": { "name": "List campaigns", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/applications/:applicationId/campaigns",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ],
+            "params": [ { "name": "applicationId", "value": "", "type": "path", "description": "The ID of the Application." } ]
+          },
+          "docs": "List the campaigns in an Application."
+        },
+        {
+          "info": { "name": "Create campaign", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/applications/:applicationId/campaigns",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "params": [ { "name": "applicationId", "value": "", "type": "path", "description": "The ID of the Application." } ],
+            "body": { "type": "json", "data": "{\"name\":\"Summer Sale\",\"description\":\"20% off\",\"state\":\"enabled\",\"features\":[\"coupons\"]}" }
+          },
+          "docs": "Create a new campaign in an Application."
+        },
+        {
+          "info": { "name": "Get campaign", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/applications/:applicationId/campaigns/:campaignId",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ],
+            "params": [ { "name": "applicationId", "value": "", "type": "path", "description": "The ID of the Application." }, { "name": "campaignId", "value": "", "type": "path", "description": "The ID of the campaign." } ]
+          },
+          "docs": "Get a single campaign by ID."
+        },
+        {
+          "info": { "name": "Create coupons", "type": "http" },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/applications/:applicationId/campaigns/:campaignId/coupons",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "params": [ { "name": "applicationId", "value": "", "type": "path", "description": "The ID of the Application." }, { "name": "campaignId", "value": "", "type": "path", "description": "The ID of the campaign." } ],
+            "body": { "type": "json", "data": "{\"numberOfCoupons\":100,\"usageLimit\":1}" }
+          },
+          "docs": "Generate one or more coupon codes for a campaign."
+        },
+        {
+          "info": { "name": "List loyalty programs", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ]
+          },
+          "docs": "List the loyalty programs in the account."
+        },
+        {
+          "info": { "name": "Add points to customer", "type": "http" },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/add_points",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" }, { "name": "Content-Type", "value": "application/json" } ],
+            "params": [ { "name": "loyaltyProgramId", "value": "", "type": "path", "description": "The identifier of the loyalty program." }, { "name": "integrationId", "value": "", "type": "path", "description": "The integration ID of the customer profile." } ],
+            "body": { "type": "json", "data": "{\"points\":100,\"name\":\"Welcome bonus\"}" }
+          },
+          "docs": "Add loyalty points to a customer profile in a program (Management key)."
+        },
+        {
+          "info": { "name": "List custom attributes", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/attributes",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ]
+          },
+          "docs": "List the custom attributes defined in the account."
+        },
+        {
+          "info": { "name": "List audiences", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/audiences",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ]
+          },
+          "docs": "List the audiences in the account."
+        },
+        {
+          "info": { "name": "Export campaign analytics", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/applications/:applicationId/campaign_analytics/export",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ],
+            "params": [ { "name": "applicationId", "value": "", "type": "path", "description": "The ID of the Application." } ]
+          },
+          "docs": "Export campaign analytics for an Application as CSV."
+        },
+        {
+          "info": { "name": "Get exports", "type": "http" },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/exports",
+            "headers": [ { "name": "Authorization", "value": "ManagementKey-v1 {{managementKey}}" } ]
+          },
+          "docs": "List the exports created in the account."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+aid: talon-one
+name: Talon.One
+review:
+  question: Does Talon.One expose a documented public WebSocket API?
+  answer: false
+  date: '2026-07-10'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: false
+  asyncapiScopeNote: |
+    No AsyncAPI document was authored. Talon.One's public API surface - the
+    Integration API and the Management API - is request/response REST over HTTPS.
+    There is no server-push transport (WebSocket or SSE) on Talon.One's own API
+    to model. Talon.One's real-time behavior is inline and synchronous: the caller
+    PUTs a customer session or POSTs an event and receives the effects (discounts,
+    accepted coupons, awarded loyalty points) in the HTTP response. Any outbound
+    notifications are delivered via configured webhooks (server-to-endpoint HTTP
+    POST), not a WebSocket the client connects to, so there is nothing to model in
+    AsyncAPI for Talon.One's own API.
+findings:
+  summary: |
+    Talon.One does not publish a documented public WebSocket API. Talon.One is an
+    enterprise promotion, loyalty, and incentives engine delivered as a managed,
+    per-customer deployment (each account calls its own base URL,
+    https://yourbaseurl.talon.one). It exposes two REST APIs. The Integration API
+    (paths under /v1 and /v2 - customer_sessions, customer_profiles, events,
+    coupon_reservations, referrals, loyalty_programs, audiences) pushes real-time
+    customer data into the rules engine and returns the effects to apply inline in
+    the HTTP response; it is authenticated with an Integration key prefixed
+    ApiKey-v1. The Management API (paths under /v1 - applications, campaigns,
+    coupons, loyalty_programs, audiences, attributes, collections, accounts,
+    users, exports) administers the resources behind the Campaign Manager and is
+    authenticated with a Management key prefixed ManagementKey-v1 (or a session
+    bearer token from POST /v1/sessions). Both surfaces are pure request/response
+    REST over HTTPS. No realtime, bidirectional, or streaming WebSocket (ws:// or
+    wss://) endpoint is documented on Talon.One's own API.
+  accessModel: |
+    Talon.One is a commercial, contact-sales enterprise platform - there is no
+    public free tier or public self-service signup for the API. API keys are
+    generated inside the Campaign Manager of a provisioned account. Each customer
+    runs on a dedicated deployment with its own base URL and deploy region, so the
+    host is account-specific rather than a single shared api.talon.one origin.
+    Official SDKs are published for multiple languages (Java, C#, PHP, Python, Go,
+    JavaScript/TypeScript) under github.com/talon-one and are generated from
+    Talon.One's OpenAPI descriptions.
+  transports:
+    - protocol: REST
+      scheme: https
+      baseURL: https://yourbaseurl.talon.one
+      documented: true
+      note: Integration API (v1/v2) and Management API (v1). Per-customer deployment domain; replace yourbaseurl with your own.
+    - protocol: Webhook
+      scheme: https
+      documented: true
+      note: Talon.One can POST notifications to configured HTTP endpoints (server-to-endpoint). Outbound HTTP, not a client WebSocket.
+    - protocol: WebSocket
+      scheme: wss
+      documented: false
+      note: No WebSocket endpoint is documented anywhere in Talon.One's Integration or Management API reference as of the review date.
+  endpointsConfirmedRest:
+    - PUT    https://yourbaseurl.talon.one/v2/customer_sessions/{customerSessionId}
+    - GET    https://yourbaseurl.talon.one/v2/customer_sessions/{customerSessionId}
+    - PUT    https://yourbaseurl.talon.one/v2/customer_sessions/{customerSessionId}/reopen
+    - POST   https://yourbaseurl.talon.one/v2/customer_sessions/{customerSessionId}/returns
+    - PUT    https://yourbaseurl.talon.one/v2/customer_profiles/{integrationId}
+    - GET    https://yourbaseurl.talon.one/v1/customer_profiles/{integrationId}/inventory
+    - DELETE https://yourbaseurl.talon.one/v1/customer_data/{integrationId}
+    - POST   https://yourbaseurl.talon.one/v2/events
+    - POST   https://yourbaseurl.talon.one/v1/coupon_reservations/{couponValue}
+    - DELETE https://yourbaseurl.talon.one/v1/coupon_reservations/{couponValue}
+    - POST   https://yourbaseurl.talon.one/v1/referrals
+    - GET    https://yourbaseurl.talon.one/v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/points
+    - GET    https://yourbaseurl.talon.one/v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/balances
+    - POST   https://yourbaseurl.talon.one/v1/loyalty_programs/{loyaltyProgramId}/activate_points
+    - POST   https://yourbaseurl.talon.one/v2/audiences
+    - GET    https://yourbaseurl.talon.one/v1/applications
+    - GET    https://yourbaseurl.talon.one/v1/applications/{applicationId}
+    - GET    https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns
+    - POST   https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns
+    - PUT    https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns/{campaignId}
+    - DELETE https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns/{campaignId}
+    - GET    https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns/{campaignId}/rulesets
+    - POST   https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns/{campaignId}/coupons
+    - GET    https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaigns/{campaignId}/coupons/no_total
+    - GET    https://yourbaseurl.talon.one/v1/loyalty_programs
+    - PUT    https://yourbaseurl.talon.one/v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/add_points
+    - POST   https://yourbaseurl.talon.one/v1/loyalty_programs/{loyaltyProgramId}/cards/batch
+    - GET    https://yourbaseurl.talon.one/v1/audiences
+    - GET    https://yourbaseurl.talon.one/v1/attributes
+    - POST   https://yourbaseurl.talon.one/v1/attributes
+    - GET    https://yourbaseurl.talon.one/v1/collections
+    - POST   https://yourbaseurl.talon.one/v1/sessions
+    - GET    https://yourbaseurl.talon.one/v1/exports
+    - GET    https://yourbaseurl.talon.one/v1/applications/{applicationId}/campaign_analytics/export
+  sources:
+    - url: https://docs.talon.one/integration-api
+      type: APIReference
+      note: Integration API reference - real-time customer sessions, profiles, events, coupons, loyalty. All REST; no WebSocket.
+    - url: https://docs.talon.one/management-api
+      type: APIReference
+      note: Management API reference - applications, campaigns, coupons, loyalty, audiences, exports. All REST.
+    - url: https://www.talon.one/api-documentation
+      type: Documentation
+      note: Overview of Integration, Management, Third-party, and Shopify Integration APIs.
+    - url: https://github.com/talon-one/TalonOne.cs/blob/master/docs/IntegrationApi.md
+      type: SourceCode
+      note: SDK doc enumerating Integration API operations and paths (v1/v2).
+    - url: https://github.com/talon-one/TalonOnePHPsdk/blob/master/docs/Api/ManagementApi.md
+      type: SourceCode
+      note: SDK doc enumerating Management API operations and paths (v1).
+    - url: https://www.talon.one/pricing
+      type: Pricing
+      note: Custom, contact-sales pricing across Starter, Professional, and Enterprise packages; data-volume based.
+actions:
+  asyncapiPath: null
+  apisYmlUpdated: true
+  reason: |
+    No WebSocket protocol surface exists. Talon.One's own public API is
+    request/response REST across the Integration API (inline real-time session
+    and event evaluation) and the Management API (administration and exports).
+    No AsyncAPI document was created because there is no server-push transport on
+    Talon.One's own API to model; outbound delivery is via configured webhooks,
+    which are server-to-endpoint HTTP rather than a client-facing WebSocket.

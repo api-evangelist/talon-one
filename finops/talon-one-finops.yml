@@ -1,0 +1,94 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Talon.One
+providerId: talon-one
+created: '2026-07-10'
+modified: '2026-07-10'
+reconciled: false
+tags:
+- Promotions
+- Loyalty
+- Coupons
+- Incentives
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of Talon.One spend. Talon.One is an enterprise SaaS promotion and
+  loyalty platform billed through a negotiated subscription rather than public
+  usage-based API pricing. The dominant cost driver is the contracted data volume
+  (transaction / session volume used to run promotions) tied to the package level
+  (Starter, Professional, Enterprise), plus one-time implementation and
+  professional-services costs and any premium support. Integration and Management
+  API usage is included in the subscription; there is no separate public per-call
+  API charge. Because each account runs as a per-customer deployment, cost is
+  primarily a fixed/committed contract with a volume band, not a metered pay-per-request
+  invoice.
+notes: >-
+  Talon.One does not publish official per-unit rates; entry cost is reported by
+  third parties on the order of ~EUR 1,500/month plus implementation, but must be
+  confirmed with Talon.One. Model spend as a committed annual subscription plus
+  implementation/services, and track internal promotion volume against the
+  contracted band to anticipate tier upgrades.
+sources:
+- https://www.talon.one/pricing
+- https://docs.talon.one
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Talon.One
+serviceCategory: Marketing and Promotions
+billingModel:
+  pricingCategory: Subscription
+  billingFrequency: Annual
+  billingCurrency: EUR
+  chargeCategories:
+  - Purchase
+  - Usage
+  - Adjustment
+focusColumns:
+  ServiceName: Talon.One Promotion Engine
+  ServiceCategory: Marketing and Promotions
+  ProviderName: Talon.One
+  PublisherName: Talon.One
+  InvoiceIssuerName: Talon.One
+  BillingCurrency: EUR
+  ChargeCategory: Purchase
+  PricingCategory: Subscription
+meters:
+- name: promotion_data_volume
+  description: Transaction / customer-session volume used to run promotions, the primary contracted cost driver by package band.
+  unit: transactions
+  aggregation: sum
+  dimensions:
+  - account
+  - application
+- name: subscription
+  description: Committed platform subscription for the contracted package (Starter, Professional, Enterprise).
+  unit: contract
+  aggregation: sum
+  dimensions:
+  - account
+- name: implementation_services
+  description: One-time implementation, onboarding, and professional-services cost.
+  unit: engagement
+  aggregation: sum
+  dimensions:
+  - account
+principles:
+- name: Visibility
+  description: Track promotion/session volume per Application against the contracted data-volume band to see how close usage is to the next tier.
+- name: Allocation
+  description: Map Applications and campaigns to business units so promotion volume and platform cost attribute to the right cost centers.
+- name: Optimization
+  description: Consolidate low-value campaigns, retire unused Applications, and use asynchronous bulk endpoints to stay within contracted volume efficiently.
+- name: Accountability
+  description: Assign owners per Application/campaign and review promotion volume against the subscription band ahead of renewal and tier negotiations.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

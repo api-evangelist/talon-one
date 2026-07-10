@@ -1,0 +1,915 @@
+openapi: 3.0.3
+info:
+  title: Talon.One API
+  description: >-
+    Talon.One is an enterprise promotion, loyalty, and incentives engine. This
+    OpenAPI description models the two primary REST surfaces Talon.One exposes.
+    The Integration API (paths under /v1 and /v2 for customer_sessions,
+    customer_profiles, events, coupon_reservations, referrals, loyalty_programs,
+    audiences) pushes real-time customer data into the rules engine and returns
+    the effects to apply. The Management API (paths under /v1 for applications,
+    campaigns, coupons, loyalty_programs, audiences, attributes, collections,
+    accounts, users, exports) administers the resources that back the Campaign
+    Manager. Talon.One runs as a managed, per-customer deployment: replace the
+    server base URL with your own deployment domain. Authenticate with the
+    Authorization header - Integration keys use the ApiKey-v1 prefix and
+    Management keys use the ManagementKey-v1 prefix. Endpoints and paths here are
+    grounded in Talon.One's public documentation and SDKs; request and response
+    schemas are honestly simplified.
+  version: '1.0'
+  contact:
+    name: Talon.One
+    url: https://docs.talon.one
+servers:
+  - url: https://yourbaseurl.talon.one
+    description: Per-customer Talon.One deployment (replace yourbaseurl with your deployment domain)
+security:
+  - integrationKey: []
+  - managementKey: []
+tags:
+  - name: Customer Sessions
+    description: Integration API - create and update customer sessions and receive effects.
+  - name: Customer Profiles
+    description: Integration API - sync customer profile data and read inventory.
+  - name: Events
+    description: Integration API - submit custom events that trigger rules.
+  - name: Coupons
+    description: Coupon reservation (Integration) and coupon management (Management).
+  - name: Referrals
+    description: Create and manage referral codes.
+  - name: Loyalty
+    description: Loyalty program balances, points, cards, and transactions.
+  - name: Audiences
+    description: Manage audiences and their memberships.
+  - name: Applications
+    description: Management API - Applications and their health.
+  - name: Campaigns
+    description: Management API - campaigns and rulesets.
+  - name: Attributes
+    description: Management API - custom attributes.
+  - name: Collections
+    description: Management API - account and campaign collections.
+  - name: Account
+    description: Management API - accounts, users, and sessions.
+  - name: Exports
+    description: Management API - analytics, coupon, and effect exports.
+paths:
+  /v2/customer_sessions/{customerSessionId}:
+    get:
+      operationId: getCustomerSession
+      tags: [Customer Sessions]
+      summary: Get customer session
+      description: Retrieve the details of a customer session by its integration ID.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/customerSessionId'
+      responses:
+        '200':
+          description: The customer session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      operationId: updateCustomerSessionV2
+      tags: [Customer Sessions]
+      summary: Update customer session
+      description: >-
+        Update or create a customer session and evaluate the Application's active
+        campaigns against it. Returns the effects to apply - accepted coupons and
+        referrals, discounts, and awarded loyalty points.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/customerSessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationRequest'
+      responses:
+        '200':
+          description: The updated session and the effects to apply.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/customer_sessions/{customerSessionId}/reopen:
+    put:
+      operationId: reopenCustomerSession
+      tags: [Customer Sessions]
+      summary: Reopen customer session
+      description: Reopen a closed customer session so it can be updated again.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/customerSessionId'
+      responses:
+        '200':
+          description: The reopened session state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+  /v2/customer_sessions/{customerSessionId}/returns:
+    post:
+      operationId: returnCartItems
+      tags: [Customer Sessions]
+      summary: Return cart items
+      description: Create a return for one or more items in a closed customer session.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/customerSessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The session state after the return.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+  /v2/customer_profiles/{integrationId}:
+    put:
+      operationId: updateCustomerProfileV2
+      tags: [Customer Profiles]
+      summary: Update customer profile
+      description: Update or create a customer profile identified by its integration ID.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/integrationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerProfileUpdate'
+      responses:
+        '200':
+          description: The updated customer profile and effects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfileIntegrationResponseV2'
+  /v1/customer_profiles/{integrationId}/inventory:
+    get:
+      operationId: getCustomerInventory
+      tags: [Customer Profiles]
+      summary: Get customer's loyalty and coupon inventory
+      description: >-
+        Return the coupons, referrals, loyalty balances, and giveaways currently
+        available to a customer profile.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/integrationId'
+      responses:
+        '200':
+          description: The customer inventory.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/customer_data/{integrationId}:
+    delete:
+      operationId: deleteCustomerData
+      tags: [Customer Profiles]
+      summary: Delete customer's personal data
+      description: Delete all personal data associated with a customer profile (GDPR).
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/integrationId'
+      responses:
+        '204':
+          description: The customer data was deleted.
+  /v2/events:
+    post:
+      operationId: trackEventV2
+      tags: [Events]
+      summary: Track event
+      description: >-
+        Submit a custom event tied to a customer session or profile. Events can
+        trigger campaign rules and return effects.
+      security:
+        - integrationKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The effects triggered by the event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+  /v1/coupon_reservations/{couponValue}:
+    post:
+      operationId: createCouponReservation
+      tags: [Coupons]
+      summary: Reserve coupon
+      description: Reserve a coupon code for one or more customer profiles.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/couponValue'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The coupon was reserved.
+    delete:
+      operationId: deleteCouponReservation
+      tags: [Coupons]
+      summary: Delete coupon reservation
+      description: Release a coupon reservation held for a customer profile.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/couponValue'
+      responses:
+        '204':
+          description: The reservation was released.
+  /v1/referrals:
+    post:
+      operationId: createReferral
+      tags: [Referrals]
+      summary: Create referral code
+      description: Create a referral code for an advocate in a referral campaign.
+      security:
+        - integrationKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The created referral code.
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/points:
+    get:
+      operationId: getLoyaltyProfilePoints
+      tags: [Loyalty]
+      summary: Get customer's loyalty points
+      description: Return the active, pending, and expired points for a customer in a program.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/loyaltyProgramId'
+        - $ref: '#/components/parameters/integrationId'
+      responses:
+        '200':
+          description: The customer's loyalty points.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/balances:
+    get:
+      operationId: getLoyaltyBalances
+      tags: [Loyalty]
+      summary: Get customer's loyalty balances
+      description: Return the current point balances (per subledger) for a customer profile.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/loyaltyProgramId'
+        - $ref: '#/components/parameters/integrationId'
+      responses:
+        '200':
+          description: The customer's loyalty balances.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/loyalty_programs/{loyaltyProgramId}/activate_points:
+    post:
+      operationId: activateLoyaltyPoints
+      tags: [Loyalty]
+      summary: Activate pending points
+      description: Activate pending loyalty points for the specified program.
+      security:
+        - integrationKey: []
+      parameters:
+        - $ref: '#/components/parameters/loyaltyProgramId'
+      responses:
+        '204':
+          description: The points were activated.
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/add_points:
+    put:
+      operationId: addLoyaltyPoints
+      tags: [Loyalty]
+      summary: Add points to customer
+      description: >-
+        Add loyalty points to a customer profile in a program. This is a
+        Management API operation (ManagementKey-v1).
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/loyaltyProgramId'
+        - $ref: '#/components/parameters/integrationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '204':
+          description: The points were added.
+  /v1/applications:
+    get:
+      operationId: listApplications
+      tags: [Applications]
+      summary: List Applications
+      description: List all Applications in the account.
+      security:
+        - managementKey: []
+      responses:
+        '200':
+          description: A list of Applications.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalResultSize:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v1/applications/{applicationId}:
+    get:
+      operationId: getApplication
+      tags: [Applications]
+      summary: Get Application
+      description: Get a single Application by ID.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      responses:
+        '200':
+          description: The Application.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+  /v1/applications/{applicationId}/campaigns:
+    get:
+      operationId: listCampaigns
+      tags: [Campaigns]
+      summary: List campaigns
+      description: List the campaigns in an Application.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      responses:
+        '200':
+          description: A list of campaigns.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalResultSize:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Campaign'
+    post:
+      operationId: createCampaign
+      tags: [Campaigns]
+      summary: Create campaign
+      description: Create a new campaign in an Application.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+      responses:
+        '200':
+          description: The created campaign.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+  /v1/applications/{applicationId}/campaigns/{campaignId}:
+    get:
+      operationId: getCampaign
+      tags: [Campaigns]
+      summary: Get campaign
+      description: Get a single campaign by ID.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        '200':
+          description: The campaign.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+    put:
+      operationId: updateCampaign
+      tags: [Campaigns]
+      summary: Update campaign
+      description: Update an existing campaign.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+      responses:
+        '200':
+          description: The updated campaign.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+    delete:
+      operationId: deleteCampaign
+      tags: [Campaigns]
+      summary: Delete campaign
+      description: Delete a campaign.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        '204':
+          description: The campaign was deleted.
+  /v1/applications/{applicationId}/campaigns/{campaignId}/rulesets:
+    get:
+      operationId: listCampaignRulesets
+      tags: [Campaigns]
+      summary: List campaign rulesets
+      description: List the rulesets of a campaign.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        '200':
+          description: A list of rulesets.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/applications/{applicationId}/campaigns/{campaignId}/coupons:
+    post:
+      operationId: createCoupons
+      tags: [Coupons]
+      summary: Create coupons
+      description: Generate one or more coupon codes for a campaign.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The created coupons.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/applications/{applicationId}/campaigns/{campaignId}/coupons/no_total:
+    get:
+      operationId: listCoupons
+      tags: [Coupons]
+      summary: List coupons
+      description: List the coupons of a campaign without a total count (paginated).
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        '200':
+          description: A list of coupons.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/loyalty_programs:
+    get:
+      operationId: listLoyaltyPrograms
+      tags: [Loyalty]
+      summary: List loyalty programs
+      description: List the loyalty programs in the account.
+      security:
+        - managementKey: []
+      responses:
+        '200':
+          description: A list of loyalty programs.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/loyalty_programs/{loyaltyProgramId}/cards/batch:
+    post:
+      operationId: createLoyaltyCards
+      tags: [Loyalty]
+      summary: Create loyalty cards
+      description: Create a batch of loyalty cards for a card-based loyalty program.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/loyaltyProgramId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The created loyalty cards.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/audiences:
+    get:
+      operationId: listAudiences
+      tags: [Audiences]
+      summary: List audiences
+      description: List the audiences in the account.
+      security:
+        - managementKey: []
+      responses:
+        '200':
+          description: A list of audiences.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v2/audiences:
+    post:
+      operationId: createAudienceV2
+      tags: [Audiences]
+      summary: Create audience
+      description: Create an audience via the Integration API.
+      security:
+        - integrationKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The created audience.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/attributes:
+    get:
+      operationId: listAttributes
+      tags: [Attributes]
+      summary: List custom attributes
+      description: List the custom attributes defined in the account.
+      security:
+        - managementKey: []
+      responses:
+        '200':
+          description: A list of custom attributes.
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      operationId: createAttribute
+      tags: [Attributes]
+      summary: Create custom attribute
+      description: Define a new custom attribute.
+      security:
+        - managementKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The created attribute.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/collections:
+    get:
+      operationId: listAccountCollections
+      tags: [Collections]
+      summary: List account-level collections
+      description: List account-level collections used in rules.
+      security:
+        - managementKey: []
+      responses:
+        '200':
+          description: A list of collections.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/sessions:
+    post:
+      operationId: createManagementSession
+      tags: [Account]
+      summary: Create management session
+      description: >-
+        Create a management session and receive a bearer token that can be used
+        instead of a Management API key.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: A session token.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/exports:
+    get:
+      operationId: getExports
+      tags: [Exports]
+      summary: Get exports
+      description: List the exports created in the account.
+      security:
+        - managementKey: []
+      responses:
+        '200':
+          description: A list of exports.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/applications/{applicationId}/campaign_analytics/export:
+    get:
+      operationId: exportCampaignAnalytics
+      tags: [Exports]
+      summary: Export campaign analytics
+      description: Export campaign analytics for an Application as CSV.
+      security:
+        - managementKey: []
+      parameters:
+        - $ref: '#/components/parameters/applicationId'
+      responses:
+        '200':
+          description: A CSV export of campaign analytics.
+          content:
+            text/csv:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    integrationKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1 <your-key>".'
+    managementKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Management API key with the ManagementKey-v1 prefix, e.g. header "Authorization: ManagementKey-v1 <your-key>".'
+  parameters:
+    customerSessionId:
+      name: customerSessionId
+      in: path
+      required: true
+      description: The integration ID of the customer session.
+      schema:
+        type: string
+    integrationId:
+      name: integrationId
+      in: path
+      required: true
+      description: The integration ID of the customer profile.
+      schema:
+        type: string
+    couponValue:
+      name: couponValue
+      in: path
+      required: true
+      description: The coupon code value.
+      schema:
+        type: string
+    loyaltyProgramId:
+      name: loyaltyProgramId
+      in: path
+      required: true
+      description: The identifier of the loyalty program.
+      schema:
+        type: string
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application.
+      schema:
+        type: integer
+    campaignId:
+      name: campaignId
+      in: path
+      required: true
+      description: The ID of the campaign.
+      schema:
+        type: integer
+  responses:
+    Unauthorized:
+      description: The API key is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    IntegrationRequest:
+      type: object
+      description: A wrapper carrying the customer session payload and response controls.
+      properties:
+        customerSession:
+          $ref: '#/components/schemas/CustomerSession'
+        responseContent:
+          type: array
+          items:
+            type: string
+    CustomerSession:
+      type: object
+      description: A customer session evaluated against the Application's campaigns.
+      properties:
+        integrationId:
+          type: string
+        profileId:
+          type: string
+        state:
+          type: string
+          enum: [open, closed, partially_returned, cancelled]
+        cartItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        couponCodes:
+          type: array
+          items:
+            type: string
+        referralCode:
+          type: string
+        total:
+          type: number
+        attributes:
+          type: object
+    CartItem:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        category:
+          type: string
+    IntegrationStateV2:
+      type: object
+      description: The evaluated session plus the effects to apply in the caller.
+      properties:
+        customerSession:
+          $ref: '#/components/schemas/CustomerSession'
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Effect'
+        loyalty:
+          type: object
+    Effect:
+      type: object
+      description: A single effect returned by the rules engine (e.g. setDiscount, acceptCoupon, addLoyaltyPoints).
+      properties:
+        campaignId:
+          type: integer
+        rulesetId:
+          type: integer
+        name:
+          type: string
+        props:
+          type: object
+    CustomerProfileUpdate:
+      type: object
+      properties:
+        attributes:
+          type: object
+        audiencesChanges:
+          type: object
+    CustomerProfileIntegrationResponseV2:
+      type: object
+      properties:
+        profile:
+          type: object
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Effect'
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        state:
+          type: string
+          enum: [enabled, disabled, scheduled, running, expired, draft]
+        tags:
+          type: array
+          items:
+            type: string
+        features:
+          type: array
+          items:
+            type: string
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
