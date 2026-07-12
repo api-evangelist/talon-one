@@ -1,0 +1,17 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/talon-one-openapi.yml
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+schemes:
+- name: integrationKey
+  type: apiKey
+  in: header
+  parameter: Authorization
+  description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1
+    <your-key>".'
+  sources:
+  - openapi/talon-one-openapi.yml

@@ -168,6 +168,10 @@ apis:
     batches, and exports loyalty balances. Supports multi-tier programs and
     subledgers.
 common:
+- type: DomainSecurity
+  url: security/talon-one-domain-security.yml
+- type: Authentication
+  url: authentication/talon-one-authentication.yml
 - type: GitHubOrganization
   url: https://github.com/talon-one
 - type: LinkedIn
