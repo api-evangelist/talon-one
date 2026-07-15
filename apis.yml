@@ -168,6 +168,8 @@ apis:
     batches, and exports loyalty balances. Supports multi-tier programs and
     subledgers.
 common:
+- type: AgenticAccess
+  url: agentic-access/talon-one-agentic-access.yml
 - type: DomainSecurity
   url: security/talon-one-domain-security.yml
 - type: Authentication
