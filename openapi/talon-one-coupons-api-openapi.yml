@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: Talon.One Account Coupons API
+  description: 'Talon.One is an enterprise promotion, loyalty, and incentives engine. This OpenAPI description models the two primary REST surfaces Talon.One exposes. The Integration API (paths under /v1 and /v2 for customer_sessions, customer_profiles, events, coupon_reservations, referrals, loyalty_programs, audiences) pushes real-time customer data into the rules engine and returns the effects to apply. The Management API (paths under /v1 for applications, campaigns, coupons, loyalty_programs, audiences, attributes, collections, accounts, users, exports) administers the resources that back the Campaign Manager. Talon.One runs as a managed, per-customer deployment: replace the server base URL with your own deployment domain. Authenticate with the Authorization header - Integration keys use the ApiKey-v1 prefix and Management keys use the ManagementKey-v1 prefix. Endpoints and paths here are grounded in Talon.One''s public documentation and SDKs; request and response schemas are honestly simplified.'
+  version: '1.0'
+  contact:
+    name: Talon.One
+    url: https://docs.talon.one
+servers:
+- url: https://yourbaseurl.talon.one
+  description: Per-customer Talon.One deployment (replace yourbaseurl with your deployment domain)
+security:
+- integrationKey: []
+- managementKey: []
+tags:
+- name: Coupons
+  description: Coupon reservation (Integration) and coupon management (Management).
+paths:
+  /v1/coupon_reservations/{couponValue}:
+    post:
+      operationId: createCouponReservation
+      tags:
+      - Coupons
+      summary: Reserve coupon
+      description: Reserve a coupon code for one or more customer profiles.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/couponValue'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The coupon was reserved.
+    delete:
+      operationId: deleteCouponReservation
+      tags:
+      - Coupons
+      summary: Delete coupon reservation
+      description: Release a coupon reservation held for a customer profile.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/couponValue'
+      responses:
+        '204':
+          description: The reservation was released.
+  /v1/applications/{applicationId}/campaigns/{campaignId}/coupons:
+    post:
+      operationId: createCoupons
+      tags:
+      - Coupons
+      summary: Create coupons
+      description: Generate one or more coupon codes for a campaign.
+      security:
+      - managementKey: []
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The created coupons.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/applications/{applicationId}/campaigns/{campaignId}/coupons/no_total:
+    get:
+      operationId: listCoupons
+      tags:
+      - Coupons
+      summary: List coupons
+      description: List the coupons of a campaign without a total count (paginated).
+      security:
+      - managementKey: []
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      responses:
+        '200':
+          description: A list of coupons.
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  parameters:
+    campaignId:
+      name: campaignId
+      in: path
+      required: true
+      description: The ID of the campaign.
+      schema:
+        type: integer
+    couponValue:
+      name: couponValue
+      in: path
+      required: true
+      description: The coupon code value.
+      schema:
+        type: string
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application.
+      schema:
+        type: integer
+  securitySchemes:
+    integrationKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1 <your-key>".'
+    managementKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Management API key with the ManagementKey-v1 prefix, e.g. header "Authorization: ManagementKey-v1 <your-key>".'

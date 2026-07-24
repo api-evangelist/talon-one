@@ -1,0 +1,218 @@
+openapi: 3.0.3
+info:
+  title: Talon.One Account Customer Sessions API
+  description: 'Talon.One is an enterprise promotion, loyalty, and incentives engine. This OpenAPI description models the two primary REST surfaces Talon.One exposes. The Integration API (paths under /v1 and /v2 for customer_sessions, customer_profiles, events, coupon_reservations, referrals, loyalty_programs, audiences) pushes real-time customer data into the rules engine and returns the effects to apply. The Management API (paths under /v1 for applications, campaigns, coupons, loyalty_programs, audiences, attributes, collections, accounts, users, exports) administers the resources that back the Campaign Manager. Talon.One runs as a managed, per-customer deployment: replace the server base URL with your own deployment domain. Authenticate with the Authorization header - Integration keys use the ApiKey-v1 prefix and Management keys use the ManagementKey-v1 prefix. Endpoints and paths here are grounded in Talon.One''s public documentation and SDKs; request and response schemas are honestly simplified.'
+  version: '1.0'
+  contact:
+    name: Talon.One
+    url: https://docs.talon.one
+servers:
+- url: https://yourbaseurl.talon.one
+  description: Per-customer Talon.One deployment (replace yourbaseurl with your deployment domain)
+security:
+- integrationKey: []
+- managementKey: []
+tags:
+- name: Customer Sessions
+  description: Integration API - create and update customer sessions and receive effects.
+paths:
+  /v2/customer_sessions/{customerSessionId}:
+    get:
+      operationId: getCustomerSession
+      tags:
+      - Customer Sessions
+      summary: Get customer session
+      description: Retrieve the details of a customer session by its integration ID.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/customerSessionId'
+      responses:
+        '200':
+          description: The customer session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      operationId: updateCustomerSessionV2
+      tags:
+      - Customer Sessions
+      summary: Update customer session
+      description: Update or create a customer session and evaluate the Application's active campaigns against it. Returns the effects to apply - accepted coupons and referrals, discounts, and awarded loyalty points.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/customerSessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationRequest'
+      responses:
+        '200':
+          description: The updated session and the effects to apply.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /v2/customer_sessions/{customerSessionId}/reopen:
+    put:
+      operationId: reopenCustomerSession
+      tags:
+      - Customer Sessions
+      summary: Reopen customer session
+      description: Reopen a closed customer session so it can be updated again.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/customerSessionId'
+      responses:
+        '200':
+          description: The reopened session state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+  /v2/customer_sessions/{customerSessionId}/returns:
+    post:
+      operationId: returnCartItems
+      tags:
+      - Customer Sessions
+      summary: Return cart items
+      description: Create a return for one or more items in a closed customer session.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/customerSessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The session state after the return.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+components:
+  schemas:
+    IntegrationRequest:
+      type: object
+      description: A wrapper carrying the customer session payload and response controls.
+      properties:
+        customerSession:
+          $ref: '#/components/schemas/CustomerSession'
+        responseContent:
+          type: array
+          items:
+            type: string
+    CartItem:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        category:
+          type: string
+    CustomerSession:
+      type: object
+      description: A customer session evaluated against the Application's campaigns.
+      properties:
+        integrationId:
+          type: string
+        profileId:
+          type: string
+        state:
+          type: string
+          enum:
+          - open
+          - closed
+          - partially_returned
+          - cancelled
+        cartItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        couponCodes:
+          type: array
+          items:
+            type: string
+        referralCode:
+          type: string
+        total:
+          type: number
+        attributes:
+          type: object
+    IntegrationStateV2:
+      type: object
+      description: The evaluated session plus the effects to apply in the caller.
+      properties:
+        customerSession:
+          $ref: '#/components/schemas/CustomerSession'
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Effect'
+        loyalty:
+          type: object
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+    Effect:
+      type: object
+      description: A single effect returned by the rules engine (e.g. setDiscount, acceptCoupon, addLoyaltyPoints).
+      properties:
+        campaignId:
+          type: integer
+        rulesetId:
+          type: integer
+        name:
+          type: string
+        props:
+          type: object
+  responses:
+    Unauthorized:
+      description: The API key is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    customerSessionId:
+      name: customerSessionId
+      in: path
+      required: true
+      description: The integration ID of the customer session.
+      schema:
+        type: string
+  securitySchemes:
+    integrationKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1 <your-key>".'
+    managementKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Management API key with the ManagementKey-v1 prefix, e.g. header "Authorization: ManagementKey-v1 <your-key>".'

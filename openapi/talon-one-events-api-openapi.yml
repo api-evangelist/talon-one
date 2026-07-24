@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: Talon.One Account Events API
+  description: 'Talon.One is an enterprise promotion, loyalty, and incentives engine. This OpenAPI description models the two primary REST surfaces Talon.One exposes. The Integration API (paths under /v1 and /v2 for customer_sessions, customer_profiles, events, coupon_reservations, referrals, loyalty_programs, audiences) pushes real-time customer data into the rules engine and returns the effects to apply. The Management API (paths under /v1 for applications, campaigns, coupons, loyalty_programs, audiences, attributes, collections, accounts, users, exports) administers the resources that back the Campaign Manager. Talon.One runs as a managed, per-customer deployment: replace the server base URL with your own deployment domain. Authenticate with the Authorization header - Integration keys use the ApiKey-v1 prefix and Management keys use the ManagementKey-v1 prefix. Endpoints and paths here are grounded in Talon.One''s public documentation and SDKs; request and response schemas are honestly simplified.'
+  version: '1.0'
+  contact:
+    name: Talon.One
+    url: https://docs.talon.one
+servers:
+- url: https://yourbaseurl.talon.one
+  description: Per-customer Talon.One deployment (replace yourbaseurl with your deployment domain)
+security:
+- integrationKey: []
+- managementKey: []
+tags:
+- name: Events
+  description: Integration API - submit custom events that trigger rules.
+paths:
+  /v2/events:
+    post:
+      operationId: trackEventV2
+      tags:
+      - Events
+      summary: Track event
+      description: Submit a custom event tied to a customer session or profile. Events can trigger campaign rules and return effects.
+      security:
+      - integrationKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The effects triggered by the event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationStateV2'
+components:
+  schemas:
+    CustomerSession:
+      type: object
+      description: A customer session evaluated against the Application's campaigns.
+      properties:
+        integrationId:
+          type: string
+        profileId:
+          type: string
+        state:
+          type: string
+          enum:
+          - open
+          - closed
+          - partially_returned
+          - cancelled
+        cartItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        couponCodes:
+          type: array
+          items:
+            type: string
+        referralCode:
+          type: string
+        total:
+          type: number
+        attributes:
+          type: object
+    IntegrationStateV2:
+      type: object
+      description: The evaluated session plus the effects to apply in the caller.
+      properties:
+        customerSession:
+          $ref: '#/components/schemas/CustomerSession'
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Effect'
+        loyalty:
+          type: object
+    Effect:
+      type: object
+      description: A single effect returned by the rules engine (e.g. setDiscount, acceptCoupon, addLoyaltyPoints).
+      properties:
+        campaignId:
+          type: integer
+        rulesetId:
+          type: integer
+        name:
+          type: string
+        props:
+          type: object
+    CartItem:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        category:
+          type: string
+  securitySchemes:
+    integrationKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1 <your-key>".'
+    managementKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Management API key with the ManagementKey-v1 prefix, e.g. header "Authorization: ManagementKey-v1 <your-key>".'

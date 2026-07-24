@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: Talon.One Account Customer Profiles API
+  description: 'Talon.One is an enterprise promotion, loyalty, and incentives engine. This OpenAPI description models the two primary REST surfaces Talon.One exposes. The Integration API (paths under /v1 and /v2 for customer_sessions, customer_profiles, events, coupon_reservations, referrals, loyalty_programs, audiences) pushes real-time customer data into the rules engine and returns the effects to apply. The Management API (paths under /v1 for applications, campaigns, coupons, loyalty_programs, audiences, attributes, collections, accounts, users, exports) administers the resources that back the Campaign Manager. Talon.One runs as a managed, per-customer deployment: replace the server base URL with your own deployment domain. Authenticate with the Authorization header - Integration keys use the ApiKey-v1 prefix and Management keys use the ManagementKey-v1 prefix. Endpoints and paths here are grounded in Talon.One''s public documentation and SDKs; request and response schemas are honestly simplified.'
+  version: '1.0'
+  contact:
+    name: Talon.One
+    url: https://docs.talon.one
+servers:
+- url: https://yourbaseurl.talon.one
+  description: Per-customer Talon.One deployment (replace yourbaseurl with your deployment domain)
+security:
+- integrationKey: []
+- managementKey: []
+tags:
+- name: Customer Profiles
+  description: Integration API - sync customer profile data and read inventory.
+paths:
+  /v2/customer_profiles/{integrationId}:
+    put:
+      operationId: updateCustomerProfileV2
+      tags:
+      - Customer Profiles
+      summary: Update customer profile
+      description: Update or create a customer profile identified by its integration ID.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/integrationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerProfileUpdate'
+      responses:
+        '200':
+          description: The updated customer profile and effects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfileIntegrationResponseV2'
+  /v1/customer_profiles/{integrationId}/inventory:
+    get:
+      operationId: getCustomerInventory
+      tags:
+      - Customer Profiles
+      summary: Get customer's loyalty and coupon inventory
+      description: Return the coupons, referrals, loyalty balances, and giveaways currently available to a customer profile.
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/integrationId'
+      responses:
+        '200':
+          description: The customer inventory.
+          content:
+            application/json:
+              schema:
+                type: object
+  /v1/customer_data/{integrationId}:
+    delete:
+      operationId: deleteCustomerData
+      tags:
+      - Customer Profiles
+      summary: Delete customer's personal data
+      description: Delete all personal data associated with a customer profile (GDPR).
+      security:
+      - integrationKey: []
+      parameters:
+      - $ref: '#/components/parameters/integrationId'
+      responses:
+        '204':
+          description: The customer data was deleted.
+components:
+  schemas:
+    Effect:
+      type: object
+      description: A single effect returned by the rules engine (e.g. setDiscount, acceptCoupon, addLoyaltyPoints).
+      properties:
+        campaignId:
+          type: integer
+        rulesetId:
+          type: integer
+        name:
+          type: string
+        props:
+          type: object
+    CustomerProfileUpdate:
+      type: object
+      properties:
+        attributes:
+          type: object
+        audiencesChanges:
+          type: object
+    CustomerProfileIntegrationResponseV2:
+      type: object
+      properties:
+        profile:
+          type: object
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Effect'
+  parameters:
+    integrationId:
+      name: integrationId
+      in: path
+      required: true
+      description: The integration ID of the customer profile.
+      schema:
+        type: string
+  securitySchemes:
+    integrationKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1 <your-key>".'
+    managementKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'Management API key with the ManagementKey-v1 prefix, e.g. header "Authorization: ManagementKey-v1 <your-key>".'
