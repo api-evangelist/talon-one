@@ -1,0 +1,38 @@
+{
+  "provider": "talon-one",
+  "sources": [
+    "talon-one-account-api-openapi.yml",
+    "talon-one-applications-api-openapi.yml",
+    "talon-one-attributes-api-openapi.yml",
+    "talon-one-audiences-api-openapi.yml",
+    "talon-one-campaigns-api-openapi.yml",
+    "talon-one-collections-api-openapi.yml",
+    "talon-one-coupons-api-openapi.yml",
+    "talon-one-customer-profiles-api-openapi.yml",
+    "talon-one-customer-sessions-api-openapi.yml",
+    "talon-one-events-api-openapi.yml",
+    "talon-one-exports-api-openapi.yml",
+    "talon-one-loyalty-api-openapi.yml",
+    "talon-one-referrals-api-openapi.yml"
+  ],
+  "outputs": [
+    "talon-one-account-api-openapi.yml",
+    "talon-one-applications-api-openapi.yml",
+    "talon-one-attributes-api-openapi.yml",
+    "talon-one-audiences-api-openapi.yml",
+    "talon-one-campaigns-api-openapi.yml",
+    "talon-one-collections-api-openapi.yml",
+    "talon-one-coupons-api-openapi.yml",
+    "talon-one-customer-profiles-api-openapi.yml",
+    "talon-one-customer-sessions-api-openapi.yml",
+    "talon-one-events-api-openapi.yml",
+    "talon-one-exports-api-openapi.yml",
+    "talon-one-loyalty-api-openapi.yml",
+    "talon-one-referrals-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
