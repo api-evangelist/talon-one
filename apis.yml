@@ -2,19 +2,15 @@ aid: talon-one
 url: https://raw.githubusercontent.com/api-evangelist/talon-one/refs/heads/main/apis.yml
 name: Talon.One
 kind: company
-description: Talon.One is an enterprise promotion, loyalty, and incentives engine
-  that lets teams build and run coupons, discounts, referrals, bundles, giveaways,
-  and multi-tier loyalty programs from a single rules-based platform. It exposes two
-  primary REST APIs. The Integration API pushes real-time customer sessions, profiles,
-  and events into the rules engine and returns the effects (discounts, awarded
-  loyalty points, accepted coupons) to apply in the calling application. The
-  Management API programmatically administers applications, campaigns, rulesets,
-  coupons, loyalty programs, audiences, custom attributes, collections, and
-  analytics exports that back the Campaign Manager. Talon.One is delivered as a
-  managed, per-customer deployment; each account calls its own base URL
-  (https://yourbaseurl.talon.one) and authenticates with an API key whose prefix
-  distinguishes the Integration key (ApiKey-v1) from the Management key
-  (ManagementKey-v1).
+description: Talon.One is an enterprise promotion, loyalty, and incentives engine that lets teams build
+  and run coupons, discounts, referrals, bundles, giveaways, and multi-tier loyalty programs from a single
+  rules-based platform. It exposes two primary REST APIs. The Integration API pushes real-time customer
+  sessions, profiles, and events into the rules engine and returns the effects (discounts, awarded loyalty
+  points, accepted coupons) to apply in the calling application. The Management API programmatically administers
+  applications, campaigns, rulesets, coupons, loyalty programs, audiences, custom attributes, collections,
+  and analytics exports that back the Campaign Manager. Talon.One is delivered as a managed, per-customer
+  deployment; each account calls its own base URL (https://yourbaseurl.talon.one) and authenticates with
+  an API key whose prefix distinguishes the Integration key (ApiKey-v1) from the Management key (ManagementKey-v1).
 accessModel:
   pricing: paid
   onboarding: self-serve
@@ -38,374 +34,150 @@ tags:
 - Personalization
 - MarTech
 - Rules Engine
+- Referrals
+- Discounts
+- Ecommerce
+- Retail
 created: '2026-07-10'
-modified: '2026-07-10'
+modified: '2026-08-13'
 specificationVersion: '0.19'
 apis:
-- aid: talon-one:talon-one-account-api
-  name: Talon.One Account API
-  description: Management API - accounts, users, and sessions.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Account
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-account-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-applications-api
-  name: Talon.One Applications API
-  description: Management API - Applications and their health.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Applications
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-applications-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-attributes-api
-  name: Talon.One Attributes API
-  description: Management API - custom attributes.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Attributes
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-attributes-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-audiences-api
-  name: Talon.One Audiences API
-  description: Manage audiences and their memberships.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Audiences
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-audiences-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-campaigns-api
-  name: Talon.One Campaigns API
-  description: Management API - campaigns and rulesets.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Campaigns
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-campaigns-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-collections-api
-  name: Talon.One Collections API
-  description: Management API - account and campaign collections.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Collections
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-collections-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-coupons-api
-  name: Talon.One Coupons API
-  description: Coupon reservation (Integration) and coupon management (Management).
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Coupons
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-coupons-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-customer-profiles-api
-  name: Talon.One Customer Profiles API
-  description: Integration API - sync customer profile data and read inventory.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Customer Profiles
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-customer-profiles-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-customer-sessions-api
-  name: Talon.One Customer Sessions API
-  description: Integration API - create and update customer sessions and receive effects.
-  humanURL: https://docs.talon.one/integration-api
+- aid: talon-one:talon-one-integration-api
+  name: Talon.One Integration API
+  description: Real-time, high-traffic Integration API. Send customer sessions, customer profiles, events,
+    cart item catalogs and loyalty activity into the Talon.One Rule Engine and receive back the effects
+    (discounts, coupons, loyalty points, referrals, achievements) to apply in the calling application.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
   - Customer Sessions
+  - Customer Profiles
+  - Events
+  - Coupons
+  - Loyalty
+  - Referrals
+  - Achievements
+  - Catalogs
+  - Audiences
   properties:
   - type: OpenAPI
-    url: openapi/talon-one-customer-sessions-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
+    url: openapi/talon-one-integration-api-openapi.yml
+  - type: Overlay
+    url: overlays/talon-one-integration-api-overlay.yaml
   - type: APIReference
     url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
   - type: PostmanCollection
     url: collections/talon-one.postman_collection.json
   - type: OpenCollection
     url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+- aid: talon-one:talon-one-management-api
+  name: Talon.One Management API
+  description: 'Back-office Management API that programmatically does what the Campaign Manager UI does:
+    applications, campaigns, rulesets, campaign templates, coupons, referrals, giveaways, loyalty programs
+    and cards, achievements, audiences, custom attributes, collections, catalogs, stores, store budgets,
+    value maps, experiments, analytics exports, webhooks, roles, users and logs.'
+  humanURL: https://docs.talon.one/docs/dev/management-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Campaigns
+  - Coupons
+  - Loyalty
+  - Applications
+  - Attributes
+  - Audiences
+  - Collections
+  - Catalogs
+  - Analytics
+  - Webhooks
+  - Roles
+  - Stores
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-management-api-openapi.yml
+  - type: Overlay
+    url: overlays/talon-one-management-api-overlay.yaml
   - type: APIReference
     url: https://docs.talon.one/management-api
   - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+- aid: talon-one:talon-one-third-party-api
+  name: Talon.One Third-party API
+  description: Third-party API used by customer data platforms (CDPs) and customer engagement platforms
+    (CEPs) to exchange data with Talon.One. Ships platform-specific endpoint families for Braze, Emarsys,
+    Iterable, mParticle and Segment plus generic CDP and CEP endpoints. All endpoints are served from
+    the shared host https://integration.talon.one and take the customer deployment as a parameter.
+  humanURL: https://docs.talon.one/docs/dev/technology-partners/overview
+  baseURL: https://integration.talon.one
+  tags:
+  - Braze
+  - Emarsys
+  - Iterable
+  - mParticle
+  - Segment
+  - CDP
+  - CEP
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-third-party-api-openapi.yml
+  - type: Overlay
+    url: overlays/talon-one-third-party-api-overlay.yaml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
   - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+- aid: talon-one:talon-one-shopify-integration-api
+  name: Talon.One Shopify Integration API
+  description: Shopify Integration API used by the Talon.One Shopify app to update customer sessions and
+    customer profiles from a Shopify storefront, authenticated with a Shopify Customer Account API token
+    or a Shopify JWT. Served from the dedicated Talon.One host https://shopify-integration.europe-west1.talon.one.
+  humanURL: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  baseURL: https://shopify-integration.europe-west1.talon.one
+  tags:
+  - Shopify
+  - Customer Profiles
+  - Customer Sessions
+  - Ecommerce
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-shopify-integration-api-openapi.yml
+  - type: Overlay
+    url: overlays/talon-one-shopify-integration-api-overlay.yaml
   - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-events-api
-  name: Talon.One Events API
-  description: Integration API - submit custom events that trigger rules.
-  humanURL: https://docs.talon.one/integration-api
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+- aid: talon-one:talon-one-outbound-notifications
+  name: Talon.One Outbound Notifications
+  description: 'Outbound notification (webhook) catalog published by Talon.One as an OpenAPI 3.1 document
+    whose webhooks{} block carries the payload schema of every notification Talon.One POSTs to a customer
+    endpoint: campaign, coupon, loyalty, loyalty-card and strikethrough-pricing notifications.'
+  humanURL: https://docs.talon.one/docs/dev/get-started/webhooks
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Webhooks
+  - Notifications
   - Events
   properties:
   - type: OpenAPI
-    url: openapi/talon-one-events-api-openapi.yml
+    url: openapi/talon-one-outbound-notifications-openapi.yml
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
   - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
   - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-exports-api
-  name: Talon.One Exports API
-  description: Management API - analytics, coupon, and effect exports.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Exports
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-exports-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-loyalty-api
-  name: Talon.One Loyalty API
-  description: Loyalty program balances, points, cards, and transactions.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Loyalty
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-loyalty-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
-- aid: talon-one:talon-one-referrals-api
-  name: Talon.One Referrals API
-  description: Create and manage referral codes.
-  humanURL: https://docs.talon.one/integration-api
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Referrals
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-referrals-api-openapi.yml
-  - type: Documentation
-    url: https://docs.talon.one/docs/dev/integration-api/api-effects
-  - type: APIReference
-    url: https://docs.talon.one/integration-api
-  - type: PostmanCollection
-    url: collections/talon-one.postman_collection.json
-  - type: OpenCollection
-    url: collections/talon-one.opencollection.json
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/account/dev-info/managing-api-keys
-  - type: APIReference
-    url: https://docs.talon.one/management-api
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/overview
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/campaigns/coupons/creating-coupons
-  - type: Documentation
-    url: https://docs.talon.one/docs/product/loyalty-programs/overview
+    url: https://docs.talon.one/outbound-notifications
 common:
 - type: AgenticAccess
   url: agentic-access/talon-one-agentic-access.yml
@@ -422,7 +194,7 @@ common:
 - type: Documentation
   url: https://docs.talon.one
 - type: SignUp
-  url: https://www.talon.one/demo
+  url: https://www.talon.one/book-a-demo
 - type: Plans
   url: plans/talon-one-plans-pricing.yml
 - type: RateLimits
@@ -431,6 +203,69 @@ common:
   url: finops/talon-one-finops.yml
 - url: https://www.talon.one/blog
   type: Blog
+- type: Packages
+  url: packages/talon-one-packages.yml
+- type: SDKs
+  url: packages/talon-one-packages.yml
+- type: MCPServer
+  url: mcp/talon-one-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/talon-one-tool-crosswalk.yml
+- type: LLMsTxt
+  url: llms/talon-one-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Conformance
+  url: conformance/talon-one-conformance.yml
+- type: Compliance
+  url: security/talon-one-trust-center.yml
+- type: TrustCenter
+  url: security/talon-one-trust-center.yml
+- type: ErrorCatalog
+  url: errors/talon-one-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/talon-one-lifecycle.yml
+- type: StatusPage
+  url: https://status.talon.one/
+- type: Deprecation
+  url: lifecycle/talon-one-lifecycle.yml
+- type: Conventions
+  url: conventions/talon-one-conventions.yml
+- type: Idempotency
+  url: conventions/talon-one-conventions.yml
+- type: ChangeLog
+  url: changelog/talon-one-changelog.yml
+- type: ChangeLog
+  url: https://docs.talon.one/whats-new
+- type: Sandbox
+  url: sandbox/talon-one-sandbox.yml
+- type: DataModel
+  url: data-model/talon-one-data-model.yml
+- type: Webhooks
+  url: asyncapi/talon-one-webhooks.yml
+- type: Overlay
+  url: overlays/talon-one-integration-api-overlay.yaml
+- type: DeveloperPortal
+  url: https://docs.talon.one/docs/dev/get-started/overview
+- type: APIReference
+  url: https://docs.talon.one/integration-api
+- type: GettingStarted
+  url: https://docs.talon.one/docs/dev/quickstart
+- type: Postman
+  url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+- type: Pricing
+  url: https://www.talon.one/pricing
+- type: TermsOfService
+  url: https://www.talon.one/legal/terms-of-use
+- type: PrivacyPolicy
+  url: https://www.talon.one/legal/privacy-policy
+- type: Support
+  url: https://www.talon.one/contact-us
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
+x-enrichment:
+  date: '2026-08-13'
+  status: enriched
+  artifacts_added: 30
+  pass: local-v1
