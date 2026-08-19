@@ -40,7 +40,7 @@ tags:
 - Retail
 created: '2026-07-10'
 modified: '2026-08-13'
-specificationVersion: '0.19'
+specificationVersion: '0.23'
 apis:
 - aid: talon-one:talon-one-integration-api
   name: Talon.One Integration API
