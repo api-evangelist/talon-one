@@ -1,0 +1,43 @@
+overlay: 1.0.0
+info:
+  title: Talon.One Management API — API Evangelist enhancements
+  version: 1.0.0
+extends: openapi/talon-one-management-api-openapi.yml
+x-provenance:
+  generated: '2026-08-13'
+  method: generated
+  source: https://docs.talon.one/oas/ + API Evangelist artifacts in this repository
+  note: Additive only. The published specification is stored verbatim and is never mutated; this overlay
+    records the metadata Talon.One leaves out (contact, terms, license, an info.version) and links the
+    profile artifacts derived from it.
+actions:
+- target: $.info
+  description: Add the publisher metadata the published document omits.
+  update:
+    contact:
+      name: Talon.One
+      url: https://www.talon.one/
+      x-docs: https://docs.talon.one
+    termsOfService: https://www.talon.one/legal/terms-of-use
+    x-changelog: https://docs.talon.one/whats-new
+    x-status-page: https://status.talon.one/
+    x-api-reference: https://docs.talon.one/management-api
+- target: $.info
+  description: Link the API Evangelist artifacts derived from this specification.
+  update:
+    x-apievangelist:
+      provider: talon-one
+      authentication: authentication/talon-one-authentication.yml
+      conventions: conventions/talon-one-conventions.yml
+      errors: errors/talon-one-problem-types.yml
+      lifecycle: lifecycle/talon-one-lifecycle.yml
+      rate_limits: rate-limits/talon-one-rate-limits.yml
+      mcp: mcp/talon-one-mcp.yml
+      tool_crosswalk: mcp/talon-one-tool-crosswalk.yml
+- target: $.servers[0]
+  description: Record that the base URL is a per-customer deployment placeholder rather than a callable
+    host.
+  update:
+    x-deployment-model: per-customer
+    x-base-url-note: Talon.One is delivered as a managed per-customer deployment. Replace the host with
+      your own deployment domain, for example https://mycompany.europe-west1.talon.one.

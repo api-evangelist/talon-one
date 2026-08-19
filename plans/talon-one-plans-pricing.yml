@@ -1,10 +1,13 @@
+generated: '2026-08-13'
+method: searched
+source: https://www.talon.one/pricing
 specification: API Commons Plans
 specificationVersion: '0.1'
 schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
 provider: Talon.One
 providerId: talon-one
 created: '2026-07-10'
-modified: '2026-07-10'
+modified: '2026-08-13'
 reconciled: false
 tags:
 - Promotions
@@ -12,35 +15,32 @@ tags:
 - Coupons
 - Incentives
 - Plans
-description: >-
-  Talon.One is sold as an enterprise SaaS platform with custom, contact-sales
-  pricing rather than public self-service tiers. Talon.One publicly names three
-  package levels - Starter, Professional, and Enterprise - and prices each on the
-  volume of data used to run promotions (transaction / session volume) rather than
-  on a public per-API-call rate. All packages include unlimited access to the
-  product features; the difference is scale, support, and platform capabilities.
-  Access is granted through a sales engagement and demo. There is no public free
-  tier or public per-request price for the Integration or Management API; API use
-  is included in the platform subscription. Exact figures are not reconciled here.
-notes: >-
-  Third-party marketplaces suggest entry pricing on the order of ~EUR 1,500/month
-  with additional implementation cost, but Talon.One does not publish official
-  numbers. Package names (Starter / Professional / Enterprise) and the
-  data-volume-based model come from Talon.One's pricing page. Confirm current
-  packages, volume bands, and terms directly with Talon.One sales during
-  reconciliation.
+description: Talon.One is sold as an enterprise SaaS platform with custom, contact-sales pricing rather
+  than public self-service tiers. Talon.One publicly names three package levels - Starter, Professional,
+  and Enterprise - and prices each on the volume of data used to run promotions (transaction / session
+  volume) rather than on a public per-API-call rate. All packages include unlimited access to the product
+  features; the difference is scale, support, and platform capabilities. Access is granted through a sales
+  engagement and demo. There is no public free tier or public per-request price for the Integration or
+  Management API; API use is included in the platform subscription. Exact figures are not reconciled here.
+notes: Re-read from https://www.talon.one/pricing on 2026-08-13. The three package names (Starter, Professional,
+  Enterprise) and the feature lists above are quoted from that page; no prices, volume bands or currencies
+  are published for any tier, so every price field below stays "custom". The only quantified figure on
+  the page is the Starter line "individual pricing scheme with at least 500k coupons". Third-party marketplaces
+  suggest entry pricing on the order of EUR 1,500/month plus implementation, which is NOT a Talon.One-published
+  number and is recorded here only as an unreconciled third-party claim. Webhook integrations are a Professional-tier
+  feature, and the number of webhooks an account may create is contractual (visible in the Campaign Manager
+  under Account > Usage & Limits).
 sources:
 - https://www.talon.one/pricing
-- https://www.talon.one/api-documentation
 - https://docs.talon.one
+- https://docs.talon.one/docs/dev/get-started/webhooks
 plans:
 - id: talon-one-starter
   name: Starter
   type: subscription
-  description: >-
-    Entry package for teams beginning with promotions, coupons, and basic
-    loyalty. Includes full access to the Integration and Management APIs within a
-    lower data-volume band. Custom, contact-sales pricing.
+  description: Entry package for teams beginning with promotions, coupons, and basic loyalty. Includes
+    full access to the Integration and Management APIs within a lower data-volume band. Custom, contact-sales
+    pricing.
   entries:
   - label: Promotion Data Volume
     name: starter_data_volume
@@ -60,10 +60,9 @@ plans:
 - id: talon-one-professional
   name: Professional
   type: subscription
-  description: >-
-    Mid-tier package for scaling promotion and loyalty programs across more
-    Applications and higher data volumes, with advanced campaign features and
-    additional support. Custom, contact-sales pricing.
+  description: Mid-tier package for scaling promotion and loyalty programs across more Applications and
+    higher data volumes, with advanced campaign features and additional support. Custom, contact-sales
+    pricing.
   entries:
   - label: Promotion Data Volume
     name: professional_data_volume
@@ -84,11 +83,9 @@ plans:
 - id: talon-one-enterprise
   name: Enterprise
   type: enterprise
-  description: >-
-    Enterprise package for high-volume, mission-critical promotion and loyalty
-    operations, with a dedicated per-customer deployment (own base URL and deploy
-    region), SLAs, security reviews, SSO, premium support, and negotiated terms.
-    Contact Talon.One.
+  description: Enterprise package for high-volume, mission-critical promotion and loyalty operations,
+    with a dedicated per-customer deployment (own base URL and deploy region), SLAs, security reviews,
+    SSO, premium support, and negotiated terms. Contact Talon.One.
   entries:
   - label: Enterprise Agreement
     name: enterprise
@@ -109,3 +106,33 @@ plans:
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
+plan_count: 3
+public_pricing: false
+billing_model: Annual enterprise subscription priced on data volume (the promotion/transaction volume
+  the deployment is sized for). API calls are included in the subscription; there is no published per-call
+  price.
+currency: null
+sales_gate: Every tier ends in a "Get started" call-to-action that opens a talk-to-sales form; no self-service
+  checkout exists.
+tier_features_published:
+  Starter:
+  - Individual pricing scheme with at least 500k coupons
+  - Holistic promotion suite
+  - Onboarding and support
+  - All 3rd party integrations
+  - Staging environment & SDK library
+  - Audit logs, user roles & access levels
+  Professional:
+  - Everything in Starter
+  - Expert technical support
+  - Webhook integrations
+  - Dedicated Customer Success Manager
+  - Dedicated database server
+  - Support for campaign setup & user training
+  Enterprise:
+  - Everything in Professional
+  - Enterprise-grade scalability
+  - Individual user onboarding
+  - Instant troubleshooting and response
+  - Unlimited users & webhooks
+  - Customized SLAs

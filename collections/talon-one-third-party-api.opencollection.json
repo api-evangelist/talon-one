@@ -1,0 +1,1219 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Third-party API"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Braze",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create referral (Braze)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/braze/referral",
+            "headers": [
+              {
+                "name": "X-DRY-RUN",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a referral code in Talon.One. To use it in your Braze deployment, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/braze/creating-referrals-braze).\n"
+        },
+        {
+          "info": {
+            "name": "Create coupon (Braze)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/braze/coupon",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a coupon code in Talon.One. To use it in your Braze deployment, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/braze/creating-coupons-braze).\n\nYou can also use this endpoint to get an existing coupon's details by setting the `identifier` property to a value you previously used.\n\n> [!tip]\n> You can edit the default coupon code format in the [campaign's settings](https://docs.talon.one/docs/product/campaigns/coupons/coupon-page-overview#editing-coupon-format).\n"
+        },
+        {
+          "info": {
+            "name": "Create coupon reservation (Braze)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/braze/coupon_reservation",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a coupon reservation for a specified customer profile on the specified coupon.\n"
+        },
+        {
+          "info": {
+            "name": "Track event (Braze)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/braze/event",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Triggers a custom event inside Talon.One. You can then trigger rules when this event is received.\n\nAn event is a type of custom attribute. You must create it first in the Campaign Manager. See [creating custom events](https://docs.talon.one/docs/dev/concepts/entities/events#custom-events).\nTo see the events received by your Application in Talon.One, open the Application and click **Events**.\n\nFor more information, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/braze/addin"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Iterable",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create coupon (Iterable)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://integration.talon.one/iterable/coupon",
+            "params": [
+              {
+                "name": "deployment",
+                "value": "mycompany.europe-west1.talon.one",
+                "type": "query",
+                "description": "The base URL of your Talon.One deployment."
+              },
+              {
+                "name": "applicationId",
+                "value": "316",
+                "type": "query",
+                "description": "The ID of the Application in Talon.One. It is displayed in your Talon.One deployment URL."
+              },
+              {
+                "name": "campaignId",
+                "value": "5843",
+                "type": "query",
+                "description": "The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL."
+              },
+              {
+                "name": "startDate",
+                "value": "2022-09-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes usable."
+              },
+              {
+                "name": "expiryDate",
+                "value": "2022-10-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes unusable."
+              },
+              {
+                "name": "discountLimit",
+                "value": "155",
+                "type": "query",
+                "description": "The discount amount the coupon is worth. Can be blank if, for example, the coupon provides a 10% discount, or something other than a fixed value of discounts."
+              },
+              {
+                "name": "iterableCampaignId",
+                "value": "iterableCampaign",
+                "type": "query",
+                "description": "The ID of the campaign in Iterable."
+              },
+              {
+                "name": "recipientIntegrationId",
+                "value": "URN-GV8294NV",
+                "type": "query",
+                "description": "The integration ID of the only customer that can use the generated coupon code. Leave blank to allow any user to use the coupon."
+              },
+              {
+                "name": "usageLimit",
+                "value": "1",
+                "type": "query",
+                "description": "The number of times the coupon code can be redeemed. 0 means unlimited redemptions but any campaign usage limits will still apply. The default value is 1."
+              },
+              {
+                "name": "attributes",
+                "value": "[object Object]",
+                "type": "query",
+                "description": "Optional parameter to set the value of custom attributes. They are defined in the Campaign Manager,\nsee [Managing attributes](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).\n\nPrefix each attribute name with `.` or `_`. \n\nCertain attributes can also be set to _mandatory_ in your Application [settings](https://docs.talon.one/docs/product/applications/using-attributes#making-attributes-mandatory).\nIf your Application uses mandatory attributes, you must use this parameter to set their value.\n\nThe type of the value must match the type of the attribute. If you provide an integer value, the attribute must also be of type Integer in Talon.One.\n\nIf the types do not match, and the attribute in Talon.One is of type String, put the value in quotes. For example, if you provide a Boolean value for a String attribute, use `\"true\"` and `\"false\"`. \n\nFull URI example: `https://<url>?applicationId=5&.myIntegerAttribute=1234&.myStringAttribute1=Text&.myStringAttribute2=\"1234\"&.myStringAttribute3=\"true\"`.\n"
+              }
+            ]
+          },
+          "docs": "Create a coupon code in Talon.One. To use it in your Iterable deployment and generate\nthe request, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/iterable/creating-coupons-iterable).\n\n> [!tip]\n> You can edit the default coupon code format in the [campaign's settings](https://docs.talon.one/docs/product/campaigns/coupons/coupon-page-overview#editing-coupon-format).\n"
+        },
+        {
+          "info": {
+            "name": "Create referral (Iterable)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://integration.talon.one/iterable/referral",
+            "params": [
+              {
+                "name": "deployment",
+                "value": "mycompany.europe-west1.talon.one",
+                "type": "query",
+                "description": "The base URL of your Talon.One deployment."
+              },
+              {
+                "name": "campaignId",
+                "value": "5843",
+                "type": "query",
+                "description": "The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL."
+              },
+              {
+                "name": "advocateProfileIntegrationId",
+                "value": "testAdvocateProfile",
+                "type": "query",
+                "description": "The integration ID of the advocate."
+              },
+              {
+                "name": "friendProfileIntegrationId",
+                "value": "testFriendProfile",
+                "type": "query",
+                "description": "The profile ID of the referred customer."
+              },
+              {
+                "name": "startDate",
+                "value": "2022-09-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes usable."
+              },
+              {
+                "name": "expiryDate",
+                "value": "2022-10-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes unusable."
+              },
+              {
+                "name": "usageLimit",
+                "value": "1",
+                "type": "query",
+                "description": "Number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply."
+              },
+              {
+                "name": "attributes",
+                "value": "[object Object]",
+                "type": "query",
+                "description": "Optional parameter to set the value of custom attributes. They are defined in the Campaign Manager,\nsee [Managing attributes](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).\n\nPrefix each attribute name with `.` or `_`. \n\nCertain attributes can also be set to _mandatory_ in your Application [settings](https://docs.talon.one/docs/product/applications/using-attributes#making-attributes-mandatory).\nIf your Application uses mandatory attributes, you must use this parameter to set their value.\n\nThe type of the value must match the type of the attribute. If you provide an integer value, the attribute must also be of type Integer in Talon.One.\n\nIf the types do not match, and the attribute in Talon.One is of type String, put the value in quotes. For example, if you provide a Boolean value for a String attribute, use `\"true\"` and `\"false\"`. \n\nFull URI example: `https://<url>?applicationId=5&.myIntegerAttribute=1234&.myStringAttribute1=Text&.myStringAttribute2=\"1234\"&.myStringAttribute3=\"true\"`.\n"
+              }
+            ]
+          },
+          "docs": "Create a referral code in Talon.One. To use it in your Iterable deployment and generate\nthe request, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/iterable/creating-referral-iterable).\n"
+        },
+        {
+          "info": {
+            "name": "Get loyalty ledger (Iterable)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://integration.talon.one/iterable/loyalty",
+            "params": [
+              {
+                "name": "deployment",
+                "value": "mycompany.europe-west1.talon.one",
+                "type": "query",
+                "description": "The base URL of your Talon.One deployment."
+              },
+              {
+                "name": "profileIntegrationId",
+                "value": "URN-GV8294NV",
+                "type": "query",
+                "description": "The integration ID of the customer profile in Talon.One."
+              },
+              {
+                "name": "loyaltyProgramId",
+                "value": "25",
+                "type": "query",
+                "description": "The ID of the profile-based loyalty program in Talon.One."
+              }
+            ]
+          },
+          "docs": "Get the loyalty ledger information of the given customer profile from Talon.One. To use it in your Iterable deployment and generate\nthe request, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/iterable/getting-loyalty-iterable).\n\nThis endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Segment",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Upsert customer profile v1 (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/customer_profile/:customerProfileId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "customerProfileId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. If the customer profile does not exist, it will be created."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "> [!warning] **This endpoint is deprecated.**\n> We recommend you use the current [Update customer profile](#tag/Segment/operation/segment/v2/updateCustomerProfile) endpoint.\n\nCreate or update the given customer profile, and creates or set the specified attributes. You can also\nuse this endpoint to specify which audiences this customer has joined or left.\n\n> [!note] **Note**\n> The audiences must be created first using [Create audience](#tag/Segment/operation/segment/createAudience).\n"
+        },
+        {
+          "info": {
+            "name": "Upsert customer profile v2 (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/customer_profile_v2/:customerProfileId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "customerProfileId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "> [!warning] **This endpoint is deprecated.**\n> We recommend you use the current [Update customer profile](#tag/Segment/operation/segment/v2/updateCustomerProfile) endpoint.\n\nCreate or update the given customer profile, and also creates or set the specified attributes and audiences.\n\nYou **do not** have to create attributes or audiences before using this endpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Update customer profile (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/v2/customer_profiles/:customerProfileId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "skipNonExistingAttributes",
+                "value": "true",
+                "type": "query",
+                "description": "Indicates whether to skip non-existing attributes.\n\nIf `true`, the non-existing attributes are skipped and a 400 error is not returned.\n\nIf `false`, a 400 error is returned in case of non-existing attributes.\n"
+              },
+              {
+                "name": "customerProfileId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. If the customer profile does not exist, it will be created."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update or create a [customer profile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles). This endpoint triggers the Rule Builder.\n\nYou can use this endpoint for the following tasks:\n- Set attributes for the given customer profile. Ensure you create the attributes in the Campaign Manager first.\n- Add the customer profile to audiences or remove it from audiences.\n"
+        },
+        {
+          "info": {
+            "name": "Update customer profile audiences using external ID (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/customer_profiles/:customerProfileId/audiences",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "customerProfileId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. If the customer profile does not exist, it will be created."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Add a [customer profile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles) to or remove it from a list of audiences. This endpoint triggers the Rule Builder.\n\nTo identify the audience, you can use its ID in Segment.\n"
+        },
+        {
+          "info": {
+            "name": "Update audiences in multiple customer profiles (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/customer_profiles/audiences",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the specified audiences for the specified profiles.\n\nIf a provided customer profile doesn't exist, it will be created.\n"
+        },
+        {
+          "info": {
+            "name": "Update audiences in multiple customer profiles using external ID (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/v2/customer_profiles/audiences",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the specified audiences for the specified profiles. To identify the audience, you can use its ID in the third-party integration.\n\nIf a provided customer profile doesn't exist, it will be created.\n"
+        },
+        {
+          "info": {
+            "name": "Track event v1 (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/event",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "**Important:** This endpoint is deprecated. We recommend you use the current [Track Event](#tag/Segment/operation/segment/trackEventV2) endpoint.\n\n<blockquote>Triggers a custom event inside Talon.One. You can then trigger rules when this event is received.\n\nAn event is a type of custom attribute, you must create it first in the Campaign Manager. See [creating custom events](https://docs.talon.one/docs/dev/concepts/entities/events#custom-events).\nTo see the events received by your Application in "
+        },
+        {
+          "info": {
+            "name": "Track event v2 (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/v2/events",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "skipNonExistingAttributes",
+                "value": "true",
+                "type": "query",
+                "description": "Indicates whether to skip non-existing attributes.\n\nIf `true`, the non-existing attributes are skipped and a 400 error is not returned.\n\nIf `false`, a 400 error is returned in case of non-existing attributes.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Trigger a custom event inside Talon.One. You can then trigger rules when this event is received.\n\nAn event is a type of custom attribute, you must create it first in the Campaign Manager. See [creating custom events](https://docs.talon.one/docs/dev/concepts/entities/events#custom-events).\nTo see the events received by your Application in Talon.One, open the Application and click **Events**.\n\nIf the specified session already exists, it must belong to the same `profileId`, or else an error is retu"
+        },
+        {
+          "info": {
+            "name": "Create audience (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/segment/audiences",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an audience. The audience can be created directly from scratch or can come from Segment.\n\nOnce you create your first audience, audience-specific rule conditions are enabled in the Rule Builder\n"
+        },
+        {
+          "info": {
+            "name": "Update audience (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/audiences/:audienceId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "audience1",
+                "type": "path",
+                "description": "The integration ID of the audience."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an audience.\n"
+        },
+        {
+          "info": {
+            "name": "Delete audience (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://integration.talon.one/segment/audiences/:audienceId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "audience1",
+                "type": "path",
+                "description": "The integration ID of the audience."
+              }
+            ]
+          },
+          "docs": "Delete the audience.\n\n**Warning:** This endpoint also removes any associations recorded between a customer profile and this audience.\n"
+        },
+        {
+          "info": {
+            "name": "Update customer session v1 (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/customer_sessions/:customerSessionId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              },
+              {
+                "name": "X-Callback-Destination-URI",
+                "value": "http://mydomain.com/api/callbacks"
+              },
+              {
+                "name": "X-Callback-API-Key",
+                "value": "Authorization 3aa74d582bd9479c59e16f970fe13bf3"
+              },
+              {
+                "name": "X-Content-Fields",
+                "value": "customerProfile"
+              },
+              {
+                "name": "X-Correlation-ID",
+                "value": "abc123"
+              }
+            ],
+            "params": [
+              {
+                "name": "customerSessionId",
+                "value": "session1",
+                "type": "path",
+                "description": "The `integration ID` of the customer session. You set this ID when you create a customer session.\n\nYou can see existing customer session integration IDs in the Campaign Manager's **Sessions** menu, or via the\n[List Application session endpoint](https://docs.talon.one/management-api#operation/getApplicationSessions).\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "**Important:** This endpoint is deprecated. We recommend you use the current [Update customer session](#tag/Segment/operation/segment/v2/updateCustomerSession) endpoint.\n\n<blockquote>Update the given customer session, or creates it if it doesn't exist.\n\nCustomer sessions are a key concept in Talon.One, see the [documentation](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).\n\nThis endpoint also allows you to define a callback where the response will be sent. See the **Header "
+        },
+        {
+          "info": {
+            "name": "Update customer session v2 (Segment)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/segment/v2/customer_sessions/:customerSessionId",
+            "headers": [
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              },
+              {
+                "name": "X-Callback-Destination-URI",
+                "value": "http://mydomain.com/api/callbacks"
+              },
+              {
+                "name": "X-Callback-API-Key",
+                "value": "Authorization 3aa74d582bd9479c59e16f970fe13bf3"
+              },
+              {
+                "name": "X-Content-Fields",
+                "value": "customerProfile"
+              },
+              {
+                "name": "X-Correlation-ID",
+                "value": "abc123"
+              }
+            ],
+            "params": [
+              {
+                "name": "skipNonExistingAttributes",
+                "value": "true",
+                "type": "query",
+                "description": "Indicates whether to skip non-existing attributes.\n\nIf `true`, the non-existing attributes are skipped and a 400 error is not returned.\n\nIf `false`, a 400 error is returned in case of non-existing attributes.\n"
+              },
+              {
+                "name": "customerSessionId",
+                "value": "session1",
+                "type": "path",
+                "description": "The `integration ID` of the customer session. You set this ID when you create a customer session.\n\nYou can see the existing customer session integration IDs in the Campaign Manager's **Sessions** menu, or via the\n[List Application session](https://docs.talon.one/management-api#operation/getApplicationSessions) endpoint.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the given customer session, or create a customer session if it doesn't exist.\n\nCustomer sessions are a key concept in Talon.One, see the [documentation](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).\n\nThis endpoint also allows you to define a callback where the response will be sent. See the **Header parameters** section below.\n\n> [!note] **Note**\n> - Create the all the required attributes before using this endpoint.\n> - This `v2` version replaces the previous `v1` "
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Customer data platforms",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Update customer profile (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/cdp/customer_profile/:customerProfileId",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "skipNonExistingAttributes",
+                "value": "true",
+                "type": "query",
+                "description": "Indicates whether to skip non-existing attributes.\n\nIf `true`, the non-existing attributes are skipped and a 400 error is not returned.\n\nIf `false`, a 400 error is returned in case of non-existing attributes.\n"
+              },
+              {
+                "name": "customerProfileId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. If the customer profile does not exist, it will be created."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update or create a [customer profile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles). This endpoint triggers the Rule Builder.\n\nYou can use this endpoint for the following tasks:\n- Set attributes for the given customer profile. Ensure you create the attributes in the Campaign Manager first.\n- Add the customer profile to audiences or remove it from audiences.\n"
+        },
+        {
+          "info": {
+            "name": "Update customer profile audiences using external ID (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/cdp/customer_profile/:customerProfileId/audiences",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "customerProfileId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. If the customer profile does not exist, it will be created."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Add a [customer profile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles) to or remove it from a list of audiences. This endpoint triggers the Rule Builder.\n\nTo identify the audience, you can use its ID in the third-party integration.\n"
+        },
+        {
+          "info": {
+            "name": "Update audiences in multiple customer profiles (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/cdp/customer_profiles/audiences",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the specified audiences for the specified profiles.\n\nIf a provided customer profile doesn't exist, it will be created.\n"
+        },
+        {
+          "info": {
+            "name": "Update audiences in multiple customer profiles using external ID (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/cdp/v2/customer_profiles/audiences",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the specified audiences for the specified profiles. To identify the audience, you can use its ID in the third-party integration.\n\nIf a provided customer profile doesn't exist, it will be created.\n"
+        },
+        {
+          "info": {
+            "name": "Create audience (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/cdp/audiences",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an audience. The audience can be created directly from scratch or can come from third party platforms.\n\nOnce you create your first audience, audience-specific rule conditions are enabled in the Rule Builder.\n"
+        },
+        {
+          "info": {
+            "name": "Update audience (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://integration.talon.one/cdp/audiences/:audienceId",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "audience1",
+                "type": "path",
+                "description": "The integration ID of the audience."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an audience created by a third-party integration.\n"
+        },
+        {
+          "info": {
+            "name": "Delete audience (CDP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://integration.talon.one/cdp/audiences/:audienceId",
+            "headers": [
+              {
+                "name": "customer-data-platform-name",
+                "value": "My CDP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "audience1",
+                "type": "path",
+                "description": "The integration ID of the audience."
+              }
+            ]
+          },
+          "docs": "Delete an audience created by a third-party integration.\n\n**Warning:** This endpoint also removes any associations recorded between a customer profile and this audience.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Customer engagement platforms",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create coupon (CEP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://integration.talon.one/customer_engagement/coupon",
+            "headers": [
+              {
+                "name": "customer-engagement-platform-name",
+                "value": "My CEP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              },
+              {
+                "name": "X-DRY-RUN",
+                "value": "true"
+              }
+            ],
+            "params": [
+              {
+                "name": "applicationId",
+                "value": "316",
+                "type": "query",
+                "description": "The ID of the Application in Talon.One. It is displayed in your Talon.One deployment URL."
+              },
+              {
+                "name": "campaignId",
+                "value": "5843",
+                "type": "query",
+                "description": "The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL."
+              },
+              {
+                "name": "externalCampaignId",
+                "value": "testCampaignId",
+                "type": "query",
+                "description": "The ID of the campaign in the third-party platform."
+              },
+              {
+                "name": "startDate",
+                "value": "2022-09-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes usable."
+              },
+              {
+                "name": "expiryDate",
+                "value": "2022-10-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes unusable."
+              },
+              {
+                "name": "discountLimit",
+                "value": "155",
+                "type": "query",
+                "description": "The discount amount the coupon is worth. Can be blank if, for example, the coupon provides a 10% discount, or something other than a fixed value of discounts."
+              },
+              {
+                "name": "recipientIntegrationId",
+                "value": "URN-GV8294NV",
+                "type": "query",
+                "description": "The integration ID of the only customer that can use the generated coupon code. Leave blank to allow any user to use the coupon."
+              },
+              {
+                "name": "usageLimit",
+                "value": "1",
+                "type": "query",
+                "description": "The number of times the coupon code can be redeemed. 0 means unlimited redemptions but any campaign usage limits will still apply. The default value is 1."
+              },
+              {
+                "name": "attributes",
+                "value": "[object Object]",
+                "type": "query",
+                "description": "Optional parameter to set the value of custom attributes. They are defined in the Campaign Manager,\nsee [Managing attributes](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).\n\nPrefix each attribute name with `.` or `_`. \n\nCertain attributes can also be set to _mandatory_ in your Application [settings](https://docs.talon.one/docs/product/applications/using-attributes#making-attributes-mandatory).\nIf your Application uses mandatory attributes, you must use this parameter to set their value.\n\nThe type of the value must match the type of the attribute. If you provide an integer value, the attribute must also be of type Integer in Talon.One.\n\nIf the types do not match, and the attribute in Talon.One is of type String, put the value in quotes. For example, if you provide a Boolean value for a String attribute, use `\"true\"` and `\"false\"`. \n\nFull URI example: `https://<url>?applicationId=5&.myIntegerAttribute=1234&.myStringAttribute1=Text&.myStringAttribute2=\"1234\"&.myStringAttribute3=\"true\"`.\n"
+              },
+              {
+                "name": "identifier",
+                "value": "3495-4323",
+                "type": "query",
+                "description": "The identifier of the request. Providing a new value creates a new coupon. Providing an existing value retrieves the existing coupon of that ID and does not create a new coupon.\n"
+              }
+            ]
+          },
+          "docs": "Create a coupon code in Talon.One. See [the tutorial](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).\n\n> [!tip]\n> You can edit the default coupon code format in the [campaign's settings](https://docs.talon.one/docs/product/campaigns/coupons/coupon-page-overview#editing-coupon-format).\n"
+        },
+        {
+          "info": {
+            "name": "Create referral (CEP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://integration.talon.one/customer_engagement/referral",
+            "headers": [
+              {
+                "name": "customer-engagement-platform-name",
+                "value": "My CEP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              },
+              {
+                "name": "X-DRY-RUN",
+                "value": "true"
+              }
+            ],
+            "params": [
+              {
+                "name": "campaignId",
+                "value": "5843",
+                "type": "query",
+                "description": "The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL."
+              },
+              {
+                "name": "advocateProfileIntegrationId",
+                "value": "testAdvocateProfile",
+                "type": "query",
+                "description": "The integration ID of the advocate."
+              },
+              {
+                "name": "friendProfileIntegrationId",
+                "value": "testFriendProfile",
+                "type": "query",
+                "description": "The profile ID of the referred customer."
+              },
+              {
+                "name": "startDate",
+                "value": "2022-09-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes usable."
+              },
+              {
+                "name": "expiryDate",
+                "value": "2022-10-30T15:35:02Z",
+                "type": "query",
+                "description": "The date when the code becomes unusable."
+              },
+              {
+                "name": "usageLimit",
+                "value": "1",
+                "type": "query",
+                "description": "Number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply."
+              },
+              {
+                "name": "attributes",
+                "value": "[object Object]",
+                "type": "query",
+                "description": "Optional parameter to set the value of custom attributes. They are defined in the Campaign Manager,\nsee [Managing attributes](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).\n\nPrefix each attribute name with `.` or `_`. \n\nCertain attributes can also be set to _mandatory_ in your Application [settings](https://docs.talon.one/docs/product/applications/using-attributes#making-attributes-mandatory).\nIf your Application uses mandatory attributes, you must use this parameter to set their value.\n\nThe type of the value must match the type of the attribute. If you provide an integer value, the attribute must also be of type Integer in Talon.One.\n\nIf the types do not match, and the attribute in Talon.One is of type String, put the value in quotes. For example, if you provide a Boolean value for a String attribute, use `\"true\"` and `\"false\"`. \n\nFull URI example: `https://<url>?applicationId=5&.myIntegerAttribute=1234&.myStringAttribute1=Text&.myStringAttribute2=\"1234\"&.myStringAttribute3=\"true\"`.\n"
+              }
+            ]
+          },
+          "docs": "Create a referral code in Talon.One. See [the tutorial](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).\n"
+        },
+        {
+          "info": {
+            "name": "Get loyalty ledger (CEP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://integration.talon.one/customer_engagement/loyalty",
+            "headers": [
+              {
+                "name": "customer-engagement-platform-name",
+                "value": "My CEP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "params": [
+              {
+                "name": "profileIntegrationId",
+                "value": "URN-GV8294NV",
+                "type": "query",
+                "description": "The integration ID of the customer profile in Talon.One."
+              },
+              {
+                "name": "loyaltyProgramId",
+                "value": "25",
+                "type": "query",
+                "description": "The ID of the profile-based loyalty program in Talon.One."
+              }
+            ]
+          },
+          "docs": "Get the loyalty ledger information of the given customer profile from Talon.One. See [the tutorial](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).\n\nThis endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.\n"
+        },
+        {
+          "info": {
+            "name": "Add loyalty points (CEP)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/customer_engagement/add_loyalty_points",
+            "headers": [
+              {
+                "name": "customer-engagement-platform-name",
+                "value": "My CEP platform"
+              },
+              {
+                "name": "destination-hostname",
+                "value": "mycompany.europe-west1.talon.one"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Add points in the specified loyalty program for the given customer.\n\nThis endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "mParticle",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Send event (mParticle)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/mparticle",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Send an mParticle event to Talon.One.\n\nThis endpoint supports the following mParticle events:\n- `module_registration_request`: A new client has set up the Talon.One integration in mParticle.\n- `audience_membership_change_request`: Customers have been added to or removed from an audience in mParticle.\n- `audience_subscription_request`: An audience has been added, updated, or deleted in mParticle.\n- `event_processing_request`: One or more events have been triggered in mParticle.\n\n> [!warning]\n> Th"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Emarsys",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get coupon (Emarsys)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/emarsys/customer_profiles/coupons",
+            "params": [
+              {
+                "name": "deployment",
+                "value": "mycompany.europe-west1.talon.one",
+                "type": "query",
+                "description": "The base URL of your Talon.One deployment."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "basic",
+              "username": "{{username}}",
+              "password": "{{password}}"
+            }
+          },
+          "docs": "Retrieve a coupon code from Talon.One.\n"
+        },
+        {
+          "info": {
+            "name": "Get loyalty balance (Emarsys)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/emarsys/loyalty_programs/profile/balance",
+            "params": [
+              {
+                "name": "deployment",
+                "value": "mycompany.europe-west1.talon.one",
+                "type": "query",
+                "description": "The base URL of your Talon.One deployment."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "basic",
+              "username": "{{username}}",
+              "password": "{{password}}"
+            }
+          },
+          "docs": "Retrieve the loyalty balance of a customer profile from Talon.One.\n\nThis endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.\n"
+        },
+        {
+          "info": {
+            "name": "Update audiences in multiple customer profiles (Emarsys)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://integration.talon.one/emarsys/customer_profiles/audiences",
+            "params": [
+              {
+                "name": "deployment",
+                "value": "mycompany.europe-west1.talon.one",
+                "type": "query",
+                "description": "The base URL of your Talon.One deployment."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "basic",
+              "username": "{{username}}",
+              "password": "{{password}}"
+            }
+          },
+          "docs": "Update the specified audiences for the specified profiles. To identify the audience, you can use its ID in the third-party integration.\n\nIf a provided customer profile doesn't exist, it will be created.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

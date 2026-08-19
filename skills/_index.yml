@@ -1,0 +1,61 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/docs/dev/mcp
+provider: Talon.One
+providerId: talon-one
+description: Agent Skills published by Talon.One itself, saved verbatim. Each skill is a role-scoped playbook
+  over the Talon.One MCP server tool palette — marketing manager, customer support agent, loyalty program
+  manager, integration engineer and account administrator. These are the provider own files downloaded
+  from docs.talon.one/files/skills/, not skills API Evangelist authored on their behalf.
+skill_count: 5
+runtime: Talon.One MCP server (mcp/talon-one-mcp.yml)
+skills:
+- name: talon-marketing-manager
+  file: skills/talon-marketing-manager.md
+  source: https://docs.talon.one/files/skills/talon-marketing-manager.md
+  description: 'Use this skill when a marketing manager is working with Talon.One campaigns, coupons,
+    referrals, or giveaways. Triggers include: "how is my campaign performing", "how many coupons have
+    been redeemed", "which campaigns are running right now", "show me referral program stats", "audit
+    the coupon batch", "how many coupons are left", "list campaigns by tag", "campaign hit its limit",
+    "find campaigns expiring soon", "check giveaway codes", "compare campaign redemption rates", "how
+    is our referral program doing", or any request to review, audit, or analyze promotion activity at
+    the campaign level rat'
+- name: talon-support-agent
+  file: skills/talon-support-agent.md
+  source: https://docs.talon.one/files/skills/talon-support-agent.md
+  description: 'Use this skill when a customer support agent is investigating a promotion-related complaint
+    or customer query using Talon.One. Triggers include: "why didn''t this customer get a discount", "coupon
+    was rejected", "customer says their points are wrong", "customer didn''t receive their reward", "referral
+    code not working", "customer can''t use their voucher", "what coupons does this customer have", "check
+    a customer''s loyalty balance", "customer achievement not unlocking", or any question that starts
+    from a specific customer and asks why something did or didn''t happen. This skill is laser-focused
+    on'
+- name: talon-loyalty-manager
+  file: skills/talon-loyalty-manager.md
+  source: https://docs.talon.one/files/skills/talon-loyalty-manager.md
+  description: 'Use this skill when a loyalty program manager is working with Talon.One loyalty data.
+    Triggers include: "how many points does this customer have", "what tier is this customer on", "show
+    me the loyalty ledger", "check a loyalty card balance", "how are points being earned", "loyalty program
+    stats", "customer should have reached Gold tier", "points are expiring", "pending points", "subledger
+    balance", "achievement progress", "show all active loyalty programs", "program-wide point activity",
+    "card-based loyalty", or any request about loyalty points, tiers, ledgers, transactions, cards, or
+    achievem'
+- name: talon-integration-engineer
+  file: skills/talon-integration-engineer.md
+  source: https://docs.talon.one/files/skills/talon-integration-engineer.md
+  description: 'Use this skill when a technical or integration engineer is debugging or auditing Talon.One
+    at the API and configuration level. Triggers include: "check API access logs", "why is the integration
+    failing", "session not showing up", "401 errors", "webhook configuration", "custom attributes", "application
+    health", "API request failed", "debug the integration", "what roles do users have", "audit user permissions",
+    "check webhook payload", "session was never created", "API returning errors", "integration ID mapping",
+    "check ruleset logic", or any request involving raw HTTP logs, webhook setup, accou'
+- name: talon-account-admin
+  file: skills/talon-account-admin.md
+  source: https://docs.talon.one/files/skills/talon-account-admin.md
+  description: 'Use this skill when an account administrator is auditing or managing Talon.One at the
+    account and platform configuration level. Triggers include: "who has access to this application",
+    "audit user permissions", "what roles exist", "check webhook setup", "list all applications", "application
+    configuration", "who can create campaigns", "manage user roles", "audit account access", "what webhooks
+    are configured", "application currency or timezone", "custom attribute schema", "account-level settings",
+    "which users are admins", or any request about cross-application oversight, user management, role
+    a'

@@ -1,0 +1,341 @@
+generated: '2026-08-13'
+method: derived
+source: openapi/talon-one-management-api-openapi.yml
+provider: Talon.One
+providerId: talon-one
+description: Entity-relationship graph derived from the schema components of the Talon.One Management
+  API. Relationships are read from id-reference fields after resolving the allOf composition Talon.One
+  uses throughout its schemas; nothing is inferred from prose.
+root: Account
+hierarchy: Account > Application > Campaign > Ruleset > rules. Coupons, referrals, giveaways and achievements
+  hang off a Campaign. Customer profiles are account-wide; customer sessions and events belong to an Application.
+  Loyalty programs are account-wide (profile-based) or card-based, and attach to Applications.
+entity_count: 26
+relationship_count: 35
+entities:
+- name: Account
+  field_count: 18
+  key_fields:
+  - created
+  - id
+  - modified
+  - state
+  schema: '#/components/schemas/Account'
+- name: User
+  field_count: 17
+  key_fields:
+  - created
+  - id
+  - modified
+  - name
+  - state
+  schema: '#/components/schemas/User'
+- name: Application
+  field_count: 23
+  key_fields:
+  - created
+  - id
+  - modified
+  - name
+  schema: '#/components/schemas/Application'
+- name: Campaign
+  field_count: 53
+  key_fields:
+  - created
+  - id
+  - name
+  - state
+  schema: '#/components/schemas/Campaign'
+- name: CampaignGroup
+  field_count: 8
+  key_fields:
+  - created
+  - id
+  - modified
+  - name
+  schema: '#/components/schemas/CampaignGroup'
+- name: CampaignTemplate
+  field_count: 28
+  key_fields:
+  - created
+  - id
+  - name
+  - state
+  schema: '#/components/schemas/CampaignTemplate'
+- name: Ruleset
+  field_count: 11
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/Ruleset'
+- name: Coupon
+  field_count: 22
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/Coupon'
+- name: Referral
+  field_count: 13
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/Referral'
+- name: LoyaltyProgram
+  field_count: 26
+  key_fields:
+  - created
+  - id
+  - name
+  schema: '#/components/schemas/LoyaltyProgram'
+- name: LoyaltyCard
+  field_count: 16
+  key_fields:
+  - created
+  - id
+  - modified
+  - status
+  schema: '#/components/schemas/LoyaltyCard'
+- name: LoyaltyLedger
+  field_count: 2
+  key_fields: []
+  schema: '#/components/schemas/LoyaltyLedger'
+- name: CustomerProfile
+  field_count: 11
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/CustomerProfile'
+- name: ApplicationSession
+  field_count: 15
+  key_fields:
+  - created
+  - id
+  - state
+  schema: '#/components/schemas/ApplicationSession'
+- name: ApplicationEvent
+  field_count: 12
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/ApplicationEvent'
+- name: ApplicationCustomer
+  field_count: 12
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/ApplicationCustomer'
+- name: Audience
+  field_count: 11
+  key_fields:
+  - created
+  - id
+  - name
+  schema: '#/components/schemas/Audience'
+- name: Attribute
+  field_count: 17
+  key_fields:
+  - created
+  - id
+  - name
+  schema: '#/components/schemas/Attribute'
+- name: Collection
+  field_count: 12
+  key_fields:
+  - created
+  - id
+  - modified
+  - name
+  schema: '#/components/schemas/Collection'
+- name: CatalogItem
+  field_count: 8
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/CatalogItem'
+- name: Store
+  field_count: 9
+  key_fields:
+  - created
+  - id
+  - name
+  schema: '#/components/schemas/Store'
+- name: Achievement
+  field_count: 18
+  key_fields:
+  - created
+  - id
+  - name
+  - status
+  schema: '#/components/schemas/Achievement'
+- name: Webhook
+  field_count: 14
+  key_fields:
+  - created
+  - id
+  - modified
+  schema: '#/components/schemas/Webhook'
+- name: Export
+  field_count: 6
+  key_fields:
+  - created
+  - id
+  schema: '#/components/schemas/Export'
+- name: Experiment
+  field_count: 11
+  key_fields:
+  - created
+  - id
+  - state
+  schema: '#/components/schemas/Experiment'
+- name: AdditionalCost
+  field_count: 1
+  key_fields: []
+  schema: '#/components/schemas/AdditionalCost'
+relationships:
+- from: User
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Application
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Campaign
+  to: Application
+  type: belongs_to
+  via: applicationId
+- from: Campaign
+  to: CampaignTemplate
+  type: belongs_to
+  via: templateId
+- from: Campaign
+  to: User
+  type: belongs_to
+  via: userId
+- from: CampaignGroup
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: CampaignGroup
+  to: Campaign
+  type: has_many
+  via: campaignIds
+- from: CampaignTemplate
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: CampaignTemplate
+  to: User
+  type: belongs_to
+  via: userId
+- from: Ruleset
+  to: Campaign
+  type: belongs_to
+  via: campaignId
+- from: Ruleset
+  to: CampaignTemplate
+  type: belongs_to
+  via: templateId
+- from: Ruleset
+  to: User
+  type: belongs_to
+  via: userId
+- from: Coupon
+  to: Campaign
+  type: belongs_to
+  via: campaignId
+- from: Coupon
+  to: Referral
+  type: belongs_to
+  via: referralId
+- from: Referral
+  to: Campaign
+  type: belongs_to
+  via: campaignId
+- from: CustomerProfile
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: ApplicationSession
+  to: Application
+  type: belongs_to
+  via: applicationId
+- from: ApplicationSession
+  to: CustomerProfile
+  type: belongs_to
+  via: profileId
+- from: ApplicationEvent
+  to: Application
+  type: belongs_to
+  via: applicationId
+- from: ApplicationEvent
+  to: CustomerProfile
+  type: belongs_to
+  via: profileId
+- from: ApplicationEvent
+  to: ApplicationSession
+  type: belongs_to
+  via: sessionId
+- from: ApplicationEvent
+  to: Store
+  type: belongs_to
+  via: storeId
+- from: ApplicationCustomer
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Audience
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Attribute
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Collection
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Collection
+  to: Application
+  type: belongs_to
+  via: applicationId
+- from: Collection
+  to: Campaign
+  type: belongs_to
+  via: campaignId
+- from: Store
+  to: Application
+  type: belongs_to
+  via: applicationId
+- from: Achievement
+  to: Campaign
+  type: belongs_to
+  via: campaignId
+- from: Achievement
+  to: User
+  type: belongs_to
+  via: userId
+- from: Webhook
+  to: Application
+  type: has_many
+  via: applicationIds
+- from: Export
+  to: Account
+  type: belongs_to
+  via: accountId
+- from: Export
+  to: User
+  type: belongs_to
+  via: userId
+- from: Experiment
+  to: Application
+  type: belongs_to
+  via: applicationId
+identifiers:
+  style: integer surrogate ids plus caller-supplied integration ids
+  note: Most Management API entities are keyed by an integer `id`. Integration API entities are addressed
+    by the caller own `integrationId` (customer profile) or `customerSessionId` (session), which is what
+    lets a webshop write into Talon.One without first reading an id. There are no prefixed string ids
+    in this API.
+notes: 'Total schema components in the Management API: 332.'

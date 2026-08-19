@@ -1,0 +1,149 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/docs/dev/mcp
+provider: Talon.One
+providerId: talon-one
+name: Talon.One MCP server
+status: published
+description: 'Talon.One ships an official MCP server that gives agents secure, read-only access to the
+  campaigns, customers, coupons and loyalty data in a Talon.One environment. Because Talon.One runs as
+  a per-customer deployment, the endpoint is not a single shared URL: each environment exposes its own
+  server at <deployment>/v1/mcp/entrypoint. Authentication uses a dedicated MCP connection API key created
+  under Account > Tools > MCP Connections, and the server honours the account role permissions of that
+  key.'
+deployment:
+  mode: remote
+  endpoint: https://{deployment}.talon.one/v1/mcp/entrypoint
+  endpoint_example: https://mycompany.europe-west1.talon.one/v1/mcp/entrypoint
+  install: 'npx mcp-remote https://YOUR_DEPLOYMENT_URL/v1/mcp/entrypoint --header "Authorization: Bearer
+    ${MCP_AUTH_TOKEN}"'
+  package: https://www.npmjs.com/package/mcp-remote
+  auth: api-key
+  verified: searched
+  note: 'Remote, not local-stdio: the server is an HTTPS endpoint inside the customer deployment. The
+    npx command in the provider documentation is the generic mcp-remote bridge for clients that only speak
+    stdio, not a Talon.One package. The endpoint could not be probed from outside because it is per-tenant
+    and requires an account-issued key; the URL form above is quoted from the provider documentation and
+    is not a guess.'
+authentication:
+  type: api-key
+  header: 'Authorization: Bearer <MCP connection API key>'
+  issuance: Campaign Manager > Account > Tools > MCP Connections > Create Key (admin rights required;
+    key has an expiration date and is shown once).
+  permissions: Inherits the account role permissions of the creating admin.
+  docs: https://docs.talon.one/docs/product/account/account-settings/manage-roles
+access: read-only
+clients_supported:
+- Claude Desktop
+- Claude Code
+- Cursor
+- Gemini CLI
+- ChatGPT CLI
+- Codex CLI
+- other stdio-compatible MCP clients
+tool_count: 42
+tools:
+- name: get_applications
+  category: applications
+- name: get_application
+  category: applications
+- name: get_application_health
+  category: applications
+- name: get_access_logs
+  category: logs
+- name: list_application_sessions
+  category: sessions
+- name: get_application_session
+  category: sessions
+- name: get_session_details
+  category: sessions
+- name: list_application_customers
+  category: customers
+- name: get_customer_profile
+  category: customers
+- name: get_customer_inventory
+  category: customers
+- name: list_application_events
+  category: events
+- name: list_application_event_types
+  category: events
+- name: list_campaigns
+  category: campaigns
+- name: get_campaign
+  category: campaigns
+- name: list_rulesets
+  category: campaigns
+- name: get_ruleset
+  category: campaigns
+- name: list_coupons
+  category: coupons
+- name: list_coupons_no_total
+  category: coupons
+- name: check_coupon_status
+  category: coupons
+- name: get_reserved_customers
+  category: coupons
+- name: list_referrals
+  category: referrals
+- name: list_referred_friends
+  category: referrals
+- name: list_giveaways
+  category: giveaways
+- name: list_loyalty_programs
+  category: loyalty
+- name: get_loyalty_program
+  category: loyalty
+- name: get_loyalty_ledger
+  category: loyalty
+- name: get_loyalty_balances
+  category: loyalty
+- name: get_loyalty_statistics
+  category: loyalty
+- name: get_loyalty_profile_points
+  category: loyalty
+- name: get_loyalty_profile_transactions
+  category: loyalty
+- name: list_loyalty_program_transactions
+  category: loyalty
+- name: get_loyalty_card_balances
+  category: loyalty-cards
+- name: get_loyalty_card_points
+  category: loyalty-cards
+- name: get_loyalty_card_transactions
+  category: loyalty-cards
+- name: get_customer_achievements
+  category: achievements
+- name: get_customer_achievement_history
+  category: achievements
+- name: get_achievement
+  category: achievements
+- name: list_custom_attributes
+  category: attributes
+- name: list_webhooks
+  category: webhooks
+- name: get_webhook
+  category: webhooks
+- name: list_users
+  category: account
+- name: list_roles
+  category: account
+tools_source: Tool names are taken from the five Agent Skills Talon.One publishes at https://docs.talon.one/files/skills/
+  , which document the tool palette per role. The live tools/list schema could not be introspected because
+  the endpoint is per-tenant and auth-gated, so parameter schemas need authenticated introspection against
+  a real deployment.
+skills_published:
+- name: talon-marketing-manager
+  url: https://docs.talon.one/files/skills/talon-marketing-manager.md
+- name: talon-support-agent
+  url: https://docs.talon.one/files/skills/talon-support-agent.md
+- name: talon-loyalty-manager
+  url: https://docs.talon.one/files/skills/talon-loyalty-manager.md
+- name: talon-integration-engineer
+  url: https://docs.talon.one/files/skills/talon-integration-engineer.md
+- name: talon-account-admin
+  url: https://docs.talon.one/files/skills/talon-account-admin.md
+crosswalk: mcp/talon-one-tool-crosswalk.yml
+docs: https://docs.talon.one/docs/dev/mcp
+caveats:
+- Talon.One notes that third-party AI services may process customer data through this server and tells
+  customers to review their AI policies before connecting.

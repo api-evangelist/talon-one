@@ -1,0 +1,47 @@
+generated: '2026-08-13'
+method: probed
+source: https://trust.talon.one
+provider: Talon.One
+providerId: talon-one
+description: Talon.One runs a Vanta-hosted trust center at trust.talon.one and displays certification
+  badges on its marketing site, including a downloadable ISO 27001 certificate.
+url: https://trust.talon.one
+platform: Vanta Trust Center
+http_status: 200
+machine_readable: false
+rendering_note: 'The trust center is a client-side rendered Vanta trust report: the HTML shell is 7 KB
+  and carries no certification names, so the certifications below were confirmed from Talon.One own marketing
+  site and the certificate PDF it links, not scraped from the trust page.'
+certifications:
+- name: ISO 27001
+  status: certified
+  evidence: https://9425930.fs1.hubspotusercontent-na1.net/hubfs/9425930/Other/ISO%20certification%20Talon.One.pdf
+  evidence_status: 200
+- name: SOC 2
+  status: claimed
+  evidence: Badge and site copy on https://www.talon.one/ — "compliant with SOC 2, ISO, and GDPR"; the
+    report itself is behind the trust center request flow.
+- name: GDPR
+  status: claimed
+  evidence: Badge on https://www.talon.one/ and https://www.talon.one/legal/privacy-policy.
+documents:
+- name: Vanta document library
+  url: https://app.vanta.com/doc?s=c0ytzpybh1189xxgiu1dkd
+  note: Linked from the trust center; access is request-gated.
+security_features:
+- name: Two-factor authentication
+  docs: https://docs.talon.one/docs/product/account/account-settings/set-up-2fa
+- name: Roles and permissions
+  docs: https://docs.talon.one/docs/product/account/account-settings/manage-roles
+- name: Audit logs
+  docs: https://docs.talon.one/docs/product/account/logs/audit-logs
+- name: Scoped API keys
+  note: Management API keys are created by an admin with an explicit endpoint allow-list and a mandatory
+    expiration date.
+- name: Customer data deletion
+  note: Integration API deleteCustomerData removes a customer profile and its data by integration id.
+vulnerability_disclosure:
+  published: false
+  note: No security.txt on any host and no bug bounty or coordinated disclosure page found on talon.one;
+    probe-security-programs.py returned vdp=none.
+checked: '2026-08-13'

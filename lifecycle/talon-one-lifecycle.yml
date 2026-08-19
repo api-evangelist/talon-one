@@ -1,0 +1,130 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/whats-new, https://status.talon.one, openapi/talon-one-management-api-openapi.yml
+provider: Talon.One
+providerId: talon-one
+description: Versioning, release and operational-status posture for the Talon.One APIs.
+versioning:
+  api:
+    style: path prefix
+    versions:
+    - /v1
+    - /v2
+    - /v3
+    note: 'New generations of an endpoint family are published beside the old one rather than breaking
+      it in place: customer sessions and profiles moved to /v2, events now have both /v2 and /v3, achievements
+      and roles have /v2 Management endpoints beside /v1.'
+  platform:
+    scheme: <year-2000>.<release-of-year>
+    current: '26.16'
+    released: '2026-08-12'
+    cadence: approximately every two weeks
+    changelog: https://docs.talon.one/whats-new
+    feed: https://docs.talon.one/whats-new/feed.json
+    detail: changelog/talon-one-changelog.yml
+  sdk: Next-generation SDK versions track the platform release number (26.x).
+deprecation:
+  policy_published: false
+  mechanism: 'OpenAPI `deprecated: true` on the operation, plus a note in the operation description pointing
+    at the replacement endpoint'
+  sunset_header:
+    rfc8594: false
+    observed: false
+    note: No Sunset or Deprecation response header is declared in any published spec.
+  deprecated_operation_count: 13
+  deprecated_operations:
+  - api: management
+    method: GET
+    path: /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}
+    operationId: getLoyaltyPoints
+    summary: Get customer's full loyalty ledger
+  - api: management
+    method: GET
+    path: /v1/loyalty_programs/{loyaltyProgramId}/statistics
+    operationId: getLoyaltyStatistics
+    summary: Get loyalty program statistics
+  - api: management
+    method: GET
+    path: /v1/loyalty_programs/{loyaltyProgramId}/export_customer_balance
+    operationId: exportLoyaltyBalance
+    summary: Export customer loyalty balance to CSV
+  - api: management
+    method: POST
+    path: /v1/applications/{applicationId}/campaigns/{campaignId}/achievements
+    operationId: createAchievement
+    summary: Create achievement
+  - api: management
+    method: GET
+    path: /v1/applications/{applicationId}/campaigns/{campaignId}/achievements
+    operationId: listAchievements
+    summary: List achievements
+  - api: management
+    method: GET
+    path: /v1/applications/{applicationId}/campaigns/{campaignId}/achievements/{achievementId}
+    operationId: getAchievement
+    summary: Get achievement
+  - api: management
+    method: PUT
+    path: /v1/applications/{applicationId}/campaigns/{campaignId}/achievements/{achievementId}
+    operationId: updateAchievement
+    summary: Update achievement
+  - api: management
+    method: DELETE
+    path: /v1/applications/{applicationId}/campaigns/{campaignId}/achievements/{achievementId}
+    operationId: deleteAchievement
+    summary: Delete achievement
+  - api: management
+    method: GET
+    path: /v1/applications/{applicationId}/campaigns/{campaignId}/achievements/{achievementId}/export
+    operationId: exportAchievements
+    summary: Export achievement customer data
+  - api: third-party
+    method: PUT
+    path: /segment/customer_profile/{customerProfileId}
+    operationId: segment/updateCustomerProfile
+    summary: Upsert customer profile v1 (Segment)
+  - api: third-party
+    method: PUT
+    path: /segment/customer_profile_v2/{customerProfileId}
+    operationId: segment/updateCustomerProfileV2
+    summary: Upsert customer profile v2 (Segment)
+  - api: third-party
+    method: PUT
+    path: /segment/event
+    operationId: segment/trackEvent
+    summary: Track event v1 (Segment)
+  - api: third-party
+    method: PUT
+    path: /segment/customer_sessions/{customerSessionId}
+    operationId: segment/updateCustomerSession
+    summary: Update customer session v1 (Segment)
+  note: 'Talon.One marks superseded operations in the specification it publishes and names the replacement
+    in prose, but publishes no dated deprecation or sunset policy. The legacy SDK line is the clearest
+    deprecation signal in the estate: seven legacy SDK repos are labelled "Legacy version" with a MIGRATION.md
+    in each next-generation repo.'
+  sdk_migration_guides:
+  - https://github.com/talon-one/talon-one-ts-sdk/blob/main/MIGRATION.md
+  - https://github.com/talon-one/talon-one-python-sdk/blob/main/MIGRATION.md
+  - https://github.com/talon-one/talon-one-java-sdk/blob/main/MIGRATION.md
+  - https://github.com/talon-one/talon-one-go-sdk/blob/main/MIGRATION.md
+  - https://github.com/talon-one/talon-one-ruby-sdk/blob/main/MIGRATION.md
+  - https://github.com/talon-one/talon-one-php-sdk/blob/main/MIGRATION.md
+  - https://github.com/talon-one/talon-one-csharp-sdk/blob/main/MIGRATION.md
+status_page:
+  published: true
+  url: https://status.talon.one/
+  platform: Atlassian Statuspage
+  machine_readable: https://status.talon.one/api/v2/summary.json
+  http_status: 200
+  checked: '2026-08-13'
+sla:
+  published: false
+  note: Talon.One states in both API overviews that "unless otherwise stated, all our SLAs in contract
+    are specified for the Integration API only" and that the Management API is not for real-time integrations.
+    The SLA numbers themselves are contractual and not published; the Enterprise package advertises customized
+    SLAs.
+  source: https://docs.talon.one/docs/dev/management-api/overview
+support:
+  docs: https://docs.talon.one
+  load_testing: https://docs.talon.one/docs/dev/tutorials/load-test
+  note: Load testing must be coordinated with Talon.One in advance.

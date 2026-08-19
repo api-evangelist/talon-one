@@ -1,17 +1,139 @@
-generated: '2026-07-11'
-method: derived
-source: openapi/talon-one-openapi.yml
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys
+docs: https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys
+provider: Talon.One
+providerId: talon-one
+description: Every Talon.One API authenticates with a credential in the Authorization header; there is
+  no OAuth 2.0 or OpenID Connect anywhere in the estate. Which credential you use depends on the surface,
+  and the prefix is part of the value.
 summary:
   types:
   - apiKey
+  - http
   api_key_in:
   - header
+  oauth2: false
+  openid_connect: false
+  mutual_tls: false
 schemes:
-- name: integrationKey
+- name: Integration API key
+  spec_name: api_key_v1
   type: apiKey
   in: header
   parameter: Authorization
-  description: 'Integration API key with the ApiKey-v1 prefix, e.g. header "Authorization: ApiKey-v1
-    <your-key>".'
+  prefix: ApiKey-v1
+  example_form: 'Authorization: ApiKey-v1 <key>'
+  issuance: Campaign Manager > Application > Settings > Integration API Keys > Create API Key. Name and
+    expiration date required.
+  key_types:
+  - Production
+  - Test (staging only, dry requests only, one per Application)
+  apis:
+  - Integration API
   sources:
-  - openapi/talon-one-openapi.yml
+  - openapi/talon-one-integration-api-openapi.yml
+  - https://docs.talon.one/docs/product/applications/manage-api-keys
+- name: Management API key
+  spec_name: management_key
+  type: apiKey
+  in: header
+  parameter: Authorization
+  prefix: ManagementKey-v1
+  example_form: 'Authorization: ManagementKey-v1 <key>'
+  issuance: Campaign Manager > Account > Tools > Management API Keys > Create Key. Created by an admin,
+    with an explicit allow-list of endpoints and a mandatory expiration date.
+  scoping: Per-key endpoint allow-list chosen at creation time — the closest thing Talon.One has to scopes,
+    but it is not an OAuth scope model and is not enumerable through the API.
+  recommended: true
+  apis:
+  - Management API
+  sources:
+  - openapi/talon-one-management-api-openapi.yml
+  - https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys
+- name: Management session bearer token
+  spec_name: manager_auth
+  type: apiKey
+  in: header
+  parameter: Authorization
+  prefix: Bearer
+  example_form: 'Authorization: Bearer <token>'
+  issuance: POST /v1/sessions (createSession) with user credentials; token valid for 3 months.
+  recommended: false
+  note: Talon.One explicitly recommends the Management API key over this bearer token.
+  apis:
+  - Management API
+  sources:
+  - openapi/talon-one-management-api-openapi.yml
+- name: Third-party API key
+  spec_name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: Authorization
+  prefix: ApiKey-v1
+  issuance: Created as an Integration API key with "Third-party integration" set to Yes and the partner
+    platform selected.
+  apis:
+  - Third-party API
+  sources:
+  - openapi/talon-one-third-party-api-openapi.yml
+- name: Third-party HTTP Basic
+  spec_name: ApiKeyBasicAuth
+  type: http
+  scheme: basic
+  note: Alternative for partner platforms that cannot set a custom Authorization scheme.
+  apis:
+  - Third-party API
+  sources:
+  - openapi/talon-one-third-party-api-openapi.yml
+- name: Shopify customer access token
+  spec_name: ShopifyCustomerAccessToken
+  type: apiKey
+  in: header
+  parameter: Authorization
+  note: Shopify Customer Account API token (shcat_ prefix), issued by Shopify not Talon.One.
+  apis:
+  - Shopify Integration API
+  sources:
+  - openapi/talon-one-shopify-integration-api-openapi.yml
+- name: Shopify JWT
+  spec_name: ShopifyJWT
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  apis:
+  - Shopify Integration API
+  sources:
+  - openapi/talon-one-shopify-integration-api-openapi.yml
+- name: MCP connection key
+  spec_name: null
+  type: apiKey
+  in: header
+  parameter: Authorization
+  prefix: Bearer
+  issuance: Campaign Manager > Account > Tools > MCP Connections > Create Key (admin only, expiring, shown
+    once).
+  note: Separate key type for the MCP server; inherits the account role permissions of the creating admin.
+  apis:
+  - MCP server
+  sources:
+  - https://docs.talon.one/docs/dev/mcp
+account_security:
+  two_factor: https://docs.talon.one/docs/product/account/account-settings/set-up-2fa
+  roles: https://docs.talon.one/docs/product/account/account-settings/manage-roles
+  audit_logs: https://docs.talon.one/docs/product/account/logs/audit-logs
+  key_expiry: All API key types require an expiration date at creation; keys move through Valid, Expires
+    Soon, Expired and Invalid states.
+  key_lifecycle_note: A key created by a user who is later disabled or deleted keeps working until it
+    expires.
+oauth_scopes:
+  applicable: false
+  note: No oauth2 securityScheme exists in any published spec, so there is no scope vocabulary to derive.
+    Endpoint-level permissioning is done per Management API key at creation time.
+previous_derivation:
+  method: derived
+  kept_for: spec-level scheme names
+  spec_schemes:
+  - api_key_v1
+  - ShopifyJWT
+  - ApiKeyBasicAuth

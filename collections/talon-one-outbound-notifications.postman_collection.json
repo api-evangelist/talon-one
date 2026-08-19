@@ -1,0 +1,71 @@
+{
+  "item": [
+    {
+      "id": "37cfabf9-0e43-406e-805d-8754bd1af2ff",
+      "name": "Campaign notifications",
+      "description": {
+        "content": "Represents the [notifications](/docs/product/applications/application-notifications/overview)\nabout campaign-related changes.\n\n> [!note] The value of the `NotificationType` property indicates the campaign change:\n> - `CampaignNotification` signifies one of the following events:\n>   - [Campaign created](#tag/Campaign-notifications/operation/campaignCreatedNotification)\n>   - [Campaign state changed](#tag/Campaign-notifications/operation/campaignStateChangedNotification)\n>   - [Campaign rules changed](#tag/Campaign-notifications/operation/campaignRulesetChangedNotification)\n>   - [Campaign edited](#tag/Campaign-notifications/operation/campaignEditedNotification)\n>   - [Campaign collection edited](#tag/Campaign-notifications/operation/campaignCollectionEditedNotification)\n>   - [Campaign deleted](#tag/Campaign-notifications/operation/campaignDeletedNotification)\n> - `CampaignEvaluationTreeChanged` signifies [Campaign evaluation tree changed](#tag/Campaign-notifications/operation/campaignEvaluationTreeChangedNotification).\n",
+        "type": "text/plain"
+      },
+      "item": [],
+      "event": []
+    },
+    {
+      "id": "6352c779-30f7-492a-a0f5-ec1ddae32b9b",
+      "name": "Coupon notifications",
+      "description": {
+        "content": "Represents the [notifications](/docs/product/applications/application-notifications/overview)\nabout coupons.\n",
+        "type": "text/plain"
+      },
+      "item": [],
+      "event": []
+    },
+    {
+      "id": "f29ff6a1-60ba-4f36-b310-624f49db98b4",
+      "name": "Loyalty card notifications",
+      "description": {
+        "content": "Represents the [notifications](/docs/product/loyalty-programs/loyalty-notifications/overview) about changes to loyalty points in card-based loyalty programs.",
+        "type": "text/plain"
+      },
+      "item": [],
+      "event": []
+    },
+    {
+      "id": "1b8970b4-d59d-498f-88fe-27b14cf4b210",
+      "name": "Loyalty notifications",
+      "description": {
+        "content": "Represents the [notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)\nabout changes to loyalty points in profile-based loyalty programs.\n",
+        "type": "text/plain"
+      },
+      "item": [],
+      "event": []
+    },
+    {
+      "id": "9afc6ea3-3ae5-4927-8750-03b67e7c0ff7",
+      "name": "Strikethrough pricing notifications",
+      "description": {
+        "content": "Represents the [notifications](/docs/product/applications/application-notifications/overview)\nabout strikethrough pricing updates.\n",
+        "type": "text/plain"
+      },
+      "item": [],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://yourbaseurl.talon.one",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "4605e94c-a353-48f9-9e76-15cac2bf52bc",
+    "name": "Notification schemas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Use [Application notifications](/docs/product/applications/application-notifications/overview)\nand [loyalty notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)\nto notify the system of your choice of certain changes that happened in Talon.One.\n\n> [!note] **Note:**\n> - Required fields are not omitted if they are empty (have `null` value).\n> - The notification schemas may be extended with additional properties in future releases.\n> To maintain forward compatibility, ensure your implementation ignores unknown properties.\n",
+      "type": "text/plain"
+    }
+  }
+}

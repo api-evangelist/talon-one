@@ -1,0 +1,85 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Shopify Integration API",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Customer profiles",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve customer data (Headless stores)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://shopify-integration.europe-west1.talon.one/api/v1/customer",
+            "headers": [
+              {
+                "name": "X-Shopify-Shop-Domain",
+                "value": ""
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Fetches the Talon.One customer profile for a Shopify customer in a [headless store](https://shopify.dev/docs/storefronts/headless/getting-started). The response is also stored in a customer metafield in Shopify. \n\nThe response schema is identical to the [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory) endpoint of the Integration API.\n\nIf you call this endpoint repeatedly with the same customer access token, the endpoint sends a cac"
+        },
+        {
+          "info": {
+            "name": "Retrieve customer data (Theme-based stores)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://shopify-integration.europe-west1.talon.one/api/v1/customer-profile",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Fetches the Talon.One customer profile for a Shopify customer in a [theme-based store](https://shopify.dev/docs/storefronts/themes). The response is also stored in a customer metafield in Shopify. \n\nThe response schema is identical to the [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory) endpoint of the Integration API.\n\nIf you call this endpoint repeatedly with the same customer JWT token, the endpoint sends a cached response for t"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Session",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create or update customer session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://shopify-integration.europe-west1.talon.one/api/v1/session",
+            "headers": [
+              {
+                "name": "X-Shopify-Shop-Domain",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates or updates a session in Talon.One and submits Shopify cart items. \n\nThe response schema is identical to the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint of the Integration API.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

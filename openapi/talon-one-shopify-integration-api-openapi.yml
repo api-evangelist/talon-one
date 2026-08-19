@@ -1,0 +1,402 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Shopify Integration API
+  description: |
+    Use this API to integrate with Shopify. For more information, see the [Shopify](https://docs.talon.one/docs/dev/technology-partners/shopify/integrating-with-shopify)
+    section in the developer docs.
+servers:
+  - url: https://shopify-integration.europe-west1.talon.one
+tags:
+  - name: Customer profiles
+    description: Use the following endpoints to manage customer data.
+  - name: Session
+    description: Use the following endpoints to manage customer sessions.
+paths:
+  /api/v1/customer:
+    get:
+      summary: Retrieve customer data (Headless stores)
+      description: |
+        Fetches the Talon.One customer profile for a Shopify customer in a [headless store](https://shopify.dev/docs/storefronts/headless/getting-started). The response is also stored in a customer metafield in Shopify. 
+
+        The response schema is identical to the [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory) endpoint of the Integration API.
+
+        If you call this endpoint repeatedly with the same customer access token, the endpoint sends a cached response for the given customer. The cache clears after 10 seconds. This is done to reduce data load.        
+      operationId: getCustomerHeadless
+      tags:
+        - Customer profiles
+      security:
+        - ShopifyCustomerAccessToken: []
+      parameters:
+        - $ref: '#/components/parameters/ShopifyShopDomain'
+      responses:
+        '200':
+          description: OK. For details, see the response of the [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory) endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomerResponse'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MissingShopDomainHeader:
+                  summary: Missing X-Shopify-Shop-Domain header
+                  value:
+                    success: false
+                    message: missing X-Shopify-Shop-Domain header
+                InvalidConfig:
+                  summary: Missing `api_url` or `api_key` in the config
+                  value:
+                    success: false
+                    message: Invalid config
+        '401':
+          description: Unauthorized. Authentication failed or token does not grant access for the requested store.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NoAuthHeaderOrMalformed:
+                  summary: Missing or malformed Authorization header
+                  value:
+                    success: false
+                    message: Unauthorized
+                ShopIdMismatch:
+                  summary: Token's shop ID does not match the configured shop ID for the given X-Shopify-Shop-Domain
+                  value:
+                    success: false
+                    message: Unauthorized
+        '403':
+          description: Forbidden. The provided token is invalid, expired, or does not have the necessary permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidJWT:
+                  summary: Invalid or expired JWT token
+                  value:
+                    success: false
+                    message: Invalid JWT token
+        '404':
+          description: Not found. The requested resource (config or customer) could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConfigNotFound:
+                  summary: Configuration not found
+                  value:
+                    success: false
+                    message: Config not found
+                CustomerNotFoundInT1:
+                  summary: Customer profile not found
+                  value:
+                    success: false
+                    message: Customer not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  summary: Internal Server Error
+                  value:
+                    success: false
+                    message: Internal Server Error
+  /api/v1/customer-profile:
+    get:
+      summary: Retrieve customer data (Theme-based stores)
+      description: |
+        Fetches the Talon.One customer profile for a Shopify customer in a [theme-based store](https://shopify.dev/docs/storefronts/themes). The response is also stored in a customer metafield in Shopify. 
+
+        The response schema is identical to the [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory) endpoint of the Integration API.
+
+        If you call this endpoint repeatedly with the same customer JWT token, the endpoint sends a cached response for the given customer. The cache clears after 10 seconds. This is done to reduce data load.        
+      operationId: getCustomerThemeBased
+      tags:
+        - Customer profiles
+      security:
+        - ShopifyJWT: []
+      responses:
+        '200':
+          description: OK. For details, see the response of the [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory) endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomerResponse'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidConfig:
+                  summary: Missing `api_url` or `api_key` in the config
+                  value:
+                    success: false
+                    message: Invalid config
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MissingAuthorizationHeader:
+                  summary: Missing Authorization header
+                  value:
+                    success: false
+                    message: Unauthorized
+        '403':
+          description: Forbidden. The provided token is invalid, expired, or does not have the necessary permissions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InvalidJWT:
+                  summary: Invalid or expired JWT token. Missing required fields.
+                  value:
+                    success: false
+                    message: Invalid JWT token
+        '404':
+          description: Not found. The requested resource (config or customer) could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConfigNotFound:
+                  summary: Configuration not found
+                  value:
+                    success: false
+                    message: Config not found
+                CustomerNotFoundInT1:
+                  summary: Customer profile not found
+                  value:
+                    success: false
+                    message: Customer not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  summary: Internal Server Error
+                  value:
+                    success: false
+                    message: Internal Server Error
+  /api/v1/session:
+    post:
+      summary: Create or update customer session
+      description: |
+        Creates or updates a session in Talon.One and submits Shopify cart items. 
+
+        The response schema is identical to the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint of the Integration API.
+      operationId: upsertSession
+      tags:
+        - Session
+      parameters:
+        - $ref: '#/components/parameters/ShopifyShopDomain'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertSessionRequest'
+      responses:
+        '200':
+          description: OK. For details, see the response of the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpsertSessionResponse'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MissingShopDomainHeader:
+                  summary: Missing X-Shopify-Shop-Domain header
+                  value:
+                    success: false
+                    message: Missing X-Shopify-Shop-Domain header
+                MissingShopifyCartID:
+                  summary: Missing Shopify cart ID
+                  value:
+                    success: false
+                    message: id is required
+                MissingLineItems:
+                  summary: Missing Shopify cart's line items
+                  value:
+                    success: false
+                    message: line_items is required
+                MissingLineItemProperty:
+                  summary: Missing required field in line item
+                  value:
+                    success: false
+                    message: line_items[0].title is required
+                InvalidLineItemProperty:
+                  summary: Line item is invalid
+                  value:
+                    success: false
+                    message: line_items[0].title is not allowed to be empty
+        '404':
+          description: Not Found. The requested resource (config) could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConfigNotFound:
+                  summary: Configuration not found
+                  value:
+                    success: false
+                    message: Config not found
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  summary: Internal Server Error
+                  value:
+                    success: false
+                    message: Internal Server Error
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Indicates if the request was unsuccessful.
+        message:
+          type: string
+          description: A human-readable message describing the error.
+      required:
+        - success
+        - message
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Indicates if the request was successful.
+        message:
+          type: string
+          description: A human-readable message.
+    GetCustomerResponse:
+      type: object
+      properties:
+        profile:
+          type: object
+          description: Customer profile information.
+        loyalty:
+          type: object
+          description: Customer-specific information about loyalty points.
+        referrals:
+          type: array
+          items:
+            type: object
+        coupons:
+          type: array
+          description: The coupons reserved by this profile. This array includes hard and soft reservations. Reserved coupons also include redeemed coupons.
+          items:
+            type: object
+        giveaways:
+          type: array
+          items:
+            type: object
+        achievements:
+          type: array
+          items:
+            type: object
+    UpsertSessionRequest:
+      type: object
+      required:
+        - id
+        - line_items
+      properties:
+        id:
+          type: string
+          example: gid://shopify/Cart/Z2NwLXVzLWV4YW1wbGU6MDEyMzQ1Njc4OTAxMjM0NTY3ODkw?key=examplekey1234567890
+          description: The Shopify cart ID.
+        line_items:
+          type: array
+          description: The Shopify cart line items.
+          items:
+            type: object
+            required:
+              - title
+              - price
+              - quantity
+            description: |
+              A line item in the cart. The identifier for the item depends on the shop's configuration:
+              1.  **If custom product IDs are NOT configured**: `variant_id` is REQUIRED and `custom_id` is forbidden.
+              2.  **If custom product IDs ARE configured**: EITHER `variant_id` or `custom_id` must be provided (but not both). If only `variant_id` is sent, the backend will automatically look up the corresponding custom ID.
+            properties:
+              variant_id:
+                type: integer
+                description: The Shopify product variant ID. Required unless custom IDs are configured and `custom_id` is provided instead.
+              custom_id:
+                type: string
+                description: The Shopify product variant custom ID (from a metafield). If custom IDs are configured for the shop, this field can be used, but `variant_id` is preferred as the backend will perform the lookup automatically if `custom_id` is not provided.
+              title:
+                type: string
+                minLength: 1
+              price:
+                type: string
+                pattern: ^\d+(\.\d{1,2})?$
+                example: '18.35'
+              quantity:
+                type: integer
+                minimum: 1
+                example: 1
+        attributes:
+          type: object
+          description: Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session.
+    UpsertSessionResponse:
+      type: object
+    GetSessionResponse:
+      type: object
+  parameters:
+    ShopifyShopDomain:
+      name: X-Shopify-Shop-Domain
+      in: header
+      required: true
+      description: The Shopify domain of the shop (e.g., `store.myshopify.com`).
+      schema:
+        type: string
+        example: store.myshopify.com
+  securitySchemes:
+    ShopifyCustomerAccessToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Shopify Customer Account API token (e.g., starting with "shcat_").
+    ShopifyJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Shopify JWT token.

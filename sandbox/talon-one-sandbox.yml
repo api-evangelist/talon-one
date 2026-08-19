@@ -1,0 +1,52 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/docs/product/applications/manage-api-keys
+provider: Talon.One
+providerId: talon-one
+description: 'Talon.One has no public self-service sandbox: there are no shared test credentials and no
+  public test host, because every account is its own deployment. What it does publish is a staging path
+  inside a real account — a Test-type Integration API key, dry requests, and an in-product API tester.'
+public_sandbox: false
+signup: Sales-led. Access to a deployment comes from a demo/contract; there is no free developer tier.
+modes:
+- name: Production key
+  type: Integration API key
+  scope: production Applications
+  note: Normal live key; see the Authentication section of the Integration API reference.
+- name: Test key
+  type: Integration API key
+  scope: staging environment
+  note: Available only when campaign staging and revisions is enabled, and only one key of this type may
+    exist per Application. It triggers Staged and Running campaigns (and a Revised campaign in place of
+    the active one). Every request made with it is a dry request — production writes are impossible with
+    this key. Limited to Update customer session, Update customer profile and Track event.
+dry_requests:
+  supported: true
+  parameter: dry=true
+  scope: supported Integration API endpoints
+  behaviour: The request is evaluated by the Rule Engine and the effects are returned, but nothing is
+    stored and analytics are not affected.
+  docs: https://docs.talon.one/docs/dev/integration-api/dry-requests
+tooling:
+- name: API tester
+  kind: in-product
+  description: Compose Update customer session, Update customer profile or Track event requests visually
+    in the Campaign Manager and see the generated cURL.
+  docs: https://docs.talon.one/docs/product/account/dev-tools/API-tester
+- name: Postman workspace
+  kind: collection
+  description: Public Postman workspace with Integration API and Management API collections and a generic
+    environment.
+  url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+- name: Load testing
+  kind: process
+  description: Load tests must be coordinated with Talon.One in advance rather than run freely against
+    a deployment.
+  docs: https://docs.talon.one/docs/dev/tutorials/load-test
+test_values:
+  published: false
+  note: No test cards, test tokens or fixture identifiers are published — Talon.One is not a payments
+    API and holds no card data.
+time_simulation:
+  supported: false
+  note: No test clock or time-travel facility is documented.

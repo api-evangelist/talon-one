@@ -1,0 +1,148 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/oas/integration.yaml, https://docs.talon.one/oas/management.yaml, https://docs.talon.one/docs/dev/get-started/overview
+provider: Talon.One
+providerId: talon-one
+description: Cross-cutting runtime semantics for the Talon.One Integration, Management and Third-party
+  APIs, read from the OpenAPI documents Talon.One publishes and from the developer docs.
+authentication:
+  style: api-key-in-authorization-header
+  header: Authorization
+  prefixes:
+  - api: Integration API
+    prefix: ApiKey-v1
+    example_form: 'Authorization: ApiKey-v1 <key>'
+  - api: Management API
+    prefix: ManagementKey-v1
+    example_form: 'Authorization: ManagementKey-v1 <key>'
+  - api: Management API (session token)
+    prefix: Bearer
+    example_form: 'Authorization: Bearer <token>'
+    note: Session bearer token from createSession, valid 3 months. Talon.One recommends the Management
+      API key instead.
+  - api: Third-party API
+    prefix: ApiKey-v1
+    example_form: 'Authorization: ApiKey-v1 <key>'
+    note: HTTP Basic is also accepted for partners that cannot set a custom Authorization scheme.
+  docs: https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys
+  detail: authentication/talon-one-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  scope: Integration API write endpoints (customer sessions, customer profiles, events and related v2
+    writes)
+  key_format: Typically a UUID; must not exceed 255 characters
+  retention: 24 hours — responses for idempotent requests are stored and expire 24 hours after the request
+    is sent
+  observability: Requests carrying Idempotency-Key are recorded in the Talon.One access logs
+  operation_count: 6
+  operations:
+  - api: integration
+    method: PUT
+    path: /v2/customer_sessions/{customerSessionId}
+    operationId: updateCustomerSessionV2
+  - api: integration
+    method: POST
+    path: /v2/customer_sessions/{customerSessionId}/returns
+    operationId: returnCartItems
+  - api: integration
+    method: PUT
+    path: /v2/customer_sessions/{customerSessionId}/reopen
+    operationId: reopenCustomerSession
+  - api: integration
+    method: PUT
+    path: /v2/customer_profiles/{integrationId}
+    operationId: updateCustomerProfileV2
+  - api: integration
+    method: PUT
+    path: /v2/customer_profiles
+    operationId: updateCustomerProfilesV2
+  - api: integration
+    method: POST
+    path: /v2/events
+    operationId: trackEventV2
+  source: Operation descriptions in https://docs.talon.one/oas/integration.yaml
+pagination:
+  style: offset
+  parameters:
+  - name: pageSize
+    in: query
+    description: Number of items in the response.
+    occurrences: 12
+  - name: skip
+    in: query
+    description: Number of items to skip before returning the page.
+    occurrences: 1
+  - name: sort
+    in: query
+    description: Property to sort by; prefix with - for descending.
+    occurrences: 3
+  - name: withTotalResultSize
+    in: query
+    description: When true the response includes totalResultSize; when false it includes hasMore instead,
+      which is cheaper on large collections.
+    occurrences: 11
+  response_fields:
+  - totalResultSize
+  - hasMore
+  - data
+  note: Management API list endpoints wrap results in a data[] envelope with either totalResultSize or
+    hasMore depending on withTotalResultSize.
+filtering:
+  time_windows:
+  - createdBefore
+  - createdAfter
+  - startDate
+  - endDate
+  - rangeStart
+  - rangeEnd
+  note: Date filters are RFC 3339 timestamps; export endpoints add dateFormat to control the emitted format.
+dry_run:
+  supported: true
+  parameter: dry
+  in: query
+  description: A dry request is evaluated by the Rule Engine but never persisted, and is excluded from
+    analytics. Used for what-if pricing and eligibility previews.
+  docs: https://docs.talon.one/docs/dev/integration-api/dry-requests
+response_shaping:
+  parameter: responseContent
+  description: Several Integration API endpoints accept a responseContent array to request additional
+    data (customerSession, customerProfile, coupons, triggeredCampaigns, loyalty, ruleFailureReasons)
+    in a single call instead of follow-up requests.
+  docs: https://docs.talon.one/docs/dev/integration-api/meta-response
+custom_attributes:
+  description: Domain-specific data is carried in an open `attributes` object on sessions, profiles, cart
+    items and events. Attributes must be defined in the account before they can be sent; unknown attributes
+    are rejected with a 400 whose source.pointer names the field.
+  docs: https://docs.talon.one/docs/dev/concepts/attributes
+tracing:
+  request_correlation:
+  - field: RequestUUID
+    where: error response body on edge-generated errors
+  - header: X-Correlation-ID
+    where: outbound callbacks from Talon.One (Third-party API callbacks); arbitrary caller-assigned id
+      echoed back
+  access_logs: Every Integration API request is visible in the Campaign Manager access logs, including
+    its idempotency key.
+versioning:
+  style: path-prefix + platform release train
+  path_versions:
+  - /v1
+  - /v2
+  note: Endpoint families are versioned in the path (v1/v2) while the platform itself ships numbered releases
+    roughly every two weeks (26.16 on 2026-08-12). SDK versions track the platform release number.
+  detail: lifecycle/talon-one-lifecycle.yml
+errors:
+  envelope: '{ message, errors[{title, details, source.pointer}] }'
+  rfc9457: false
+  detail: errors/talon-one-problem-types.yml
+rate_limits:
+  published: true
+  headline: 'Management API: three requests per second per endpoint. Integration API is engineered for
+    high-load real-time traffic and is sized by contract.'
+  detail: rate-limits/talon-one-rate-limits.yml
+deployment_model:
+  description: Talon.One is delivered as a per-customer deployment. Every Integration and Management API
+    call goes to the customer own host (for example https://mycompany.europe-west1.talon.one); the published
+    specs use https://yourbaseurl.talon.one as the placeholder. The Third-party API is the exception and
+    is served from the shared host https://integration.talon.one.

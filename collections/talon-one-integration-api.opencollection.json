@@ -1,0 +1,1630 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Integration API"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Customer sessions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get customer session",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v2/customer_sessions/:customerSessionId",
+            "params": [
+              {
+                "name": "customerSessionId",
+                "value": "session1",
+                "type": "path",
+                "description": "The `integration ID` of the customer session. You set this ID when you create a customer session.\n\nYou can see existing customer session integration IDs in the Campaign Manager's **Sessions** menu, or via the\n[List Application session](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationSessions) endpoint.\n**Notes**: - There is no length limit for this ID. - It must be URL-encoded. For example, replace spaces with `%20`. [Learn more](https://www.w3schools.com/tags/ref_urlencode.asp).\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Get the details of the given customer session.\n\nYou can get the same data via other endpoints that also apply changes, which can help you save requests and increase performance. See:\n\n- [Update customer session](#tag/Customer-sessions/operation/updateCustomerSessionV2)\n- [Update customer profile](#tag/Customer-profiles/operation/updateCustomerProfileV2)\n"
+        },
+        {
+          "info": {
+            "name": "Update customer session",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/customer_sessions/:customerSessionId",
+            "params": [
+              {
+                "name": "dry",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether to persist the changes. Changes are ignored when `dry=true`.\n\nWhen set to `true`:\n- The endpoint considers **only** the payload that you pass when **closing** the session.\n  When you do not use the `dry` parameter, the endpoint behaves as a typical PUT endpoint. Each update builds upon the previous ones.\n- You can use the `evaluableCampaignIds` body property to select specific campaigns to run.\n\n[See the docs](https://docs.talon.one/docs/dev/integration-api/dry-requests).\n"
+              },
+              {
+                "name": "customerSessionId",
+                "value": "session1",
+                "type": "path",
+                "description": "The `integration ID` of the customer session. You set this ID when you create a customer session.\n\nYou can see existing customer session integration IDs in the Campaign Manager's **Sessions** menu, or via the\n[List Application session](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationSessions) endpoint.\n**Notes**: - There is no length limit for this ID. - It must be URL-encoded. For example, replace spaces with `%20`. [Learn more](https://www.w3schools.com/tags/ref_urlencode.asp).\n"
+              },
+              {
+                "name": "now",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "A timestamp value of a future date that acts as a current date when\nincluded in the query.\n\nUse this parameter, for example, to test campaigns that would be\nevaluated for this customer session in the future (say, [scheduled\ncampaigns](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-schedule)).\n\n> [!note] **Note**\n> - It must be an RFC3339 timestamp string.\n> - It can **only** be a date in the future.\n> - It can **only** be used if the `dry` parameter in the query is set to `true`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update or create a [customer\nsession](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).\n\nThe endpoint responds with the potential promotion rule\n[effects](https://docs.talon.one/docs/dev/integration-api/api-effects) that\nmatch the current cart.\n\nFor example, use this endpoint to share the contents of a customer's cart\nwith Talon.One.\n\n> [!note] **Note**\n> - The currency for the session and the cart items in it is the currency set for the Application linked to this session.\n> "
+        },
+        {
+          "info": {
+            "name": "Return cart items",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/customer_sessions/:customerSessionId/returns",
+            "params": [
+              {
+                "name": "dry",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether to persist the changes. Changes are ignored when `dry=true`.\n"
+              },
+              {
+                "name": "customerSessionId",
+                "value": "session1",
+                "type": "path",
+                "description": "The `integration ID` of the customer session. You set this ID when you create a customer session.\n\nYou can see existing customer session integration IDs in the Campaign Manager's **Sessions** menu, or via the\n[List Application session](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationSessions) endpoint.\n"
+              },
+              {
+                "name": "runRuleEngine",
+                "value": "false",
+                "type": "query",
+                "description": "When set to `true`, reevaluates the updated session after items are returned. Only reevaluates campaigns where `reevaluateOnReturn` is set to `true` and which produced an effect when the session was closed.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a new return request for the specified cart items.\n\nThis endpoint automatically changes the session state from `closed` to\n`partially_returned`.\n\n> [!note] This will roll back any effects associated with these cart items.\n> For more information, see [our documentation on session\n> states](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states)\n> and [this tutorial](https://docs.talon.one/docs/dev/tutorials/partially-returning-a-session).\n\n> [!note] To "
+        },
+        {
+          "info": {
+            "name": "Reopen customer session",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/customer_sessions/:customerSessionId/reopen",
+            "params": [
+              {
+                "name": "customerSessionId",
+                "value": "session1",
+                "type": "path",
+                "description": "The `integration ID` of the customer session. You set this ID when you create a customer session.\n\nYou can see existing customer session integration IDs in the Campaign Manager's **Sessions** menu, or via the\n[List Application session](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationSessions) endpoint.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Reopen a closed [customer\nsession](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).\n\nFor example, if a session has been completed but still needs to be edited,\nyou can reopen it with this endpoint.\n\nA reopen session is treated like a standard open session.\n\nWhen reopening a session:\n\n- The `talon_session_reopened` event is triggered. You can see it in the **Events** view in the Campaign Manager.\n- The session state is updated to `open`.\n- Any modified budgets and triggered e"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Customer profiles",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Update customer profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/customer_profiles/:integrationId",
+            "params": [
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration identifier for this customer profile. Must be:\n- Unique within the deployment.\n- Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.\n\nOnce set, you cannot update this identifier.\n**Note**: It must be URL-encoded. For example, replace spaces with `%20`. [Learn more](https://www.w3schools.com/tags/ref_urlencode.asp).\n"
+              },
+              {
+                "name": "runRuleEngine",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether to run the Rule Engine.\n\nIf `true`, the response includes:\n- The effects generated by the triggered campaigns are returned in the `effects` property.\n- The created coupons and referral objects.\n\nIf `false`:\n- The rules are not executed and the `effects` property is always empty.\n- The response time improves.\n- You cannot use `responseContent` in the body.\n"
+              },
+              {
+                "name": "dry",
+                "value": "false",
+                "type": "query",
+                "description": "(Only works when `runRuleEngine=true`) Indicates whether to persist the changes. Changes are ignored when `dry=true`.\n\nWhen set to `true`, you can use the `evaluableCampaignIds` body property to select specific campaigns to run.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update or create a [Customer\nProfile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles).\nThis endpoint triggers the Rule Builder.\n\nYou can use this endpoint to:\n- Set attributes on the given customer profile. Ensure you create the attributes in the Campaign Manager, first.\n- Modify the audience the customer profile is a member of.\n\n> [!note] **Note**\n> - Updating a customer profile returns a response with the requested integration state.\n> - The [Has joined an audience](https:"
+        },
+        {
+          "info": {
+            "name": "Update multiple customer profiles",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/customer_profiles",
+            "params": [
+              {
+                "name": "silent",
+                "value": "yes",
+                "type": "query",
+                "description": "Possible values: `yes` or `no`.\n- `yes`: Increases the performance of the API call by returning a 204 response.\n- `no`: Returns a 200 response that contains the updated customer profiles.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update (or create) up to 1000 [customer\nprofiles](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles)\nin 1 request.\n\nThe `integrationId` must be any identifier that remains stable for\nthe customer. Do not use an ID that the customer can update\nthemselves. For example, you can use a database ID.\n\nA customer profile [can be linked to one or more\nsessions](https://docs.talon.one/integration-api#tag/Customer-sessions).\n\n> [!note] This endpoint does not trigger the Rule Engine.\n> To "
+        },
+        {
+          "info": {
+            "name": "Delete customer's personal data",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://yourbaseurl.talon.one/v1/customer_data/:integrationId",
+            "params": [
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. You can get the `integrationId` of a profile using:\n- A customer session integration ID with the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.\n- The Management API with the [List application's customers](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationCustomers) endpoint.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Delete all attributes on the customer profile and on entities that reference\nthis customer profile.\n\n> [!warning] **Warning**\n> - Customer data is deleted from all Applications in the\n>   [environment](https://docs.talon.one/docs/product/applications/overview#application-environments)\n>   that the API key belongs to. For example, if you use this endpoint with an API key that belongs\n>   to a sandbox Application, customer data will be deleted from all sandbox Applications.\n>   This is because cus"
+        },
+        {
+          "info": {
+            "name": "List customer data",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/customer_profiles/:integrationId/inventory",
+            "params": [
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. You can get the `integrationId` of a profile using:\n- A customer session integration ID with the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.\n- The Management API with the [List application's customers](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationCustomers) endpoint.\n"
+              },
+              {
+                "name": "profile",
+                "value": "false",
+                "type": "query",
+                "description": "Set to `true` to include customer profile information in the response."
+              },
+              {
+                "name": "referrals",
+                "value": "false",
+                "type": "query",
+                "description": "Set to `true` to include referral information in the response."
+              },
+              {
+                "name": "coupons",
+                "value": "false",
+                "type": "query",
+                "description": "Set to `true` to include coupon information in the response."
+              },
+              {
+                "name": "loyalty",
+                "value": "false",
+                "type": "query",
+                "description": "Set to `true` to include loyalty information in the response."
+              },
+              {
+                "name": "giveaways",
+                "value": "false",
+                "type": "query",
+                "description": "Set to `true` to include giveaways information in the response."
+              },
+              {
+                "name": "achievements",
+                "value": "false",
+                "type": "query",
+                "description": "Set to `true` to include achievement information in the response."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return the customer inventory regarding entities referencing this customer profile's `integrationId`.\n\nTypical entities returned are: customer profile information, referral codes, loyalty points, loyalty cards and reserved coupons.\nReserved coupons also include redeemed coupons.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Audiences",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create audience",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/audiences",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create an audience. The audience can be created directly from scratch or can\ncome from third party platforms.\n\n> [!note] Audiences can also be created from scratch via the Campaign\nManager. See the [docs](https://docs.talon.one/docs/product/audiences/creating-audiences).\n\nTo create an audience from an existing audience from a [technology\npartner](https://docs.talon.one/docs/dev/technology-partners/overview):\n\n1. Set the `integration` property to `mparticle`, `segment` etc., depending\non a third-"
+        },
+        {
+          "info": {
+            "name": "Update audience name",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/audiences/:audienceId",
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "10",
+                "type": "path",
+                "description": "The ID of the audience."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update the name of the given audience created by a third-party integration. Sending a request to this endpoint does **not** trigger the Rule Engine.\n\nTo update the audience's members, use the [Update customer profile](#tag/Customer-profiles/operation/updateCustomerProfileV2) endpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Delete audience",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://yourbaseurl.talon.one/v2/audiences/:audienceId",
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "10",
+                "type": "path",
+                "description": "The ID of the audience."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Delete an audience.\n\n> [!warning] This endpoint also removes any associations recorded between a\ncustomer profile and this audience.\n\n> [!note] Audiences can also be deleted via the Campaign Manager. See the\n[docs](https://docs.talon.one/docs/product/audiences/managing-audiences#deleting-an-audience).\n"
+        },
+        {
+          "info": {
+            "name": "Delete audience memberships",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://yourbaseurl.talon.one/v2/audiences/:audienceId/memberships",
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "10",
+                "type": "path",
+                "description": "The ID of the audience."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Remove all members from this audience.\n"
+        },
+        {
+          "info": {
+            "name": "Update multiple customer profiles' audiences",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/customer_audiences",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Add customer profiles to or remove them from an audience.\n\nThe endpoint supports 1000 audience actions (`add` or `remove`) per request.\n\n> [!note] You can also do this using the\n> [Update audience](https://docs.talon.one/docs/product/rules/effects/using-effects#updating-an-audience)\n> effect.\n"
+        },
+        {
+          "info": {
+            "name": "Update profile attributes for all customers in audience",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v2/audience_customers/:audienceId/attributes",
+            "params": [
+              {
+                "name": "audienceId",
+                "value": "10",
+                "type": "path",
+                "description": "The ID of the audience."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Update the specified profile attributes to the provided values for all customers in the specified audience.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Loyalty cards",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Link customer profile to card",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/loyalty_programs/:loyaltyProgramId/cards/:loyaltyCardId/link_profile",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the card-based loyalty program containing the loyalty card. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "loyaltyCardId",
+                "value": "summer-loyalty-card-0543",
+                "type": "path",
+                "description": "Identifier of the loyalty card. You can get the identifier with\nthe [List loyalty\ncards](https://docs.talon.one/management-api#tag/Loyalty-cards/operation/getLoyaltyCards)\nendpoint.\n\n**Important**: The loyalty card ID requires [URL\nencoding](https://www.w3schools.com/tags//ref_urlencode.asp) if it\ncontains special characters. For example, you must encode `NewCard2026%`\nas `NewCard2026%25`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "[Loyalty cards](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview)\nallow customers to collect and spend loyalty points within a [card-based loyalty\nprogram](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types).\n\nThey are useful to gamify loyalty programs and can be used with or without\ncustomer profiles linked to them.\n\nLink a customer profile to a given loyalty card for the card to be set as\n**Registered**.\n\nThis affects how it c"
+        },
+        {
+          "info": {
+            "name": "Unlink customer profile from a loyalty card",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/loyalty_programs/:loyaltyProgramId/cards/:loyaltyCardId/unlink_profile",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "The identifier of the card-based loyalty program containing the loyalty card. You can get this ID using the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "loyaltyCardId",
+                "value": "summer-loyalty-card-0543",
+                "type": "path",
+                "description": "The identifier of the loyalty card. You can get this ID using the [List loyalty\ncards](https://docs.talon.one/management-api#tag/Loyalty-cards/operation/getLoyaltyCards)\nendpoint.\n\n**Important**: The loyalty card ID requires [URL\nencoding](https://www.w3schools.com/tags//ref_urlencode.asp) if it\ncontains special characters. For example, you must encode `NewCard2026%`\nas `NewCard2026%25`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Unlink a customer profile from a [registered](https://docs.talon.one/docs/product/loyalty-programs/card-based/managing-loyalty-cards#linking-customer-profiles-to-a-loyalty-card) loyalty card.\n\nTo get the `integrationId` of a customer profile, you can use the\n[Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)\nendpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Get card's point balances",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/cards/:loyaltyCardId/balances",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the card-based loyalty program containing the loyalty card. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "loyaltyCardId",
+                "value": "summer-loyalty-card-0543",
+                "type": "path",
+                "description": "Identifier of the loyalty card. You can get the identifier with\nthe [List loyalty\ncards](https://docs.talon.one/management-api#tag/Loyalty-cards/operation/getLoyaltyCards)\nendpoint.\n\n**Important**: The loyalty card ID requires [URL\nencoding](https://www.w3schools.com/tags//ref_urlencode.asp) if it\ncontains special characters. For example, you must encode `NewCard2026%`\nas `NewCard2026%25`.\n"
+              },
+              {
+                "name": "endDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Used to return expired, active, and pending loyalty balances before this\ntimestamp. You can enter any past, present, or future timestamp value.\n\n> [!note] **Note**\n> - This must be an RFC3339 timestamp string.\n> - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting\n>   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "subledgerId",
+                "value": "subledger1,subledger2",
+                "type": "query",
+                "description": "Filter results by one or more subledger IDs. Must be exact match."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve loyalty balances for the given loyalty card in the specified loyalty program with filtering options applied.\nIf no filtering options are applied, all loyalty balances for the given loyalty card are returned.\n"
+        },
+        {
+          "info": {
+            "name": "List card's transactions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/cards/:loyaltyCardId/transactions",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the card-based loyalty program containing the loyalty card. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "loyaltyCardId",
+                "value": "summer-loyalty-card-0543",
+                "type": "path",
+                "description": "Identifier of the loyalty card. You can get the identifier with\nthe [List loyalty\ncards](https://docs.talon.one/management-api#tag/Loyalty-cards/operation/getLoyaltyCards)\nendpoint.\n\n**Important**: The loyalty card ID requires [URL\nencoding](https://www.w3schools.com/tags//ref_urlencode.asp) if it\ncontains special characters. For example, you must encode `NewCard2026%`\nas `NewCard2026%25`.\n"
+              },
+              {
+                "name": "subledgerId",
+                "value": "subledger1,subledger2",
+                "type": "query",
+                "description": "Filter results by one or more subledger IDs. Must be exact match."
+              },
+              {
+                "name": "loyaltyTransactionType",
+                "value": "manual",
+                "type": "query",
+                "description": "Filter results by loyalty transaction type:\n- `manual`: Loyalty transaction that was done manually.\n- `session`: Loyalty transaction that resulted from a customer session.\n- `import`: Loyalty transaction that was imported from a CSV file.\n"
+              },
+              {
+                "name": "startDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Date and time from which results are returned. Results are filtered by\ntransaction creation date.\n\n> [!note] **Note**\n> - This must be an RFC3339 timestamp string.\n> - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting\n>   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "endDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Date and time by which results are returned. Results are filtered by\ntransaction creation date.\n\n> [!note] **Note**\n> - This must be an RFC3339 timestamp string.\n> - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting\n>   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "customerSessionIDs",
+                "value": "session_integration_id_1,session_integration_id_1",
+                "type": "query",
+                "description": "Filter the results by a list of customer session IDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?customerSessionIDs=id1&customerSessionIDs=id2`.\n\nThe response contains only data associated with the specified sessions.\n"
+              },
+              {
+                "name": "transactionUUIDs",
+                "value": "dc608634-0100-40d9-b371-e964476bbe0f,9e829590-05cf-407b-b4c0-5f28468a81e1",
+                "type": "query",
+                "description": "Filter the results by a list of transaction UUIDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.\n\nThe response contains only data associated with the specified transactions.\n"
+              },
+              {
+                "name": "pageSize",
+                "value": "50",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              },
+              {
+                "name": "awaitsActivation",
+                "value": "true",
+                "type": "query",
+                "description": "If `true`: Filters results to include only point transactions that have action-based activation and have not expired.\n\nIf `false`: Returns a `400` response.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve loyalty transaction logs for the given loyalty card in the specified loyalty program with filtering options applied.\nIf no filtering options are applied, the last 50 loyalty transactions for the given loyalty card are returned.\n"
+        },
+        {
+          "info": {
+            "name": "List card's unused loyalty points",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/cards/:loyaltyCardId/points",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the card-based loyalty program containing the loyalty card. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "loyaltyCardId",
+                "value": "summer-loyalty-card-0543",
+                "type": "path",
+                "description": "Identifier of the loyalty card. You can get the identifier with\nthe [List loyalty\ncards](https://docs.talon.one/management-api#tag/Loyalty-cards/operation/getLoyaltyCards)\nendpoint.\n\n**Important**: The loyalty card ID requires [URL\nencoding](https://www.w3schools.com/tags//ref_urlencode.asp) if it\ncontains special characters. For example, you must encode `NewCard2026%`\nas `NewCard2026%25`.\n"
+              },
+              {
+                "name": "status",
+                "value": "active",
+                "type": "query",
+                "description": "Filter points based on their status."
+              },
+              {
+                "name": "subledgerId",
+                "value": "subledger1,subledger2",
+                "type": "query",
+                "description": "Filter results by one or more subledger IDs. Must be exact match."
+              },
+              {
+                "name": "customerSessionIDs",
+                "value": "session_integration_id_1,session_integration_id_1",
+                "type": "query",
+                "description": "Filter the results by a list of customer session IDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?customerSessionIDs=id1&customerSessionIDs=id2`.\n\nThe response contains only data associated with the specified sessions.\n"
+              },
+              {
+                "name": "transactionUUIDs",
+                "value": "dc608634-0100-40d9-b371-e964476bbe0f,9e829590-05cf-407b-b4c0-5f28468a81e1",
+                "type": "query",
+                "description": "Filter the results by a list of transaction UUIDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.\n\nThe response contains only data associated with the specified transactions.\n"
+              },
+              {
+                "name": "pageSize",
+                "value": "50",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              },
+              {
+                "name": "sort",
+                "value": "startDate",
+                "type": "query",
+                "description": "The field by which results should be sorted. You can enter one of the following values:\n\n- `startDate`: Sorts the results by the start date of the points.\n- `expiryDate`: Sorts the results by the expiry date of the points.\n\nBy default, results are sorted in ascending order.\nTo sort them in descending order, prefix the field name with `-`.\n\n**Note:** You can only sort by one field at a time.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Get paginated results of loyalty points for a given loyalty card identifier in a card-based loyalty program. This endpoint returns only the balances of unused points on a loyalty card.\n\nYou can filter points by status:\n- `active`: Points ready to be redeemed.\n- `pending`: Points with a start date in the future.\n- `expired`: Points with an expiration date in the past.\n"
+        },
+        {
+          "info": {
+            "name": "Generate loyalty card",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/cards",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the card-based loyalty program containing the loyalty card. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Generate a loyalty card in a specified [card-based loyalty\nprogram](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview).\n\nTo link the card to one or more customer profiles, use the\n`customerProfileIds` parameter in the request body.\n\n> [!note] **Note**\n> - The number of customer profiles linked to the loyalty card cannot exceed\n>   the loyalty program's `usersPerCardLimit`. To find the program's limit, use\n>   the [Get loyalty program](https://docs.talon.one/mana"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Campaigns",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all running campaigns",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/integration/campaigns",
+            "params": [
+              {
+                "name": "pageSize",
+                "value": "50",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              },
+              {
+                "name": "campaignIds",
+                "value": "11,20",
+                "type": "query",
+                "description": "Filter by one or more campaign IDs, separated by a comma.\n\n**Note:** If no campaigns are specified, data for all the campaigns in\nthe Application is returned.\n"
+              },
+              {
+                "name": "startAfter",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Filter results to only include campaigns that start on or after \nthe specified timestamp.\n\n**Note:**\n\n- It must be an RFC3339 timestamp string.\n\n- You can include a time component in your string, for example,\n`T23:59:59` to specify the end of the day. The time zone setting\nconsidered is `UTC`. If you do not include a time component, a default\ntime value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "startBefore",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Filter results to only include campaigns that start on or before \nthe specified timestamp.\n\n**Note:**\n\n- It must be an RFC3339 timestamp string.\n\n- You can include a time component in your string, for example,\n`T23:59:59` to specify the end of the day. The time zone setting\nconsidered is `UTC`. If you do not include a time component, a default\ntime value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "endAfter",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Filter results to only include campaigns that end on or after \nthe specified timestamp.\n\n**Note:**\n\n- It must be an RFC3339 timestamp string.\n\n- You can include a time component in your string, for example,\n`T23:59:59` to specify the end of the day. The time zone setting\nconsidered is `UTC`. If you do not include a time component, a default\ntime value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "endBefore",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Filter results to only include campaigns that end on or before \nthe specified timestamp.\n\n**Note:**\n\n- It must be an RFC3339 timestamp string.\n\n- You can include a time component in your string, for example,\n`T23:59:59` to specify the end of the day. The time zone setting\nconsidered is `UTC`. If you do not include a time component, a default\ntime value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "storeId",
+                "value": "23",
+                "type": "query",
+                "description": "Filter results to campaigns linked to the specified store ID."
+              },
+              {
+                "name": "audienceId",
+                "value": "7",
+                "type": "query",
+                "description": "Filter results to campaigns linked to the specified audience ID."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve all running campaigns for the specified Application. You\ncan filter the results by providing specific campaign IDs or a range of \nstart and end dates.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Events",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Track event",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v2/events",
+            "params": [
+              {
+                "name": "silent",
+                "value": "yes",
+                "type": "query",
+                "description": "Possible values: `yes` or `no`.\n- `yes`: Increases the performance of the API call by returning a 204 response.\n- `no`: Returns a 200 response that contains the updated customer profiles.\n"
+              },
+              {
+                "name": "dry",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether to persist the changes. Changes are ignored when `dry=true`.\n"
+              },
+              {
+                "name": "forceCompleteEvaluation",
+                "value": "false",
+                "type": "query",
+                "description": "Forces evaluation for all matching campaigns regardless of the [campaign evaluation mode](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation#setting-campaign-evaluation-mode). Requires `dry=true`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Trigger a custom event.\n\nTo use this endpoint:\n\n1. [Create a custom event](https://docs.talon.one/docs/dev/concepts/entities/events#creating-a-custom-event)\nin the Campaign Manager.\n1. In a rule, add the **Check for event types** [condition](https://docs.talon.one/docs/dev/concepts/entities/events#use-an-event-in-a-rule) and select the event you created.\n1. Trigger the event with this endpoint.\n\nYou can [list](https://docs.talon.one/docs/product/applications/display-events#list-events) the recei"
+        },
+        {
+          "info": {
+            "name": "Track advanced event",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v3/events",
+            "params": [
+              {
+                "name": "silent",
+                "value": "yes",
+                "type": "query",
+                "description": "Possible values: `yes` or `no`.\n- `yes`: Increases the performance of the API call by returning a 204 response.\n- `no`: Returns a 200 response that contains the updated customer profiles.\n"
+              },
+              {
+                "name": "dry",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether to persist the changes. Changes are ignored when `dry=true`.\n"
+              },
+              {
+                "name": "forceCompleteEvaluation",
+                "value": "false",
+                "type": "query",
+                "description": "Forces evaluation for all matching campaigns regardless of the [campaign evaluation mode](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation#setting-campaign-evaluation-mode). Requires `dry=true`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Trigger an advanced event.\n\nAdvanced events are idempotent, uniquely identifiable events. They can also\nreference a previously closed session to add more context for rule evaluation.\n\nTo use this endpoint:\n\n1. [Create a custom event](https://docs.talon.one/docs/dev/concepts/entities/events#creating-a-custom-event)\nin the Campaign Manager.\n1. In a rule, add the **Check for event types** [condition](https://docs.talon.one/docs/dev/concepts/entities/events#use-an-event-in-a-rule) and select the eve"
+        },
+        {
+          "info": {
+            "name": "Get advanced event",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v3/events/:integrationId",
+            "params": [
+              {
+                "name": "integrationId",
+                "value": "pe_12345",
+                "type": "path",
+                "description": "The unique ID of the advanced event."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve an advanced event by its identifier.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Referrals",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create referral code for an advocate",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/referrals",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Creates a referral code for an advocate. The code will be valid for the\nreferral campaign for which is created, indicated in the `campaignId`\nparameter, and will be associated with the profile specified in the\n`advocateProfileIntegrationId` parameter as the advocate's profile.\n\n> [!note] Any [referral limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets#referral-limits)\n> set are ignored when you use this endpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Create referral codes for multiple advocates",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/referrals_for_multiple_advocates",
+            "params": [
+              {
+                "name": "silent",
+                "value": "yes",
+                "type": "query",
+                "description": "Possible values: `yes` or `no`.\n- `yes`: Increases the performance of the API call by returning a 204 response.\n- `no`: Returns a 200 response that contains the updated customer profiles.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Creates unique referral codes for multiple advocates. The code will be valid\nfor the referral campaign for which it is created, indicated in the\n`campaignId` parameter, and one referral code will be associated with one\nadvocate using the profile specified in the `advocateProfileIntegrationId`\nparameter as the advocate's profile.\n\n> [!note] Any [referral limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets#referral-limits)\n> set are ignored when you use this en"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Coupons",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create coupon reservation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/coupon_reservations/:couponValue",
+            "params": [
+              {
+                "name": "couponValue",
+                "value": "SUMMER10",
+                "type": "path",
+                "description": "The code of the coupon.\n\n**Important:** The coupon code requires [URL encoding](https://www.w3schools.com/tags//ref_urlencode.asp)\nif it contains special characters.\nFor example, you must encode `SUMMER25%OFF` as `SUMMER25%25OFF`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a coupon reservation for the specified customer profiles on the\nspecified coupon.\n\nYou can also create a reservation via the Campaign Manager using the\n[Create coupon code\nreservation](https://docs.talon.one/docs/product/rules/effects/using-effects#reserving-a-coupon-code)\neffect.\n\n> [!note] **Note**\n> - If the **Reservation mandatory** option was selected when creating the\n>   specified coupon, the endpoint creates a **hard** reservation, meaning only users who have\n>   this coupon code "
+        },
+        {
+          "info": {
+            "name": "Delete coupon reservations",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://yourbaseurl.talon.one/v1/coupon_reservations/:couponValue",
+            "params": [
+              {
+                "name": "couponValue",
+                "value": "SUMMER10",
+                "type": "path",
+                "description": "The code of the coupon.\n\n**Important:** The coupon code requires [URL encoding](https://www.w3schools.com/tags//ref_urlencode.asp)\nif it contains special characters.\nFor example, you must encode `SUMMER25%OFF` as `SUMMER25%25OFF`.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Remove all the coupon reservations from the provided customer profile integration IDs and the provided\ncoupon code.\n"
+        },
+        {
+          "info": {
+            "name": "List customers that have this coupon reserved",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/coupon_reservations/customerprofiles/:couponValue",
+            "params": [
+              {
+                "name": "couponValue",
+                "value": "SUMMER10",
+                "type": "path",
+                "description": "The code of the coupon.\n\n**Important:** The coupon code requires [URL encoding](https://www.w3schools.com/tags//ref_urlencode.asp) \nif it contains special characters.\nFor example, you must encode `SUMMER25%OFF` as `SUMMER25%25OFF`.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Return all customers that have this coupon marked as reserved. This includes hard and soft reservations.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Achievements",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List customer's available achievements",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/customer_profiles/:integrationId/achievements",
+            "params": [
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration identifier for this customer profile. Must be:\n- Unique within the deployment.\n- Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.\n\nOnce set, you cannot update this identifier.\n"
+              },
+              {
+                "name": "campaignIds",
+                "value": "11,20",
+                "type": "query",
+                "description": "Filter by one or more Campaign IDs, separated by a comma.\n\n**Note:** If no campaigns are specified, data for all the campaigns in the Application is returned.\n"
+              },
+              {
+                "name": "achievementIds",
+                "value": "11,20",
+                "type": "query",
+                "description": "Filter by one or more Achievement IDs, separated by a comma.\n\n**Note:** If no achievements are specified, data for all the achievements in the Application is returned.\n"
+              },
+              {
+                "name": "achievementStatus",
+                "value": "active,scheduled",
+                "type": "query",
+                "description": "Filter by status of the achievement.\n\n**Note:** If the achievement status is not specified, only data for all active achievements in the Application is returned.\n"
+              },
+              {
+                "name": "currentProgressStatus",
+                "value": "inprogress,completed",
+                "type": "query",
+                "description": "Filter by customer progress status in the achievement.\n"
+              },
+              {
+                "name": "pageSize",
+                "value": "1000",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve all the achievements available to a given customer and their progress in them.\n"
+        },
+        {
+          "info": {
+            "name": "List customer's achievement history",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/customer_profiles/:integrationId/achievements/:achievementId",
+            "params": [
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration identifier for this customer profile. Must be:\n- Unique within the deployment.\n- Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.\n\nOnce set, you cannot update this identifier.\n"
+              },
+              {
+                "name": "achievementId",
+                "value": "321",
+                "type": "path",
+                "description": "The achievement identifier.\n"
+              },
+              {
+                "name": "progressStatus",
+                "value": "inprogress,completed",
+                "type": "query",
+                "description": "Filter by customer progress status in the achievement.\n"
+              },
+              {
+                "name": "startDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Timestamp that filters the results to only contain achievements created on or after the start date."
+              },
+              {
+                "name": "endDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Timestamp that filters the results to only contain achievements created before or on the end date."
+              },
+              {
+                "name": "pageSize",
+                "value": "1000",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve all progress history of a given customer in the given achievement.\n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Loyalty",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get customer's loyalty balances",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/balances",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the profile-based loyalty program. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration identifier for this customer profile. Must be:\n- Unique within the deployment.\n- Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.\n\nOnce set, you cannot update this identifier.\n"
+              },
+              {
+                "name": "endDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Used to return expired, active, and pending loyalty balances before this\ntimestamp. You can enter any past, present, or future timestamp value.\n\n> [!note] **Note**\n> - This must be an RFC3339 timestamp string.\n> - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting\n>   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "subledgerId",
+                "value": "subledger1",
+                "type": "query",
+                "description": "The ID of the subledger by which we filter the data."
+              },
+              {
+                "name": "includeTiers",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether tier information is included in the response.\n\nWhen set to `true`, the response includes information about the current tier and the number of points required to move to next tier.\n"
+              },
+              {
+                "name": "includeProjectedTier",
+                "value": "false",
+                "type": "query",
+                "description": "Indicates whether the customer's projected tier information is included in the response.\n\nWhen set to `true`, the response includes information about the customer's active points and the name of the projected tier.\n\n**Note** We recommend filtering by `subledgerId` for better performance.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve loyalty ledger balances for the given Integration ID in the\nspecified loyalty program.\n\nYou can filter balances by date and subledger ID, and include tier-related\ninformation in the response.\n\n> [!note] If no filtering options are applied, you retrieve all loyalty\n> balances on the current date for the given integration ID.\n\nLoyalty balances are calculated when Talon.One receives your request using\nthe points stored in our database, so retrieving a large number of balances\nat once can i"
+        },
+        {
+          "info": {
+            "name": "List customer's loyalty transactions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/transactions",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the profile-based loyalty program. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration identifier for this customer profile. Must be:\n- Unique within the deployment.\n- Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.\n\nOnce set, you cannot update this identifier.\n"
+              },
+              {
+                "name": "customerSessionIDs",
+                "value": "session_integration_id_1,session_integration_id_1",
+                "type": "query",
+                "description": "Filter the results by a list of customer session IDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?customerSessionIDs=id1&customerSessionIDs=id2`.\n\nThe response contains only data associated with the specified sessions.\n"
+              },
+              {
+                "name": "transactionUUIDs",
+                "value": "dc608634-0100-40d9-b371-e964476bbe0f,9e829590-05cf-407b-b4c0-5f28468a81e1",
+                "type": "query",
+                "description": "Filter the results by a list of transaction UUIDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.\n\nThe response contains only data associated with the specified transactions.\n"
+              },
+              {
+                "name": "subledgerId",
+                "value": "subledger1",
+                "type": "query",
+                "description": "The ID of the subledger by which we filter the data."
+              },
+              {
+                "name": "loyaltyTransactionType",
+                "value": "manual",
+                "type": "query",
+                "description": "Filter results by loyalty transaction type:\n- `manual`: Loyalty transaction that was done manually.\n- `session`: Loyalty transaction that resulted from a customer session.\n- `import`: Loyalty transaction that was imported from a CSV file.\n"
+              },
+              {
+                "name": "startDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Date and time from which results are returned. Results are filtered by\ntransaction creation date.\n\n> [!note] **Note**\n> - This must be an RFC3339 timestamp string.\n> - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting\n>   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "endDate",
+                "value": "2024-05-29T15:04:05+07:00",
+                "type": "query",
+                "description": "Date and time by which results are returned. Results are filtered by\ntransaction creation date.\n\n> [!note] **Note**\n> - This must be an RFC3339 timestamp string.\n> - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting\n>   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.\n"
+              },
+              {
+                "name": "pageSize",
+                "value": "50",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              },
+              {
+                "name": "awaitsActivation",
+                "value": "true",
+                "type": "query",
+                "description": "If `true`: Filters results to include only point transactions that have action-based activation and have not expired.\n\nIf `false`: Returns a `400` response.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve paginated results of loyalty transaction logs for the given\nIntegration ID in the specified loyalty program.\n\nYou can filter transactions by date. If no filters are applied, the last 50\nloyalty transactions for the given integration ID are returned.\n\n> [!note] To retrieve all loyalty program transaction logs in a given\n> loyalty program, use the [List loyalty program transactions](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyProgramTransactions)\n> endpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Delete customer's transactions from loyalty ledgers",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/delete_transactions",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the profile-based loyalty program. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. You can get the `integrationId` of a profile using:\n- A customer session integration ID with the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.\n- The Management API with the [List application's customers](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationCustomers) endpoint.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Delete a customer's transactions in all loyalty ledgers or a specified ledger.\n\n> [!note] To retrieve loyalty transaction logs for a specific customer in a given loyalty program,\n> use the [List customer's loyalty transactions](https://docs.talon.one/integration-api#tag/Loyalty/operation/getLoyaltyProgramProfileTransactions)\n> endpoint.\n"
+        },
+        {
+          "info": {
+            "name": "Join customer profile to loyalty program",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/join",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the profile-based loyalty program. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration ID of the customer profile. You can get the `integrationId` of a profile using:\n- A customer session integration ID with the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.\n- The Management API with the [List application's customers](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationCustomers) endpoint.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Join a customer profile to the specified loyalty program.\n\nIf the customer profile does not exist, it will be created first using the\nprovided `integrationId`, then joined to the loyalty program.\n\n> [!note] This endpoint only works with profile-based loyalty programs.\n\n**Behavior**:\n- If the loyalty program does not exist, the request fails.\n- If the customer profile is already joined to the loyalty program, the request fails.\n- If the customer profile does not exist, it is created and then join"
+        },
+        {
+          "info": {
+            "name": "List customer's unused loyalty points",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/profile/:integrationId/points",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "Identifier of the profile-based loyalty program. You can get the ID with\nthe [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.\n"
+              },
+              {
+                "name": "integrationId",
+                "value": "customer1",
+                "type": "path",
+                "description": "The integration identifier for this customer profile. Must be:\n- Unique within the deployment.\n- Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.\n\nOnce set, you cannot update this identifier.\n"
+              },
+              {
+                "name": "status",
+                "value": "active",
+                "type": "query",
+                "description": "Filter points based on their status."
+              },
+              {
+                "name": "subledgerId",
+                "value": "subledger1,subledger2",
+                "type": "query",
+                "description": "Filter the results by a list of subledger IDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example,\n`?subledgerId=id1&subledgerId=id2`.\n\nThe response contains only data associated with the specified subledgers.\n"
+              },
+              {
+                "name": "customerSessionIDs",
+                "value": "session_integration_id_1,session_integration_id_1",
+                "type": "query",
+                "description": "Filter the results by a list of customer session IDs. \n\nTo include multiple IDs, repeat the parameter for each one, for example, \n`?customerSessionIDs=id1&customerSessionIDs=id2`.\n\nThe response contains only data associated with the specified sessions.\n"
+              },
+              {
+                "name": "transactionUUIDs",
+                "value": "dc608634-0100-40d9-b371-e964476bbe0f,9e829590-05cf-407b-b4c0-5f28468a81e1",
+                "type": "query",
+                "description": "Filter the results by a list of transaction UUIDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example, \n`?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.\n\nThe response contains only data associated with the specified transactions.\n"
+              },
+              {
+                "name": "pageSize",
+                "value": "50",
+                "type": "query",
+                "description": "The number of items in the response."
+              },
+              {
+                "name": "skip",
+                "value": "100",
+                "type": "query",
+                "description": "The number of items to skip when paging through large result sets."
+              },
+              {
+                "name": "sort",
+                "value": "startDate",
+                "type": "query",
+                "description": "The field by which results should be sorted. You can enter one of the following values:\n\n- `startDate`: Sorts the results by the start date of the points.\n- `expiryDate`: Sorts the results by the expiry date of the points.\n\nBy default, results are sorted in ascending order. \nTo sort them in descending order, prefix the field name with `-`.\n\n**Note:** You can only sort by one field at a time.\n"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Get paginated results of loyalty points for a given Integration ID in the specified profile-based loyalty program. This endpoint returns only the balances of unused points linked to a customer profile.\n\nYou can filter points by status:\n- `active`: Points ready to be redeemed.\n- `pending`: Points with a start date in the future.\n- `expired`: Points with an expiration date in the past.\n"
+        },
+        {
+          "info": {
+            "name": "Activate loyalty points",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/loyalty_programs/:loyaltyProgramId/activate_points",
+            "params": [
+              {
+                "name": "loyaltyProgramId",
+                "value": "33",
+                "type": "path",
+                "description": "The identifier for the loyalty program. You can get the ID with the [List loyalty\nprograms](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms)\nendpoint.\n"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Activate points when a defined action occurs.\n\nYou can activate pending points using one of the following parameters:\n- `sessionId`: Activates all points earned in the specified session. \n- `transactionUUIDs`: Activates points earned in the transactions specified by the \ngiven UUIDs. \n"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Catalogs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Fetch best prior price",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourbaseurl.talon.one/v1/best_prior_price",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Returns the best prior price based on historical pricing data for the specified SKUs within a defined timeframe.\n"
+        },
+        {
+          "info": {
+            "name": "Sync cart item catalog",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://yourbaseurl.talon.one/v1/catalogs/:catalogId/sync",
+            "params": [
+              {
+                "name": "catalogId",
+                "value": "30",
+                "type": "path",
+                "description": "The ID of the catalog. You can find the ID in the Campaign Manager in **Account** > **Tools** > **Cart item catalogs**."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "Authorization",
+              "value": "{{Authorization}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Perform the following actions for a given cart item catalog:\n\n- Add an item to the catalog.\n- Add multiple items to the catalog.\n- Update the attributes of an item in the catalog.\n- Update the attributes of multiple items in the catalog.\n- Remove an item from the catalog.\n- Remove multiple items from the catalog.\n\nYou can either add, update, or delete up to 1000 cart items in a single\nrequest. Each item synced to a catalog must have a unique `SKU`.\n\n> [!important] You can perform only one type o"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

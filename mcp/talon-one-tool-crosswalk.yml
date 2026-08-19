@@ -1,0 +1,452 @@
+generated: '2026-08-13'
+method: derived
+source: mcp/talon-one-mcp.yml, openapi/talon-one-management-api-openapi.yml, openapi/talon-one-integration-api-openapi.yml
+provider: Talon.One
+providerId: talon-one
+description: Binds every tool of the Talon.One MCP server to the REST operation(s) that back it, so an
+  agent can inherit the real parameters and request bodies from the published OpenAPI. The live MCP schema
+  is auth-gated behind a per-tenant deployment, so tools are mapped by name and semantics against the
+  operationIds Talon.One publishes; confidence is recorded honestly per row and no tool is invented.
+surfaces:
+  openapi:
+  - openapi/talon-one-management-api-openapi.yml
+  - openapi/talon-one-integration-api-openapi.yml
+  mcp:
+    url: https://{deployment}.talon.one/v1/mcp/entrypoint
+    gated: true
+    gate: per-tenant deployment + MCP connection API key
+  graphql: null
+coverage:
+  mcp_tools: 42
+  mapped: 41
+  high_confidence: 37
+  medium_confidence: 3
+  low_confidence: 1
+  mcp_only: 1
+  rest_operations: 233
+  rest_only: 191
+  note: 'The MCP server is read-only: it surfaces 42 read tools against 233 REST operations, so every
+    write operation in both APIs is rest_only by design, not by omission.'
+crosswalk:
+- tool: get_applications
+  category: applications
+  rest:
+  - getApplications
+  binding: management
+  confidence: high
+- tool: get_application
+  category: applications
+  rest:
+  - getApplication
+  binding: management
+  confidence: high
+- tool: get_application_health
+  category: applications
+  rest:
+  - getApplicationApiHealth
+  binding: management
+  confidence: high
+- tool: get_access_logs
+  category: logs
+  rest:
+  - getAccessLogsWithoutTotalCount
+  binding: management
+  confidence: high
+- tool: list_application_sessions
+  category: sessions
+  rest:
+  - getApplicationSessions
+  binding: management
+  confidence: high
+- tool: get_application_session
+  category: sessions
+  rest:
+  - getApplicationSession
+  binding: management
+  confidence: high
+- tool: get_session_details
+  category: sessions
+  rest:
+  - getApplicationSession
+  - getCustomerSession
+  binding: management+integration
+  confidence: medium
+  note: Name suggests a detail read of one session; both the Management API session read and the Integration
+    API getCustomerSession match the semantics.
+- tool: list_application_customers
+  category: customers
+  rest:
+  - getApplicationCustomers
+  binding: management
+  confidence: high
+- tool: get_customer_profile
+  category: customers
+  rest:
+  - getCustomerProfile
+  binding: management
+  confidence: high
+- tool: get_customer_inventory
+  category: customers
+  rest:
+  - getCustomerInventory
+  binding: integration
+  confidence: high
+- tool: list_application_events
+  category: events
+  rest:
+  - getApplicationEventsWithoutTotalCount
+  binding: management
+  confidence: high
+- tool: list_application_event_types
+  category: events
+  rest:
+  - getApplicationEventTypes
+  binding: management
+  confidence: high
+- tool: list_campaigns
+  category: campaigns
+  rest:
+  - getCampaigns
+  binding: management
+  confidence: high
+- tool: get_campaign
+  category: campaigns
+  rest:
+  - getCampaign
+  binding: management
+  confidence: high
+- tool: list_rulesets
+  category: campaigns
+  rest:
+  - getRulesets
+  binding: management
+  confidence: high
+- tool: get_ruleset
+  category: campaigns
+  rest:
+  - getRuleset
+  - getRulesetV2
+  binding: management
+  confidence: high
+- tool: list_coupons
+  category: coupons
+  rest:
+  - getCouponsWithoutTotalCount
+  binding: management
+  confidence: medium
+  note: The Management API exposes only the no_total coupon listing plus the advanced search endpoints;
+    both MCP coupon list tools bind to that family.
+- tool: list_coupons_no_total
+  category: coupons
+  rest:
+  - getCouponsWithoutTotalCount
+  binding: management
+  confidence: high
+- tool: check_coupon_status
+  category: coupons
+  rest:
+  - searchCouponsAdvancedApplicationWideWithoutTotalCount
+  binding: management
+  confidence: low
+  note: No REST operation is named for a single-coupon status check. The application-wide advanced coupon
+    search is the closest published operation; binding is by semantics only.
+- tool: get_reserved_customers
+  category: coupons
+  rest:
+  - getReservedCustomers
+  binding: integration
+  confidence: high
+- tool: list_referrals
+  category: referrals
+  rest:
+  - getReferralsWithoutTotalCount
+  binding: management
+  confidence: high
+- tool: list_referred_friends
+  category: referrals
+  rest:
+  - getApplicationCustomerFriends
+  binding: management
+  confidence: high
+- tool: list_loyalty_programs
+  category: loyalty
+  rest:
+  - getLoyaltyPrograms
+  binding: management
+  confidence: high
+- tool: get_loyalty_program
+  category: loyalty
+  rest:
+  - getLoyaltyProgram
+  binding: management
+  confidence: high
+- tool: get_loyalty_ledger
+  category: loyalty
+  rest:
+  - getLoyaltyLedgerBalances
+  binding: management
+  confidence: medium
+- tool: get_loyalty_balances
+  category: loyalty
+  rest:
+  - getLoyaltyBalances
+  binding: integration
+  confidence: high
+- tool: get_loyalty_statistics
+  category: loyalty
+  rest:
+  - getLoyaltyStatistics
+  binding: management
+  confidence: high
+  note: Backing REST operation is marked deprecated in the published Management API spec.
+- tool: get_loyalty_profile_points
+  category: loyalty
+  rest:
+  - getLoyaltyProgramProfilePoints
+  binding: integration
+  confidence: high
+- tool: get_loyalty_profile_transactions
+  category: loyalty
+  rest:
+  - getLoyaltyProgramProfileTransactions
+  binding: integration
+  confidence: high
+- tool: list_loyalty_program_transactions
+  category: loyalty
+  rest:
+  - getLoyaltyProgramTransactions
+  binding: management
+  confidence: high
+- tool: get_loyalty_card_balances
+  category: loyalty-cards
+  rest:
+  - getLoyaltyCardBalances
+  binding: integration
+  confidence: high
+- tool: get_loyalty_card_points
+  category: loyalty-cards
+  rest:
+  - getLoyaltyCardPoints
+  binding: integration
+  confidence: high
+- tool: get_loyalty_card_transactions
+  category: loyalty-cards
+  rest:
+  - getLoyaltyCardTransactions
+  binding: integration
+  confidence: high
+- tool: get_customer_achievements
+  category: achievements
+  rest:
+  - getCustomerAchievements
+  binding: integration
+  confidence: high
+- tool: get_customer_achievement_history
+  category: achievements
+  rest:
+  - getCustomerAchievementHistory
+  binding: integration
+  confidence: high
+- tool: get_achievement
+  category: achievements
+  rest:
+  - getAchievementV2
+  - getAchievement
+  binding: management
+  confidence: high
+- tool: list_custom_attributes
+  category: attributes
+  rest:
+  - getAttributes
+  binding: management
+  confidence: high
+- tool: list_webhooks
+  category: webhooks
+  rest:
+  - getWebhooks
+  binding: management
+  confidence: high
+- tool: get_webhook
+  category: webhooks
+  rest:
+  - getWebhook
+  binding: management
+  confidence: high
+- tool: list_users
+  category: account
+  rest:
+  - getUsers
+  binding: management
+  confidence: high
+- tool: list_roles
+  category: account
+  rest:
+  - listAllRolesV2
+  binding: management
+  confidence: high
+mcp_only:
+- tool: list_giveaways
+  reason: No public REST operation lists giveaways; the Management API only imports and exports giveaway
+    pools. Treated as mcp_only.
+rest_only_count: 191
+rest_only_sample:
+- api: management
+  operationId: getLoyaltyProgramProfileLedgerTransactions
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/ledger_transactions
+- api: management
+  operationId: updateCampaign
+  method: PUT
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}
+- api: management
+  operationId: deleteCampaign
+  method: DELETE
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}
+- api: management
+  operationId: copyCampaignToApplications
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/copy
+- api: management
+  operationId: getCampaignByAttributes
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns_search
+- api: management
+  operationId: createCoupons
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons
+- api: management
+  operationId: updateCouponBatch
+  method: PUT
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons
+- api: management
+  operationId: deleteCoupons
+  method: DELETE
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons
+- api: management
+  operationId: createCouponsForMultipleRecipients
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons_with_recipients
+- api: management
+  operationId: createCouponsAsync
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons_async
+- api: management
+  operationId: createCouponsDeletionJob
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons_deletion_jobs
+- api: management
+  operationId: updateCoupon
+  method: PUT
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons/{couponId}
+- api: management
+  operationId: deleteCoupon
+  method: DELETE
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons/{couponId}
+- api: management
+  operationId: searchCouponsAdvancedWithoutTotalCount
+  method: POST
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/coupons_search_advanced/no_total
+- api: management
+  operationId: deleteReferral
+  method: DELETE
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/referrals/{referralId}
+- api: management
+  operationId: updateReferral
+  method: PUT
+  path: /v1/applications/{applicationId}/campaigns/{campaignId}/referrals/{referralId}
+- api: management
+  operationId: getCampaignGroups
+  method: GET
+  path: /v1/campaign_groups
+- api: management
+  operationId: getCampaignGroup
+  method: GET
+  path: /v1/campaign_groups/{campaignGroupId}
+- api: management
+  operationId: getCampaignTemplates
+  method: GET
+  path: /v1/campaign_templates
+- api: management
+  operationId: listExperiments
+  method: GET
+  path: /v1/applications/{applicationId}/experiments
+- api: management
+  operationId: getExperiment
+  method: GET
+  path: /v1/applications/{applicationId}/experiments/{experimentId}
+- api: management
+  operationId: createCampaignFromTemplate
+  method: POST
+  path: /v1/applications/{applicationId}/create_campaign_from_template
+- api: management
+  operationId: getDashboardStatistics
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/dashboard
+- api: management
+  operationId: importLoyaltyPoints
+  method: POST
+  path: /v1/loyalty_programs/{loyaltyProgramId}/import_points
+- api: management
+  operationId: importLoyaltyCustomersTiers
+  method: POST
+  path: /v1/loyalty_programs/{loyaltyProgramId}/import_customers_tiers
+- api: management
+  operationId: importLoyaltyJoinDates
+  method: POST
+  path: /v1/loyalty_programs/{loyaltyProgramId}/import_join_dates
+- api: management
+  operationId: getLoyaltyPoints
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}
+- api: management
+  operationId: addLoyaltyPoints
+  method: PUT
+  path: /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/add_points
+- api: management
+  operationId: removeLoyaltyPoints
+  method: PUT
+  path: /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/deduct_points
+- api: management
+  operationId: exportLoyaltyLedger
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/export_log
+- api: management
+  operationId: exportLoyaltyJoinDates
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/export_join_dates
+- api: management
+  operationId: exportCustomersTiers
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/export_customers_tiers
+- api: management
+  operationId: exportLoyaltyBalances
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/export_customer_balances
+- api: management
+  operationId: exportLoyaltyBalance
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/export_customer_balance
+- api: management
+  operationId: importLoyaltyCards
+  method: POST
+  path: /v1/loyalty_programs/{loyaltyProgramId}/import_cards
+- api: management
+  operationId: createBatchLoyaltyCards
+  method: POST
+  path: /v1/loyalty_programs/{loyaltyProgramId}/cards/batch
+- api: management
+  operationId: exportLoyaltyCardBalances
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/export_card_balances
+- api: management
+  operationId: getLoyaltyCards
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/cards
+- api: management
+  operationId: exportLoyaltyCards
+  method: GET
+  path: /v1/loyalty_programs/{loyaltyProgramId}/cards/export
+- api: management
+  operationId: deleteLoyaltyCard
+  method: DELETE
+  path: /v1/loyalty_programs/{loyaltyProgramId}/cards/{loyaltyCardId}

@@ -1,0 +1,207 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/oas/outbound-notifications.yaml
+provider: Talon.One
+providerId: talon-one
+description: Talon.One publishes the payload schema of every outbound notification it POSTs to a customer
+  endpoint as an OpenAPI 3.1 document whose webhooks{} block carries one entry per event. There is no
+  AsyncAPI document; this catalog is read from the provider own specification, saved verbatim at openapi/talon-one-outbound-notifications-openapi.yml.
+transport: HTTPS POST to a customer-configured URL
+delivery:
+  trigger: Notifications are configured per Application (Application notifications) or per loyalty program
+    (loyalty notifications). Webhooks proper are triggered as a rule effect inside a campaign.
+  payload: JSON, defined by the notification schema below. Rule-triggered webhooks use an operator-defined
+    payload template with ${$parameter} and attribute placeholders.
+  authentication: Webhook targets authenticate with credentials managed on the Campaign Manager Credentials
+    page (basic, bearer or custom headers).
+  logs: Delivery attempts are visible on the Webhook Logs page in the Campaign Manager.
+  limits: The maximum number of webhooks an account may create is set by contract and shown under Account
+    > Usage & Limits.
+event_count: 24
+categories:
+- Campaign notifications
+- Coupon notifications
+- Loyalty card notifications
+- Loyalty notifications
+- Strikethrough pricing notifications
+events:
+- event: campaignCreatedNotification
+  summary: Campaign created
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: campaignStateChangedNotification
+  summary: Campaign state changed
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: campaignRulesetChangedNotification
+  summary: Campaign rules changed
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: campaignEditedNotification
+  summary: Campaign edited
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: campaignCollectionEditedNotification
+  summary: Campaign collection edited
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: campaignDeletedNotification
+  summary: Campaign deleted
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: campaignEvaluationTreeChangedNotification
+  summary: Campaign evaluation tree changed
+  category: Campaign notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: strikethroughLabelingNotification
+  summary: Strikethrough pricing updated
+  category: Strikethrough pricing notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: createCouponData
+  summary: Coupon created
+  category: Coupon notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: couponsData
+  summary: Coupon updated or deleted
+  category: Coupon notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: asyncCouponsData
+  summary: Coupons created asynchronously
+  category: Coupon notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: updateCouponsData
+  summary: Coupons updated
+  category: Coupon notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: deleteCouponsData
+  summary: Coupons deleted
+  category: Coupon notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: expiringPointsNotification
+  summary: Expiring points
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: expiringCardPointsNotification
+  summary: Expiring card points
+  category: Loyalty card notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: addedDeductedPointsNotification
+  summary: Added or deducted points
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: addedDeductedPointsBalancesNotification
+  summary: Added or deducted points with current balance
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: pendingActivePointsNotification
+  summary: Pending points
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: tierUpgradeNotification
+  summary: Tier upgrade
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: tierDowngradeNotification
+  summary: Tier downgrade
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: tierWillDowngradeNotification
+  summary: Upcoming tier downgrade
+  category: Loyalty notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: expiringCouponsNotification
+  summary: Expiring coupons
+  category: Coupon notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: cardAddedDeductedPointsNotification
+  summary: Added or deducted card points
+  category: Loyalty card notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+- event: cardAddedDeductedPointsBalancesNotification
+  summary: Added or deducted card points with current balance
+  category: Loyalty card notifications
+  method: POST
+  content_type:
+  - application/json
+  description: null
+docs:
+- https://docs.talon.one/docs/dev/get-started/webhooks
+- https://docs.talon.one/docs/product/account/dev-tools/manage-webhooks
+- https://docs.talon.one/docs/product/applications/application-notifications/overview
+- https://docs.talon.one/docs/product/loyalty-programs/loyalty-notifications/overview
+asyncapi:
+  published: false
+  note: No AsyncAPI document is published. The webhook contract is expressed as OpenAPI 3.1 webhooks{},
+    which is a real machine-readable event contract but not an AsyncAPI one.
+management_api:
+  note: Webhooks themselves are CRUD-managed through the Management API Webhooks tag (listWebhooks, createWebhook,
+    updateWebhook, deleteWebhook, getWebhookLogs).

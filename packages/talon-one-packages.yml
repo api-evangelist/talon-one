@@ -1,0 +1,159 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/docs/dev/sdks/overview
+provider: Talon.One
+providerId: talon-one
+description: 'First-party Talon.One client libraries. Talon.One ships two generations: next-generation
+  SDKs (one repo per language under github.com/talon-one, versioned to the platform release train, e.g.
+  26.16) and legacy SDKs it now tells customers to migrate away from. Both are listed so the decay between
+  them is visible. Java is distributed from a Talon.One-hosted Maven repository rather than Maven Central,
+  PHP through a Composer VCS repository rather than Packagist, and the next-generation C# SDK is built
+  from source rather than published to NuGet — three cases where a first-party SDK exists but has no public
+  registry entry to date.'
+official_count: 12
+packages:
+- name: talon_one_sdk
+  language: JavaScript/TypeScript
+  registry: npm
+  url: https://www.npmjs.com/package/talon_one_sdk
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-ts-sdk
+  version: 26.16.1
+  published: '2026-08-13'
+  note: Covers both the Integration API and the Management API. Version tracks the Talon.One platform
+    release.
+- name: talon-one-sdk
+  language: Python
+  registry: pypi
+  url: https://pypi.org/project/talon-one-sdk/
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-python-sdk
+  version: '26.2'
+  published: '2026-01-23'
+  note: PyPI release lags the repo and the other next-gen SDKs by seven months (26.2 vs 26.16 elsewhere).
+- name: talon_one_sdk
+  language: Ruby
+  registry: rubygems
+  url: https://rubygems.org/gems/talon_one_sdk
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-ruby-sdk
+  version: 26.16.0
+  published: '2026-08-05'
+- name: github.com/talon-one/talon-one-go-sdk
+  language: Go
+  registry: go
+  url: https://pkg.go.dev/github.com/talon-one/talon-one-go-sdk
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-go-sdk
+  version: v0.0.0-20260805091649-07aecfd361a9
+  published: '2026-08-05'
+  note: 'Untagged module: the Go proxy only has a pseudo-version from the latest commit, so consumers
+    cannot pin a semantic release.'
+- name: one.talon:talon-one-client
+  language: Java
+  registry: maven-self-hosted
+  url: https://github.com/talon-one/talon-one-maven-artifacts
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-java-sdk
+  version: 26.15.0
+  published: null
+  note: Not on Maven Central — searching Maven Central for one.talon returns nothing. Talon.One hosts
+    the artifacts in its own GitHub repository, so there is no registry metadata endpoint and no publish
+    date to read; the version is the one stated in the SDK README POM snippet.
+- name: talon-one/talon-one-php-sdk
+  language: PHP
+  registry: composer-vcs
+  url: https://github.com/talon-one/talon-one-php-sdk
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-php-sdk
+  version: null
+  published: null
+  note: Absent from Packagist (repo.packagist.org returns 404 for talon-one/*). Installed by adding the
+    GitHub repository as a Composer VCS source, so there is no registry version to read.
+- name: TalonOneSdk
+  language: C#
+  registry: null
+  official: true
+  generation: next-gen
+  repo: https://github.com/talon-one/talon-one-csharp-sdk
+  version: null
+  published: null
+  note: 'The next-generation C# SDK is not published to NuGet: the README tells the developer to build
+    the DLL with dotnet build and reference it directly. Only the legacy TalonOne package exists on NuGet.'
+- name: talon_one
+  language: JavaScript
+  registry: npm
+  url: https://www.npmjs.com/package/talon_one
+  official: true
+  generation: legacy
+  repo: https://github.com/talon-one/talon_one.js
+  version: 25.16.0
+  published: '2025-11-06'
+  note: Legacy SDK. Talon.One recommends migrating to talon_one_sdk; last publish is nine months behind
+    the next-gen line.
+- name: talon_one
+  language: Ruby
+  registry: rubygems
+  url: https://rubygems.org/gems/talon_one
+  official: true
+  generation: legacy
+  repo: https://github.com/talon-one/talon_one.rb
+  version: 12.0.0
+  published: '2026-05-07'
+  note: Legacy SDK, version numbering predates the platform release train.
+- name: TalonOne
+  language: C#
+  registry: nuget
+  url: https://www.nuget.org/packages/TalonOne
+  official: true
+  generation: legacy
+  repo: https://github.com/talon-one/TalonOne.cs
+  version: 14.0.0
+  published: '2026-05-07'
+- name: github.com/talon-one/talon_go
+  language: Go
+  registry: go
+  url: https://pkg.go.dev/github.com/talon-one/talon_go
+  official: true
+  generation: legacy
+  repo: https://github.com/talon-one/talon_go
+  version: v1.4.0
+  published: '2019-12-20'
+  note: Last tagged release 2019; the module proxy serves v1.4.0 while the repository has moved on.
+- name: talon-one/talononephpsdk
+  language: PHP
+  registry: null
+  official: true
+  generation: legacy
+  repo: https://github.com/talon-one/TalonOnePHPsdk
+  version: null
+  published: null
+  note: Legacy PHP SDK, also absent from Packagist.
+connectors:
+- name: commercetools-talonone-accelerator
+  kind: connector
+  url: https://github.com/talon-one/commercetools-talonone-accelerator
+  official: true
+  note: Open-source AWS/GCP connector between Talon.One and commercetools.
+- name: talonone-sfcc-cartridge
+  kind: cartridge
+  url: https://github.com/talon-one/talonone-sfcc-cartridge
+  official: true
+  note: Salesforce Commerce Cloud cartridge.
+registries_checked:
+- npm
+- pypi
+- rubygems
+- nuget
+- maven-central
+- packagist
+- go-proxy
+notes: 'Versions and publish dates were read from the registry metadata endpoints on 2026-08-13: registry.npmjs.org,
+  pypi.org/pypi/<pkg>/json, rubygems.org/api/v1/gems/<pkg>.json, api.nuget.org, search.maven.org and proxy.golang.org.
+  Where a field is null the distribution has no registry to query, which is recorded rather than guessed.'

@@ -1,0 +1,93 @@
+generated: '2026-08-13'
+method: searched
+source: https://docs.talon.one/whats-new
+provider: Talon.One
+providerId: talon-one
+description: Talon.One publishes a dated What is new page with a numbered platform release roughly every
+  two weeks, tagged by surface (Management API, Integration API, Loyalty, Campaigns, and so on), and exposes
+  it as a JSON Feed at /whats-new/feed.json — a machine-readable changelog, which most providers do not
+  ship.
+scheme: 'calendar-ish release train: <year-2000>.<release-of-year>, e.g. 26.16'
+cadence: approximately every two weeks
+current_version: '26.16'
+current_release_date: '2026-08-12'
+feed: https://docs.talon.one/whats-new/feed.json
+feed_format: JSON Feed 1.1
+entry_count: 10
+entries:
+- version: '26.16'
+  date: '2026-08-12'
+  title: August 12, 2026
+  url: https://docs.talon.one/whats-new/2026/08/12
+  highlights:
+  - Import customer join dates Loyalty
+  - New endpoint for excluding price records in bulk Management API Beta
+- version: '26.15'
+  date: '2026-07-29'
+  title: July 29, 2026
+  url: https://docs.talon.one/whats-new/2026/07/29
+  highlights:
+  - New chart in the experiment dashboard Experiments
+  - Select a goal for new experiments Experiments
+- version: '26.14'
+  date: '2026-07-15'
+  title: July 15, 2026
+  url: https://docs.talon.one/whats-new/2026/07/15
+  highlights:
+  - Achievements at the account level Achievements Closed beta
+  - Store integration ID in loyalty transactions Integration API
+  - Added condition to cart item filters Rule Builder
+- version: '26.13'
+  date: '2026-07-01'
+  title: July 1, 2026
+  url: https://docs.talon.one/whats-new/2026/07/01
+  highlights:
+  - Structured rulesets Management API Beta
+  - New endpoint for joining a loyalty program Integration API
+  - Connect audiences to Applications Audiences
+  - Updated UI for campaign evaluation Campaign Manager
+- version: '26.12'
+  date: '2026-06-17'
+  title: June 17, 2026
+  url: https://docs.talon.one/whats-new/2026/06/17
+  highlights:
+  - New endpoint for importing customer join dates Loyalty
+- version: '26.11'
+  date: '2026-06-03'
+  title: June 3, 2026
+  url: https://docs.talon.one/whats-new/2026/06/03
+  highlights:
+  - New built-in attribute for tier expiry date Loyalty
+  - Feature releases
+- version: '26.10'
+  date: '2026-05-20'
+  title: May 20, 2026
+  url: https://docs.talon.one/whats-new/2026/05/20
+  highlights:
+  - Redesigned navigation in the Campaign Manager Campaign Manager
+  - Application level
+  - Campaign level
+  - Check customer's eligibility for campaigns Integration API
+  - Adobe integration tutorials Documentation
+- version: '26.08'
+  date: '2026-04-22'
+  title: April 22, 2026
+  url: https://docs.talon.one/whats-new/2026/04/22
+  highlights:
+  - Introducing the Talon.One MCP server Infrastructure
+  - Introducing rule details Rule Builder
+  - New endpoint for running campaigns Integration API
+  - New endpoints for Application cart item filters Management API
+  - New endpoint for value maps Management API
+- version: '26.07'
+  date: '2026-04-08'
+  title: April 8, 2026
+  url: https://docs.talon.one/whats-new/2026/04/08
+  highlights:
+  - Loyalty card improvements Loyalty
+- version: '26.06'
+  date: '2026-03-24'
+  title: March 24, 2026
+  url: https://docs.talon.one/whats-new/2026/03/24
+  highlights: []
+note: SDK versions track this release number, which is why the next-generation SDKs are versioned 26.x.

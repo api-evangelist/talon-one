@@ -1,0 +1,42 @@
+overlay: 1.0.0
+info:
+  title: Talon.One Third-party API — API Evangelist enhancements
+  version: 1.0.0
+extends: openapi/talon-one-third-party-api-openapi.yml
+x-provenance:
+  generated: '2026-08-13'
+  method: generated
+  source: https://docs.talon.one/oas/ + API Evangelist artifacts in this repository
+  note: Additive only. The published specification is stored verbatim and is never mutated; this overlay
+    records the metadata Talon.One leaves out (contact, terms, license, an info.version) and links the
+    profile artifacts derived from it.
+actions:
+- target: $.info
+  description: Add the publisher metadata the published document omits.
+  update:
+    contact:
+      name: Talon.One
+      url: https://www.talon.one/
+      x-docs: https://docs.talon.one
+    termsOfService: https://www.talon.one/legal/terms-of-use
+    x-changelog: https://docs.talon.one/whats-new
+    x-status-page: https://status.talon.one/
+    x-api-reference: https://docs.talon.one/third-party-api
+- target: $.info
+  description: Link the API Evangelist artifacts derived from this specification.
+  update:
+    x-apievangelist:
+      provider: talon-one
+      authentication: authentication/talon-one-authentication.yml
+      conventions: conventions/talon-one-conventions.yml
+      errors: errors/talon-one-problem-types.yml
+      lifecycle: lifecycle/talon-one-lifecycle.yml
+      rate_limits: rate-limits/talon-one-rate-limits.yml
+      mcp: mcp/talon-one-mcp.yml
+      tool_crosswalk: mcp/talon-one-tool-crosswalk.yml
+- target: $.servers[0]
+  description: Confirm the shared host used by the Third-party API.
+  update:
+    x-deployment-model: shared
+    x-base-url-note: The Third-party API is the one Talon.One surface served from a shared host, https://integration.talon.one;
+      the customer deployment is passed as a parameter.
