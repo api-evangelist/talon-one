@@ -36,6 +36,19 @@ tags:
 - Rules Engine
 - Referrals
 - Discounts
+- E-Commerce
+- Retail
+tags_raw:
+- Promotions
+- Loyalty
+- Coupons
+- Incentives
+- Campaigns
+- Personalization
+- MarTech
+- Rules Engine
+- Referrals
+- Discounts
 - Ecommerce
 - Retail
 created: '2026-07-10'
@@ -50,6 +63,16 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Customer Sessions
+  - Customer Profiles
+  - Event
+  - Coupons
+  - Loyalty
+  - Referrals
+  - Achievements
+  - Catalogs
+  - Audiences
+  tags_raw:
   - Customer Sessions
   - Customer Profiles
   - Events
@@ -85,6 +108,19 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/management-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Campaigns
+  - Coupons
+  - Loyalty
+  - Application
+  - Attributes
+  - Audiences
+  - Collection
+  - Catalogs
+  - Analytics
+  - Webhook
+  - Roles
+  - Stores
+  tags_raw:
   - Campaigns
   - Coupons
   - Loyalty
@@ -150,6 +186,11 @@ apis:
   - Shopify
   - Customer Profiles
   - Customer Sessions
+  - E-Commerce
+  tags_raw:
+  - Shopify
+  - Customer Profiles
+  - Customer Sessions
   - Ecommerce
   properties:
   - type: OpenAPI
@@ -166,6 +207,10 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/get-started/webhooks
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Webhook
+  - Notification
+  - Event
+  tags_raw:
   - Webhooks
   - Notifications
   - Events
