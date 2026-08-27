@@ -55,38 +55,17 @@ created: '2026-07-10'
 modified: '2026-08-13'
 specificationVersion: '0.23'
 apis:
-- aid: talon-one:talon-one-integration-api
-  name: Talon.One Integration API
-  description: Real-time, high-traffic Integration API. Send customer sessions, customer profiles, events,
-    cart item catalogs and loyalty activity into the Talon.One Rule Engine and receive back the effects
-    (discounts, coupons, loyalty points, referrals, achievements) to apply in the calling application.
+- aid: talon-one:talon-one-accounts-and-users-api
+  name: Talon.One Accounts and users API
+  description: >-
+    Represents account and user management, including billing email addresses and user invitations.
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
-  - Customer Sessions
-  - Customer Profiles
-  - Event
-  - Coupons
-  - Loyalty
-  - Referrals
-  - Achievements
-  - Catalogs
-  - Audiences
-  tags_raw:
-  - Customer Sessions
-  - Customer Profiles
-  - Events
-  - Coupons
-  - Loyalty
-  - Referrals
-  - Achievements
-  - Catalogs
-  - Audiences
+  - Accounts and users
   properties:
   - type: OpenAPI
-    url: openapi/talon-one-integration-api-openapi.yml
-  - type: Overlay
-    url: overlays/talon-one-integration-api-overlay.yaml
+    url: openapi/talon-one-accounts-and-users-api-openapi.yml
   - type: APIReference
     url: https://docs.talon.one/integration-api
   - type: Documentation
@@ -99,124 +78,1889 @@ apis:
     url: collections/talon-one.opencollection.json
   - type: Postman
     url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
-- aid: talon-one:talon-one-management-api
-  name: Talon.One Management API
-  description: 'Back-office Management API that programmatically does what the Campaign Manager UI does:
-    applications, campaigns, rulesets, campaign templates, coupons, referrals, giveaways, loyalty programs
-    and cards, achievements, audiences, custom attributes, collections, catalogs, stores, store budgets,
-    value maps, experiments, analytics exports, webhooks, roles, users and logs.'
-  humanURL: https://docs.talon.one/docs/dev/management-api/overview
-  baseURL: https://yourbaseurl.talon.one
-  tags:
-  - Campaigns
-  - Coupons
-  - Loyalty
-  - Application
-  - Attributes
-  - Audiences
-  - Collection
-  - Catalogs
-  - Analytics
-  - Webhook
-  - Roles
-  - Stores
-  tags_raw:
-  - Campaigns
-  - Coupons
-  - Loyalty
-  - Applications
-  - Attributes
-  - Audiences
-  - Collections
-  - Catalogs
-  - Analytics
-  - Webhooks
-  - Roles
-  - Stores
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-management-api-openapi.yml
-  - type: Overlay
-    url: overlays/talon-one-management-api-overlay.yaml
   - type: APIReference
     url: https://docs.talon.one/management-api
   - type: Documentation
     url: https://docs.talon.one/docs/dev/management-api/overview
   - type: DataModel
     url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-achievements-api
+  name: Talon.One Achievements API
+  description: >-
+    Represents achievements that reward a customer profile for performing a number of specific actions
+    or reaching a transactional milestone within a defined period.
+
+
+    For example, you can use achievements to award your customers when they purchase five cups of coffee
+    in one week or when they purchase items worth $3000 in three months.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Achievements
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-achievements-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
   - type: PostmanCollection
     url: collections/talon-one.postman_collection.json
   - type: OpenCollection
     url: collections/talon-one.opencollection.json
   - type: Postman
     url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
-- aid: talon-one:talon-one-third-party-api
-  name: Talon.One Third-party API
-  description: Third-party API used by customer data platforms (CDPs) and customer engagement platforms
-    (CEPs) to exchange data with Talon.One. Ships platform-specific endpoint families for Braze, Emarsys,
-    Iterable, mParticle and Segment plus generic CDP and CEP endpoints. All endpoints are served from
-    the shared host https://integration.talon.one and take the customer deployment as a parameter.
-  humanURL: https://docs.talon.one/docs/dev/technology-partners/overview
-  baseURL: https://integration.talon.one
-  tags:
-  - Braze
-  - Emarsys
-  - Iterable
-  - mParticle
-  - Segment
-  - CDP
-  - CEP
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-third-party-api-openapi.yml
-  - type: Overlay
-    url: overlays/talon-one-third-party-api-overlay.yaml
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
   - type: APIReference
     url: https://docs.talon.one/third-party-api
   - type: Documentation
     url: https://docs.talon.one/docs/dev/technology-partners/overview
-- aid: talon-one:talon-one-shopify-integration-api
-  name: Talon.One Shopify Integration API
-  description: Shopify Integration API used by the Talon.One Shopify app to update customer sessions and
-    customer profiles from a Shopify storefront, authenticated with a Shopify Customer Account API token
-    or a Shopify JWT. Served from the dedicated Talon.One host https://shopify-integration.europe-west1.talon.one.
-  humanURL: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
-  baseURL: https://shopify-integration.europe-west1.talon.one
-  tags:
-  - Shopify
-  - Customer Profiles
-  - Customer Sessions
-  - E-Commerce
-  tags_raw:
-  - Shopify
-  - Customer Profiles
-  - Customer Sessions
-  - Ecommerce
-  properties:
-  - type: OpenAPI
-    url: openapi/talon-one-shopify-integration-api-openapi.yml
-  - type: Overlay
-    url: overlays/talon-one-shopify-integration-api-overlay.yaml
   - type: Documentation
     url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
-- aid: talon-one:talon-one-outbound-notifications
-  name: Talon.One Outbound Notifications
-  description: 'Outbound notification (webhook) catalog published by Talon.One as an OpenAPI 3.1 document
-    whose webhooks{} block carries the payload schema of every notification Talon.One POSTs to a customer
-    endpoint: campaign, coupon, loyalty, loyalty-card and strikethrough-pricing notifications.'
-  humanURL: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-additional-costs-api
+  name: Talon.One Additional costs API
+  description: >-
+    Represents an extra fee applied to the cart, for example, shipping fees or processing fees.
+
+
+    See the [docs](https://docs.talon.one/docs/product/account/dev-tools/managing-additional-costs).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
-  - Webhook
-  - Notification
-  - Event
-  tags_raw:
-  - Webhooks
-  - Notifications
+  - Additional costs
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-additional-costs-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-analytics-api
+  name: Talon.One Analytics API
+  description: >-
+    Represents analytics used to retrieve statistical data about the performance of campaigns within an
+    Application.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Analytics
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-analytics-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-applications-api
+  name: Talon.One Applications API
+  description: >-
+    Represents an Application in the Campaign Manager.
+
+    An Application is the target of every Integration API request to Talon.One.
+
+
+    One Application can hold various API keys used for Integration API requests.
+
+
+    You may have multiple Applications within one account,
+
+    for example staging and production, or different international markets.
+
+
+    See the [docs](https://docs.talon.one/docs/product/applications/overview).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Applications
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-applications-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-attributes-api
+  name: Talon.One Attributes API
+  description: >-
+    Represents a piece of information related to one of the entities available in the Campaign Manager.
+    Use
+
+    them to create highly customized rules.
+
+
+    See the [docs](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Attributes
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-attributes-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-audiences-api
+  name: Talon.One Audiences API
+  description: >-
+    Represents lists of customer profiles that allow you to target specific groups of customers in your
+    campaigns.
+
+    Audiences can be synced from customer data platforms or created directly in Talon.One.
+
+
+    See the [docs](https://docs.talon.one/docs/product/audiences/overview).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Audiences
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-audiences-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-braze-api
+  name: Talon.One Braze API
+  description: >-
+    [Braze](https://www.braze.com/) is a customer engagement platform to manage customer-centric interactions
+    between consumers and brands in real-time.
+
+
+    Use these endpoints to automate the creation of coupon and referral codes
+
+    and deliver them to specific customer segments. To send requests to these endpoints, use the
+
+    [connected content feature](https://www.braze.com/docs/user_guide/personalization_and_dynamic_content/connected_content/connected_content_retries)
+    in Braze.
+
+
+    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/braze).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Braze
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-braze-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-campaign-access-groups-api
+  name: Talon.One Campaign access groups API
+  description: >-
+    Represents the campaign access groups you can create in your Applications to organize your campaigns
+    based on the type of campaign or the team in charge.
+
+
+    See the [docs](https://docs.talon.one/docs/product/account/account-settings/managing-campaign-groups).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Campaign access groups
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-campaign-access-groups-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-campaign-notifications-api
+  name: Talon.One Campaign notifications API
+  description: >-
+    Represents the [notifications](/docs/product/applications/application-notifications/overview)
+
+    about campaign-related changes.
+
+
+    > [!note] The value of the `NotificationType` property indicates the campaign change:
+
+    > - `CampaignNotification` signifies one of the following events:
+
+    >   - [Campaign created](#tag/Campaign-notifications/operation/campaignCreatedNotification)
+
+    >   - [Campaign state changed](#tag/Campaign-notifications/operation/campaignStateChangedNotification)
+
+    >   - [Campaign rules changed](#tag/Campaign-notifications/operation/campaignRulesetChangedNotification)
+
+    >   - [Campaign edited](#tag/Campaign-notifications/operation/campaignEditedNotification)
+
+    >   - [Campaign collection edited](#tag/Campaign-notifications/operation/campaignCollectionEditedNotification)
+
+    >   - [Campaign deleted](#tag/Campaign-notifications/operation/campaignDeletedNotification)
+
+    > - `CampaignEvaluationTreeChanged` signifies [Campaign evaluation tree changed](#tag/Campaign-notifications/operation/campaignEvaluationTreeChangedNotification).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Campaign notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-campaign-notifications-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-campaign-templates-api
+  name: Talon.One Campaign templates API
+  description: Represents templates used to generate campaigns from.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Campaign templates
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-campaign-templates-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-campaigns-api
+  name: Talon.One Campaigns API
+  description: >-
+    Represents the primary resource used to control the behavior of the Talon.One Rule Engine.
+
+    They combine rulesets, coupons, and limits into a single unit.
+
+
+    See the [docs](https://docs.talon.one/docs/product/campaigns/overview).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Campaigns
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-campaigns-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-catalogs-api
+  name: Talon.One Catalogs API
+  description: >-
+    Represents a catalog of cart items with unique SKUs. Cart item catalogs allow you to synchronize your
+    entire inventory with Talon.One.
+
+
+    See the [docs](https://docs.talon.one/docs/product/account/dev-tools/managing-cart-item-catalogs).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Catalogs
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-catalogs-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-collections-api
+  name: Talon.One Collections API
+  description: >-
+    Represents a collection of arbitrary values that you can use inside rules. For example, a list of
+    SKUs.
+
+
+    See the [docs](https://docs.talon.one/docs/product/campaigns/managing-collections).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Collections
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-collections-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-coupon-notifications-api
+  name: Talon.One Coupon notifications API
+  description: >-
+    Represents the [notifications](/docs/product/applications/application-notifications/overview)
+
+    about coupons.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Coupon notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-coupon-notifications-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-coupons-api
+  name: Talon.One Coupons API
+  description: >-
+    Represents unique codes belonging to a particular campaign. Coupons don't define any behavior on their
+    own.
+
+    Instead the campaign ruleset can include rules that validate coupons and carry out particular effects.
+
+
+    See the [docs](https://docs.talon.one/docs/product/campaigns/coupons/coupon-page-overview).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Coupons
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-coupons-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-customer-data-api
+  name: Talon.One Customer data API
+  description: >-
+    Represents the data of a customer, including sessions and events used for reporting and debugging
+    in the Campaign Manager.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Customer data
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-customer-data-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-customer-data-platforms-api
+  name: Talon.One Customer data platforms API
+  description: >-
+    You can integrate with any customer data platform, or CDP, using the following endpoints designed
+    for third-party tools, rather than your own integration layer.
+
+
+    Use these endpoints to automate the creation of coupon and referral codes and deliver them to specific
+    customer segments.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Customer data platforms
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-customer-data-platforms-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-customer-engagement-platforms-api
+  name: Talon.One Customer engagement platforms API
+  description: >-
+    You can integrate with any customer engagement platform, or CEP, using the following endpoints designed
+    for third-party tools, rather than your own integration layer.
+
+
+    Use these endpoints to automate the creation of coupon and referral codes and deliver them to specific
+    customer segments.
+
+
+    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Customer engagement platforms
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-customer-engagement-platforms-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-customer-profiles-api
+  name: Talon.One Customer profiles API
+  description: Represents the customer's information. For instance, their contact information.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Customer profiles
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-customer-profiles-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-customer-sessions-api
+  name: Talon.One Customer sessions API
+  description: >-
+    Represents the data related to a customer session. Typically, a customer session is the value and
+    content of the customer's cart.
+
+
+    Sessions can be anonymous or linked to a customer profile and they have a life cycle from `open` to
+    `closed`.
+
+    In general, a session is closed when the customer completes the checkout step.
+
+
+    Sessions are a key concept of Talon.One. We strongly recommend you read the [documentation about customer
+    sessions](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Customer sessions
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-customer-sessions-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-emarsys-api
+  name: Talon.One Emarsys API
+  description: >-
+    Emarsys is a customer engagement platform that enables marketers to build, launch, and scale personalized
+    cross-channel promotional campaigns that have measurable impact.
+
+
+    Use these endpoints to integrate with Talon.One.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Emarsys
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-emarsys-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-events-api
+  name: Talon.One Events API
+  description: >-
+    Represents a single occurrence of a specific customer action, for example, updating the cart or signing
+    up for a newsletter.
+
+
+    There are 2 types of events:
+
+    - **Built-in events:** They are triggered by various endpoints, such as the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+    endpoint. [Learn more](https://docs.talon.one/docs/dev/concepts/entities/events).
+
+    - **Custom events:** They are triggered by the [Track event](https://docs.talon.one/integration-api#tag/Events/operation/trackEventV2)
+    endpoint.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
   - Events
   properties:
   - type: OpenAPI
-    url: openapi/talon-one-outbound-notifications-openapi.yml
+    url: openapi/talon-one-events-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-experiments-api
+  name: Talon.One Experiments API
+  description: >-
+    Represents an A/B testing configuration within a campaign that splits customer sessions across multiple
+    variants to compare rule effects against each other.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Experiments
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-experiments-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-giveaways-api
+  name: Talon.One Giveaways API
+  description: >-
+    Represents a program that rewards customers with giveaways, such as free gift cards.
+
+
+    See the [docs](https://docs.talon.one/docs/product/giveaways/overview).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Giveaways
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-giveaways-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-iterable-api
+  name: Talon.One Iterable API
+  description: >-
+    [Iterable](https://iterable.com/) is a cross-channel marketing platform that powers unified customer
+    experiences
+
+    and empowers you to create, optimize and measure every interaction across the entire customer journey.
+
+
+    Use these endpoints to automate the creation of coupon and referral codes
+
+    and deliver them to specific customer segments. To send requests to these endpoints, use the
+
+    [data feed feature](https://support.iterable.com/hc/en-us/articles/360044425931#enable-template-generation-using-data-feeds)
+    in Iterable.
+
+
+    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/iterable).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Iterable
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-iterable-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-logs-api
+  name: Talon.One Logs API
+  description: Represents the Talon.One logs, which contain all incoming and outgoing requests.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Logs
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-logs-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-loyalty-api
+  name: Talon.One Loyalty API
+  description: >-
+    Represents loyalty programs or concepts related to them.
+
+
+    Loyalty programs can be _profile-based_ or _card-based_, depending on whether loyalty points are linked
+
+    to [customer profiles](https://docs.talon.one/docs/product/applications/displaying-customer-profiles)
+    or [loyalty cards](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview).
+
+
+    See [the Product docs](https://docs.talon.one/docs/product/loyalty-programs/overview) for more information.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Loyalty
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-loyalty-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-loyalty-card-notifications-api
+  name: Talon.One Loyalty card notifications API
+  description: >-
+    Represents the [notifications](/docs/product/loyalty-programs/loyalty-notifications/overview) about
+    changes to loyalty points in card-based loyalty programs.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Loyalty card notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-loyalty-card-notifications-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-loyalty-cards-api
+  name: Talon.One Loyalty cards API
+  description: >-
+    Represents loyalty cards.
+
+
+    [Loyalty cards](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview)
+    allow your customers to collect and spend loyalty points within a card-based loyalty program.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Loyalty cards
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-loyalty-cards-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-loyalty-notifications-api
+  name: Talon.One Loyalty notifications API
+  description: >-
+    Represents the [notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)
+
+    about changes to loyalty points in profile-based loyalty programs.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Loyalty notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-loyalty-notifications-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-mparticle-api
+  name: Talon.One M Particle API
+  description: >-
+    [mParticle](https://www.mparticle.com/) is the customer data platform that helps unify data and simplify
+    partner integrations with enterprise-class security and reliability.
+
+
+    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/mparticle).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - mParticle
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-mparticle-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-referrals-api
+  name: Talon.One Referrals API
+  description: >-
+    Represents a referral code shared between a customer (advocate) and a prospect (friend).
+
+
+    A referral is defined by:
+
+    - an advocate: person who invited their friend via referral program.
+
+    - a friend: person who receives the invite from an advocate.
+
+    - a referral code: code to be redeemed by the advocate(s) once they referred their friend.
+
+
+    See the [docs](https://docs.talon.one/docs/product/campaigns/referrals/referral-overview).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Referrals
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-referrals-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-roles-api
+  name: Talon.One Roles API
+  description: >-
+    Represents a set of permissions assigned to a user.
+
+
+    See the [docs](https://docs.talon.one/docs/product/account/account-settings/managing-roles).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Roles
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-roles-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-segment-api
+  name: Talon.One Segment API
+  description: >-
+    [Segment](https://segment.com/) is a customer data platform that collects events from your web & mobile
+    apps.
+
+
+    Use these endpoints to integrate with Talon.One.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Segment
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-segment-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-session-api
+  name: Talon.One Session API
+  description: Use the following endpoints to manage customer sessions.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Session
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-session-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-sessions-api
+  name: Talon.One Sessions API
+  description: >-
+    Represents a session used for authentication purposes.
+
+    Create one with the [Create session](#tag/Sessions/operation/createSession) endpoint.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Sessions
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-sessions-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-store-budgets-api
+  name: Talon.One Store budgets API
+  description: >-
+    Represents store budgets. You can set a store budget to limit the total amount an individual store
+    can spend in a campaign.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Store budgets
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-store-budgets-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-stores-api
+  name: Talon.One Stores API
+  description: Represents physical or digital stores, branches, and franchises.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Stores
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-stores-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-strikethrough-pricing-notifications-api
+  name: Talon.One Strikethrough pricing notifications API
+  description: >-
+    Represents the [notifications](/docs/product/applications/application-notifications/overview)
+
+    about strikethrough pricing updates.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Strikethrough pricing notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-strikethrough-pricing-notifications-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-value-maps-api
+  name: Talon.One Value maps API
+  description: Represents the value maps that the user can create within a campaign ruleset.
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Value maps
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-value-maps-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
+  - type: Webhooks
+    url: asyncapi/talon-one-webhooks.yml
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/get-started/webhooks
+  - type: APIReference
+    url: https://docs.talon.one/outbound-notifications
+- aid: talon-one:talon-one-webhooks-api
+  name: Talon.One Webhooks API
+  description: >-
+    Represents webhooks, which send information from Talon.One to the URI of your choice.
+
+
+    See the [docs](https://docs.talon.one/docs/dev/getting-started/webhooks).
+  humanURL: https://docs.talon.one/docs/dev/integration-api/overview
+  baseURL: https://yourbaseurl.talon.one
+  tags:
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/talon-one-webhooks-api-openapi.yml
+  - type: APIReference
+    url: https://docs.talon.one/integration-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/integration-api/overview
+  - type: GettingStarted
+    url: https://docs.talon.one/docs/dev/quickstart
+  - type: PostmanCollection
+    url: collections/talon-one.postman_collection.json
+  - type: OpenCollection
+    url: collections/talon-one.opencollection.json
+  - type: Postman
+    url: https://www.postman.com/talonone-rnd/workspace/talon-one/overview
+  - type: APIReference
+    url: https://docs.talon.one/management-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/management-api/overview
+  - type: DataModel
+    url: data-model/talon-one-data-model.yml
+  - type: APIReference
+    url: https://docs.talon.one/third-party-api
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/overview
+  - type: Documentation
+    url: https://docs.talon.one/docs/dev/technology-partners/shopify/integrate-with-shopify
   - type: Webhooks
     url: asyncapi/talon-one-webhooks.yml
   - type: Documentation
@@ -224,6 +1968,12 @@ apis:
   - type: APIReference
     url: https://docs.talon.one/outbound-notifications
 common:
+- type: Overlay
+  url: overlays/talon-one-management-api-overlay.yaml
+- type: Overlay
+  url: overlays/talon-one-third-party-api-overlay.yaml
+- type: Overlay
+  url: overlays/talon-one-shopify-integration-api-overlay.yaml
 - type: AgenticAccess
   url: agentic-access/talon-one-agentic-access.yml
 - type: DomainSecurity
