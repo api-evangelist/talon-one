@@ -11,6 +11,18 @@ description: Talon.One is an enterprise promotion, loyalty, and incentives engin
   and analytics exports that back the Campaign Manager. Talon.One is delivered as a managed, per-customer
   deployment; each account calls its own base URL (https://yourbaseurl.talon.one) and authenticates with
   an API key whose prefix distinguishes the Integration key (ApiKey-v1) from the Management key (ManagementKey-v1).
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: paid
   onboarding: self-serve
@@ -1968,6 +1980,9 @@ apis:
   - type: APIReference
     url: https://docs.talon.one/outbound-notifications
 common:
+- type: CapabilityMap
+  url: capabilities/talon-one-capability-edges.yml
+  name: Talon.One Business Capability Map
 - type: Overlay
   url: overlays/talon-one-management-api-overlay.yaml
 - type: Overlay
