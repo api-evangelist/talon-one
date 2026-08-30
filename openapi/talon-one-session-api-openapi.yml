@@ -1,0 +1,177 @@
+openapi: 3.2.0
+info:
+  version: 1.0.0
+  title: Shopify Integration Session API
+  description: 'Use this API to integrate with Shopify. For more information, see the [Shopify](https://docs.talon.one/docs/dev/technology-partners/shopify/integrating-with-shopify)
+
+    section in the developer docs.
+
+    '
+servers:
+- url: https://shopify-integration.europe-west1.talon.one
+tags:
+- name: Session
+  description: Use the following endpoints to manage customer sessions.
+paths:
+  /api/v1/session:
+    post:
+      summary: Create or update customer session
+      description: "Creates or updates a session in Talon.One and submits Shopify cart items. \n\nThe response schema is identical to the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint of the Integration API.\n"
+      operationId: upsertSession
+      tags:
+      - Session
+      parameters:
+      - $ref: '#/components/parameters/ShopifyShopDomain'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertSessionRequest'
+      responses:
+        '200':
+          description: OK. For details, see the response of the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpsertSessionResponse'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                MissingShopDomainHeader:
+                  summary: Missing X-Shopify-Shop-Domain header
+                  value:
+                    success: false
+                    message: Missing X-Shopify-Shop-Domain header
+                MissingShopifyCartID:
+                  summary: Missing Shopify cart ID
+                  value:
+                    success: false
+                    message: id is required
+                MissingLineItems:
+                  summary: Missing Shopify cart's line items
+                  value:
+                    success: false
+                    message: line_items is required
+                MissingLineItemProperty:
+                  summary: Missing required field in line item
+                  value:
+                    success: false
+                    message: line_items[0].title is required
+                InvalidLineItemProperty:
+                  summary: Line item is invalid
+                  value:
+                    success: false
+                    message: line_items[0].title is not allowed to be empty
+        '404':
+          description: Not Found. The requested resource (config) could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                ConfigNotFound:
+                  summary: Configuration not found
+                  value:
+                    success: false
+                    message: Config not found
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                InternalServerError:
+                  summary: Internal Server Error
+                  value:
+                    success: false
+                    message: Internal Server Error
+components:
+  schemas:
+    UpsertSessionRequest:
+      type: object
+      required:
+      - id
+      - line_items
+      properties:
+        id:
+          type: string
+          example: gid://shopify/Cart/Z2NwLXVzLWV4YW1wbGU6MDEyMzQ1Njc4OTAxMjM0NTY3ODkw?key=examplekey1234567890
+          description: The Shopify cart ID.
+        line_items:
+          type: array
+          description: The Shopify cart line items.
+          items:
+            type: object
+            required:
+            - title
+            - price
+            - quantity
+            description: 'A line item in the cart. The identifier for the item depends on the shop''s configuration:
+
+              1.  **If custom product IDs are NOT configured**: `variant_id` is REQUIRED and `custom_id` is forbidden.
+
+              2.  **If custom product IDs ARE configured**: EITHER `variant_id` or `custom_id` must be provided (but not both). If only `variant_id` is sent, the backend will automatically look up the corresponding custom ID.
+
+              '
+            properties:
+              variant_id:
+                type: integer
+                description: The Shopify product variant ID. Required unless custom IDs are configured and `custom_id` is provided instead.
+              custom_id:
+                type: string
+                description: The Shopify product variant custom ID (from a metafield). If custom IDs are configured for the shop, this field can be used, but `variant_id` is preferred as the backend will perform the lookup automatically if `custom_id` is not provided.
+              title:
+                type: string
+                minLength: 1
+              price:
+                type: string
+                pattern: ^\d+(\.\d{1,2})?$
+                example: '18.35'
+              quantity:
+                type: integer
+                minimum: 1
+                example: 1
+        attributes:
+          type: object
+          description: Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session.
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Indicates if the request was unsuccessful.
+        message:
+          type: string
+          description: A human-readable message describing the error.
+      required:
+      - success
+      - message
+    UpsertSessionResponse:
+      type: object
+  parameters:
+    ShopifyShopDomain:
+      name: X-Shopify-Shop-Domain
+      in: header
+      required: true
+      description: The Shopify domain of the shop (e.g., `store.myshopify.com`).
+      schema:
+        type: string
+        example: store.myshopify.com
+  securitySchemes:
+    ShopifyCustomerAccessToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Shopify Customer Account API token (e.g., starting with "shcat_").
+    ShopifyJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Shopify JWT token.

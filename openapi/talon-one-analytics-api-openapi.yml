@@ -1,0 +1,258 @@
+openapi: 3.2.0
+info:
+  title: Management Analytics API
+  version: ''
+  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+servers:
+- url: https://yourbaseurl.talon.one
+security:
+- manager_auth: []
+- management_key: []
+tags:
+- name: Analytics
+  description: 'Represents analytics used to retrieve statistical data about the performance of campaigns within an Application.
+
+    '
+paths:
+  /v1/applications/{applicationId}/export_effects:
+    get:
+      operationId: exportEffects
+      summary: Export triggered effects
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing the triggered effects that match the given
+
+        attributes.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+
+        The generated file can contain the following columns:
+
+
+        - `applicationid`: The ID of the Application.
+
+        - `campaignid`: The ID of the campaign.
+
+        - `couponid`: The ID of the coupon, when applicable to the effect.
+
+        - `created`: The timestamp of the effect.
+
+        - `event_type`: The name of the event. See the [docs](https://docs.talon.one/docs/dev/concepts/entities/events).
+
+        - `eventid`: The internal ID of the effect.
+
+        - `name`: The effect name. See the [docs](https://docs.talon.one/docs/dev/integration-api/api-effects).
+
+        - `profileintegrationid`: The ID of the customer profile, when applicable.
+
+        - `props`: The [properties](https://docs.talon.one/docs/dev/integration-api/api-effects) of the effect.
+
+        - `ruleindex`: The index of the rule.
+
+        - `rulesetid`: The ID of the rule set.
+
+        - `sessionid`: The internal ID of the session that triggered the effect.
+
+        - `profileid`: The internal ID of the customer profile.
+
+        - `sessionintegrationid`: The integration ID of the session.
+
+        - `total_revenue`: The total revenue.
+
+        - `store_integration_id`: The integration ID of the store. You choose this ID when you create a store.
+
+        '
+      tags:
+      - Analytics
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - name: campaignId
+        in: query
+        description: Filter results by campaign ID.
+        example: 49
+        schema:
+          type: number
+      - name: createdBefore
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: createdAfter
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: dateFormat
+        in: query
+        description: Determines the format of dates in the export document.
+        example: excel
+        required: false
+        schema:
+          type: string
+          enum:
+          - excel
+          - ISO8601
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'created,name,applicationid,campaignid,rulesetid,ruleindex,sessionintegrationid,profileintegrationid,sessionid,profileid,eventid,event_type,total_revenue,props,couponid,store_id,store_integration_id
+
+                    2021-06-02T21:14:16Z,rejectCoupon,270,0,0,0,newsession1,,9168,0,95797,talon_session_created,265.00,"{""value"": ""XMAS20"", ""rejectionReason"": ""CouponNotFound""}",,115,STORE-001
+
+                    2021-09-01T13:04:04Z,setDiscountPerItem,270,3882,13599,0,test_flattening_2,integid_4,9707,4800,98806,talon_session_updated,405.00,"{""name"": ""10% off per item#1"", ""value"": 11.0, ""position"": 1}",,116,STORE-002
+
+                    '
+  /v1/applications/{applicationId}/export_customer_sessions:
+    get:
+      operationId: exportCustomerSessions
+      summary: Export customer sessions
+      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nDownload a CSV file containing the customer sessions that match the request.\n\n> [!important] Archived sessions cannot be exported. See the [retention\n> policy](https://docs.talon.one/docs/dev/server-infrastructure-and-data-retention).\n\n> [!tip] If the exported CSV file is too large to view, you can\n> [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).\n\n- `id`: The internal ID of the session.\n- `firstsession`: Whether this is a first session.\n- `integrationid`: The integration ID of the session.\n- `applicationid`: The ID of the Application.\n- `profileid`: The internal ID of the customer profile.\n- `profileintegrationid`: The integration ID of the customer profile.\n- `created`: The timestamp when the session was created.\n- `state`: The [state](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states)\n   of the session.\n- `cartitems`: The cart items in the session.\n- `discounts`: The discounts in the session.\n- `total`: The total value of cart items and additional costs in the session, before any discounts are applied.\n- `attributes`: The attributes set in the session.\n- `closedat`: Timestamp when the session was closed.\n- `cancelledat`: Timestamp when the session was cancelled.\n- `referral`: The referral code in the session.\n- `identifiers`: The identifiers in the session.\n- `additional_costs`: The [additional costs](https://docs.talon.one/docs/product/account/dev-tools/managing-additional-costs)\n   in the session.\n- `updated`: Timestamp of the last session update.\n- `store_integration_id`: The integration ID of the store.\n- `coupons`: Coupon codes in the session.\n"
+      tags:
+      - Analytics
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - name: createdBefore
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: createdAfter
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: updatedBefore
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: updatedAfter
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: profileIntegrationId
+        in: query
+        description: Only return sessions for the customer that matches this customer integration ID.
+        example: customer1
+        required: false
+        schema:
+          type: string
+      - name: dateFormat
+        in: query
+        description: Determines the format of dates in the export document.
+        example: excel
+        required: false
+        schema:
+          type: string
+          enum:
+          - excel
+          - ISO8601
+      - name: customerSessionState
+        in: query
+        description: Filter results by state.
+        example: open
+        required: false
+        schema:
+          type: string
+          enum:
+          - open
+          - closed
+          - partially_returned
+          - cancelled
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'id,firstsession,integrationid,applicationid,profileid,profileintegrationid,created,state,cartitems,discounts,total,attributes,closedat,cancelledat,referral,identifiers,additional_costs,updated,store_integration_id,coupons
+
+                    12328,true,62791173fbf323ee5cfd96f3,270,6111,dxclwds,2022-05-09T13:05:31Z,open,"[{""sku"": ""B00004TKVY"", ""name"": ""Gravel bike - \""Aisle of Man\"""", ""price"": 1800, ""weight"": 6, ""category"": ""gravelbikes"", ""position"": 0, ""quantity"": 1, ""attributes"": {""color"": [""black,white""], ""material"": ""titanium""}, ""returnedQuantity"": 0, ""remainingQuantity"": 1}]","{}",1850.00,"{""ShippingCost"": 50, ""PaymentMethod"": ""creditcard"", ""ShippingMethod"": ""Standard""}",0001-01-01T00:00:00Z,0001-01-01T00:00:00Z,,"null","{""ShippingCost"": {""price"": 50}}",2022-05-09T13:13:28Z,"STORE-001","[""SORRY5QMUJRWA""]"
+
+                    '
+components:
+  parameters:
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
+  securitySchemes:
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"

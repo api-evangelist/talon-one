@@ -1,0 +1,978 @@
+openapi: 3.2.0
+info:
+  title: Talon One Referrals API
+  version: ''
+  description: 'Operations tagged Referrals across 2 of this provider''s published API definitions: talon-one-integration-api-openapi.yml, talon-one-management-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://yourbaseurl.talon.one
+tags:
+- name: Referrals
+  description: 'Represents a referral code shared between a customer (advocate) and a prospect (friend).
+
+
+    A referral is defined by:
+
+    - an advocate: person who invited their friend via referral program.
+
+    - a friend: person who receives the invite from an advocate.
+
+    - a referral code: code to be redeemed by the advocate(s) once they referred their friend.
+
+
+    See the [docs](https://docs.talon.one/docs/product/campaigns/referrals/referral-overview).
+
+    '
+paths:
+  /v1/referrals:
+    post:
+      operationId: createReferral
+      summary: Create referral code for an advocate
+      description: 'Creates a referral code for an advocate. The code will be valid for the
+
+        referral campaign for which is created, indicated in the `campaignId`
+
+        parameter, and will be associated with the profile specified in the
+
+        `advocateProfileIntegrationId` parameter as the advocate''s profile.
+
+
+        > [!note] Any [referral limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets#referral-limits)
+
+        > set are ignored when you use this endpoint.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Referrals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewReferral'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Referral'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/referrals_for_multiple_advocates:
+    post:
+      operationId: createReferralsForMultipleAdvocates
+      summary: Create referral codes for multiple advocates
+      description: 'Creates unique referral codes for multiple advocates. The code will be valid
+
+        for the referral campaign for which it is created, indicated in the
+
+        `campaignId` parameter, and one referral code will be associated with one
+
+        advocate using the profile specified in the `advocateProfileIntegrationId`
+
+        parameter as the advocate''s profile.
+
+
+        > [!note] Any [referral limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets#referral-limits)
+
+        > set are ignored when you use this endpoint.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Referrals
+      parameters:
+      - name: silent
+        in: query
+        description: 'Possible values: `yes` or `no`.
+
+          - `yes`: Increases the performance of the API call by returning a 204 response.
+
+          - `no`: Returns a 200 response that contains the updated customer profiles.
+
+          '
+        example: 'yes'
+        required: false
+        schema:
+          type: string
+          default: 'yes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewReferralsForMultipleAdvocates'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Referral'
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/campaigns/{campaignId}/referrals/{referralId}:
+    delete:
+      operationId: deleteReferral
+      summary: Delete referral
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete the specified referral.'
+      tags:
+      - Referrals
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: referralId
+        in: path
+        description: The ID of the referral code.
+        example: '2154'
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+      security:
+      - manager_auth: []
+      - management_key: []
+    put:
+      operationId: updateReferral
+      summary: Update referral
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update the specified referral.'
+      tags:
+      - Referrals
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: referralId
+        in: path
+        description: The ID of the referral code.
+        example: '2154'
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReferral'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Referral'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/campaigns/{campaignId}/referrals/no_total:
+    get:
+      operationId: getReferralsWithoutTotalCount
+      summary: List referrals
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List all referrals of the specified campaign.'
+      tags:
+      - Referrals
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: code
+        in: query
+        description: Filter results performing case-insensitive matching against the referral code. Both the code and the query are folded to remove all non-alpha-numeric characters.
+        example: JVM8JH8F
+        required: false
+        schema:
+          type: string
+      - name: createdBefore
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the referral creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: createdAfter
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the referral creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: valid
+        in: query
+        description: 'Either "expired", "validNow", or "validFuture". The first option matches referrals in which the expiration date is set and in the past. The second matches referrals in which start date is null or in the past and expiration date is null or in the future, the third matches referrals in which start date is set and in the future.
+
+          '
+        example: validNow
+        required: false
+        schema:
+          type: string
+          enum:
+          - expired
+          - validNow
+          - validFuture
+      - name: usable
+        in: query
+        description: 'Either "true" or "false". If "true", only referrals where `usageCounter < usageLimit` will be returned, "false" will return only referrals where `usageCounter >= usageLimit`.
+
+          '
+        example: 'false'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+      - name: advocate
+        in: query
+        required: false
+        description: Filter results by match with a profile ID specified in the referral's AdvocateProfileIntegrationId field.
+        example: customer1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Referral'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/profile/{integrationId}/friends:
+    get:
+      operationId: getApplicationCustomerFriends
+      summary: List friends referred by customer profile
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List the friends referred by the specified customer profile in this Application.
+
+        '
+      tags:
+      - Referrals
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/applicationId'
+      - name: withTotalResultSize
+        in: query
+        description: 'When this flag is set, the result includes the total number of results for this query. This might decrease performance on large data sets.
+
+
+          - When `true`: `totalResultSize` contains the total number of results for this query.
+
+          - When `false`: Only `hasMore` is returned, and it is set to `true` when there are more results than shown on the page.
+
+          '
+        example: false
+        schema:
+          type: boolean
+      - name: integrationId
+        in: path
+        required: true
+        description: The Integration ID of the Advocate's Profile.
+        example: advocate1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApplicationReferee'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/export_referrals:
+    get:
+      operationId: exportReferrals
+      summary: Export referrals
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing the referrals that match the given
+
+        parameters.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+
+        The CSV file contains the following columns:
+
+
+        - `code`: The referral code.
+
+        - `advocateprofileintegrationid`: The profile ID of the advocate.
+
+        - `startdate`: The start date in RFC3339 of the code redemption period.
+
+        - `expirydate`: The end date in RFC3339 of the code redemption period.
+
+        - `limitval`: The maximum number of redemptions of this code. Defaults to `1` when left blank.
+
+        - `attributes`: A json object describing _custom_ referral attribute names and their values.
+
+        '
+      tags:
+      - Referrals
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - name: campaignId
+        in: query
+        description: Filter results by campaign ID.
+        example: 49
+        schema:
+          type: number
+      - name: createdBefore
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the referral creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: createdAfter
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the referral creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: valid
+        in: query
+        description: '- `expired`: Matches referrals in which the expiration date is set and in the past.
+
+          - `validNow`: Matches referrals in which start date is null or in the past and expiration date is null or in the future.
+
+          - `validFuture`: Matches referrals in which start date is set and in the future.
+
+          '
+        example: validNow
+        required: false
+        schema:
+          type: string
+          enum:
+          - expired
+          - validNow
+          - validFuture
+      - name: usable
+        in: query
+        description: '- `true`, only referrals where `usageCounter < usageLimit` will be returned.
+
+          - `false`, only referrals where `usageCounter >= usageLimit` will be returned.
+
+          '
+        example: 'true'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+      - name: batchId
+        in: query
+        description: Filter results by batches of referrals
+        example: nfinccze
+        schema:
+          type: string
+      - name: dateFormat
+        in: query
+        description: Determines the format of dates in the export document.
+        example: excel
+        required: false
+        schema:
+          type: string
+          enum:
+          - excel
+          - ISO8601
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'id,created,campaignid,advocateprofileintegrationid,friendprofileintegrationid,startdate,expirydate,code,importid,attributes,batchid,counter,limitval
+
+                    687,2021-09-10 09:21:06,3882,UGAV4628K,,,,3LFC-4BPC,,"{}",pimcxobg,0,9999
+
+                    '
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/campaigns/{campaignId}/import_referrals:
+    post:
+      operationId: importReferrals
+      summary: Import referrals
+      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nUpload a CSV file containing the referrals that should be created.\n\nThe file should be sent as multipart data.\n\nThe CSV file contains the following columns:\n\n- `code` (required): The referral code.\n- `advocateprofileintegrationid` (required): The profile ID of the advocate.\n- `startdate`: The start date in RFC3339 of the code redemption period.\n- `expirydate`: The end date in RFC3339 of the code redemption period.\n- `limitval`: The maximum number of redemptions of this code. Defaults to `1` when left blank.\n- `attributes`: A JSON object describing _custom_ referral attribute names and their values, enclosed with double quotation marks.<br />\n  For example, if you created a [custom attribute](https://docs.talon.one/docs/dev/concepts/attributes#custom-attributes)\n  called `category` associated with the referral entity, the object in the CSV file, when opened in a text editor, must be: `\"{\"category\": \"10_off\"}\"`.\n\nYou can use the time zone of your choice. It is converted to UTC internally by Talon.One.\n\n> [!important] When you import a CSV file with referrals,\n> a [customer profile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles)\n> is **not** automatically created for each `advocateprofileintegrationid`\n> column value. Use the [Update customer profile](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/updateCustomerProfileV2)\n> endpoint or the [Update multiple customer profiles](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/updateCustomerProfilesV2)\n> endpoint to create the customer profiles.\n\n> [!note] We recommend limiting your file size to 500 MB.\n\n## Example\n\n```text\ncode,startdate,expirydate,advocateprofileintegrationid,limitval,attributes\nREFERRAL_CODE1,2020-11-10T23:00:00Z,2021-11-11T23:00:00Z,integid_4,1,\"{\"\"my_attribute\"\":\n\"\"10_off\"\"}\"\nREFERRAL_CODE2,2020-11-10T23:00:00Z,2021-11-11T23:00:00Z,integid1,1,\"{\"\"my_attribute\"\":\n\"\"20_off\"\"}\"\n```\n"
+      tags:
+      - Referrals
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+components:
+  schemas:
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+    NewReferral:
+      allOf:
+      - $ref: '#/components/schemas/ReferralConstraints'
+      - type: object
+        required:
+        - campaignId
+        - advocateProfileIntegrationId
+        properties:
+          campaignId:
+            type: integer
+            title: Referral's Campaign ID
+            description: ID of the campaign from which the referral received the referral code.
+            example: 78
+          advocateProfileIntegrationId:
+            type: string
+            title: Advocate's Profile ID
+            description: The Integration ID of the Advocate's Profile.
+            maxLength: 1000
+            example: URNGV8294NV
+          friendProfileIntegrationId:
+            type: string
+            title: Friend's Profile ID
+            description: An optional Integration ID of the Friend's Profile.
+            example: BZGGC2454PA
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this item.
+            example:
+              channel: web
+    Referral:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/NewReferral'
+      - $ref: '#/components/schemas/ImportEntity'
+      - type: object
+        required:
+        - code
+        - usageCounter
+        - usageLimit
+        properties:
+          code:
+            type: string
+            title: Referral code
+            description: The referral code.
+            minLength: 4
+            example: 27G47Y54VH9L
+          usageCounter:
+            type: integer
+            title: Referral code Usages
+            description: The number of times this referral code has been successfully used.
+            example: 1
+          batchId:
+            type: string
+            title: Batch ID
+            description: The ID of the batch the referrals belong to.
+            example: tqyrgahe
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    ImportEntity:
+      type: object
+      properties:
+        importId:
+          type: integer
+          description: The ID of the Import which created this referral.
+          example: 4
+    NewReferralsForMultipleAdvocates:
+      allOf:
+      - $ref: '#/components/schemas/ReferralConstraints'
+      - type: object
+        required:
+        - campaignId
+        - advocateProfileIntegrationIds
+        - usageLimit
+        properties:
+          campaignId:
+            type: integer
+            title: Referral's Campaign ID
+            description: The ID of the campaign from which the referral received the referral code.
+            example: 45
+          advocateProfileIntegrationIds:
+            type: array
+            title: Advocate Profile List
+            description: An array containing all the respective advocate profiles.
+            example:
+            - URNGV8294NV
+            - DRPVV9476AF
+            items:
+              type: string
+            maxItems: 1000
+            minItems: 1
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this referral code.
+            example:
+              channel: web
+          validCharacters:
+            type: array
+            description: 'List of characters used to generate the random parts of a code. By default, the list of characters
+
+              is equivalent to the `[A-Z, 0-9]` regular expression.
+
+              '
+            example:
+            - A
+            - B
+            - C
+            - D
+            - E
+            - F
+            - G
+            - H
+            - I
+            - J
+            - K
+            - L
+            - M
+            - N
+            - O
+            - P
+            - Q
+            - R
+            - S
+            - T
+            - U
+            - V
+            - W
+            - X
+            - Y
+            - Z
+            items:
+              type: string
+          referralPattern:
+            type: string
+            description: 'The pattern used to generate referrals. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+              '
+            example: REF-###-###
+            maxLength: 100
+            minLength: 3
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    ReferralConstraints:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          title: Referral code valid from
+          description: Timestamp at which point the referral code becomes valid.
+          example: '2020-11-10T23:00:00Z'
+        expiryDate:
+          type: string
+          format: date-time
+          title: Referral code valid until
+          description: Expiration date of the referral code. Referral never expires if this is omitted.
+          example: '2021-11-10T23:00:00Z'
+        usageLimit:
+          type: integer
+          title: Referral code Usage Limit
+          description: 'The number of times a referral code can be used. `0` means no limit but any campaign usage limits will still apply.
+
+            '
+          minimum: 0
+          maximum: 999999
+          example: 1
+    ApplicationReferee:
+      allOf:
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - type: object
+        required:
+        - sessionId
+        - advocateIntegrationId
+        - friendIntegrationId
+        - code
+        - created
+        properties:
+          sessionId:
+            type: string
+            description: Integration ID of the session in which the customer redeemed the referral.
+          advocateIntegrationId:
+            type: string
+            maxLength: 1000
+            title: Advocate's Profile ID
+            description: Integration ID of the Advocate's Profile.
+          friendIntegrationId:
+            type: string
+            maxLength: 1000
+            title: Friend's Profile ID
+            description: Integration ID of the Friend's Profile.
+          code:
+            type: string
+            description: Advocate's referral code.
+          created:
+            type: string
+            format: date-time
+            description: Timestamp of the moment the customer redeemed the referral.
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    UpdateReferral:
+      type: object
+      additionalProperties: false
+      properties:
+        friendProfileIntegrationId:
+          type: string
+          title: Friend's Profile ID
+          description: An optional Integration ID of the Friend's Profile.
+          example: BZGGC2454PA
+          maxLength: 1000
+        startDate:
+          type: string
+          format: date-time
+          title: Referral code valid from
+          description: Timestamp at which point the referral code becomes valid.
+          example: '2020-11-10T23:00:00Z'
+        expiryDate:
+          type: string
+          format: date-time
+          title: Referral code valid until
+          description: Expiration date of the referral code. Referral never expires if this is omitted.
+          example: '2021-11-10T23:00:00Z'
+        usageLimit:
+          type: integer
+          title: Referral code Usage Limit
+          description: 'The number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply.
+
+            '
+          minimum: 0
+          maximum: 999999
+          example: 1
+        attributes:
+          type: object
+          description: Arbitrary properties associated with this item.
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+  parameters:
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+  securitySchemes:
+    api_key_v1:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "To authenticate with the Integration API, generate an API key in the Campaign Manager\nand prefix it with `ApiKey-v1`.\n\nTo generate an API key:\n\n1. Sign in to the Campaign Manager and open the Application of your choice, or create one.\n1. Click **Settings** > **Integration API Keys**.\n1. Click **Create API Key** and give it a name and an expiration date, then click **Create API Key**.\n\n   **Tip**: Avoid choosing expiration dates that fall at the end of\n   the year or during other high-traffic periods.\n\n\nYou can now use the API key in the HTTP header, prefixing it with `ApiKey-v1`:\n\n```\nAuthorization: ApiKey-v1 dbc644d33aa74d582bd9479c59e16f970fe13bf3\n```\n\nOr use it inside [an SDK](https://docs.talon.one/docs/dev/sdks/overview), for example, with the JAVA SDK:\n\n```\niApi.getApiClient().setApiKeyPrefix(\"ApiKey-v1\");\niApi.getApiClient().setApiKey(\"dbc644d33aa74d582bd9479c59e16f970fe13bf3\");\n```\n"
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"
+x-refined-from:
+- talon-one-integration-api-openapi.yml
+- talon-one-management-api-openapi.yml

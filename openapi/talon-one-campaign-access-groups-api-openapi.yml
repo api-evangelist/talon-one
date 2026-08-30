@@ -1,0 +1,225 @@
+openapi: 3.2.0
+info:
+  title: Management Campaign access groups API
+  version: ''
+  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+servers:
+- url: https://yourbaseurl.talon.one
+security:
+- manager_auth: []
+- management_key: []
+tags:
+- name: Campaign access groups
+  description: 'Represents the campaign access groups you can create in your Applications to organize your campaigns based on the type of campaign or the team in charge.
+
+
+    See the [docs](https://docs.talon.one/docs/product/account/account-settings/managing-campaign-groups).
+
+    '
+paths:
+  /v1/campaign_groups:
+    get:
+      operationId: getCampaignGroups
+      summary: List campaign access groups
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List the campaign access groups in the current account.'
+      tags:
+      - Campaign access groups
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CampaignGroup'
+  /v1/campaign_groups/{campaignGroupId}:
+    get:
+      operationId: getCampaignGroup
+      summary: Get campaign access group
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get a campaign access group specified by its ID.'
+      tags:
+      - Campaign access groups
+      parameters:
+      - name: campaignGroupId
+        in: path
+        description: The ID of the campaign access group.
+        example: 37
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignGroup'
+components:
+  schemas:
+    NewCampaignGroup:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the campaign access group.
+          minLength: 1
+          example: Europe access group
+        description:
+          type: string
+          description: A longer description of the campaign access group.
+          example: A group that gives access to all the campaigns for the Europe market.
+        subscribedApplicationsIds:
+          type: array
+          description: A list of IDs of the Applications that this campaign access group is enabled for.
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        campaignIds:
+          type: array
+          description: A list of IDs of the campaigns that are part of the campaign access group.
+          items:
+            type: integer
+          example:
+          - 4
+          - 6
+          - 8
+      required:
+      - name
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    CampaignGroup:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/NewCampaignGroup'
+      - type: object
+  parameters:
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+  securitySchemes:
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"

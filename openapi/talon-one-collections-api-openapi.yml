@@ -1,0 +1,1116 @@
+openapi: 3.2.0
+info:
+  title: Management Collections API
+  version: ''
+  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+servers:
+- url: https://yourbaseurl.talon.one
+security:
+- manager_auth: []
+- management_key: []
+tags:
+- name: Collections
+  description: 'Represents a collection of arbitrary values that you can use inside rules. For example, a list of SKUs.
+
+
+    See the [docs](https://docs.talon.one/docs/product/campaigns/managing-collections).
+
+    '
+paths:
+  /v1/collections:
+    get:
+      operationId: listAccountCollections
+      summary: List collections in account
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List account-level collections in the account.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: withTotalResultSize
+        in: query
+        description: 'When this flag is set, the result includes the total number of results for this query. This might decrease performance on large data sets.
+
+
+          - When `true`: `totalResultSize` contains the total number of results for this query.
+
+          - When `false`: Only `hasMore` is returned, and it is set to `true` when there are more results than shown on the page.
+
+          '
+        example: false
+        schema:
+          type: boolean
+      - name: name
+        in: query
+        description: Filter by collection name.
+        example: collection1
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CollectionWithoutPayload'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    post:
+      operationId: createAccountCollection
+      summary: Create account-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create an account-level collection.'
+      tags:
+      - Collections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCollection'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '409':
+          description: Conflict. A collection with this name already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/collections/{collectionId}:
+    get:
+      operationId: getAccountCollection
+      summary: Get account-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve a given account-level collection.'
+      tags:
+      - Collections
+      parameters:
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in account](#tag/Collections/operation/listAccountCollections) endpoint.
+        example: 22
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    put:
+      operationId: updateAccountCollection
+      summary: Update account-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Edit the description of a given account-level collection and enable or disable the collection in the specified Applications.'
+      tags:
+      - Collections
+      parameters:
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in account](#tag/Collections/operation/listAccountCollections) endpoint.
+        example: 22
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCollection'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '409':
+          description: Conflict. A collection with this name already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    delete:
+      operationId: deleteAccountCollection
+      summary: Delete account-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete a given account-level collection.'
+      tags:
+      - Collections
+      parameters:
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in account](#tag/Collections/operation/listAccountCollections) endpoint.
+        example: 22
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/collections/{collectionId}/items:
+    get:
+      operationId: getCollectionItems
+      summary: Get collection items
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve items from a given collection.
+
+
+        You can retrieve items from both account-level collections and campaign-level collections using this endpoint.
+
+        '
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in account](#tag/Collections/operation/listAccountCollections) endpoint.
+        example: 22
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CollectionItem'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/applications/{applicationId}/collections:
+    get:
+      operationId: listCollectionsInApplication
+      summary: List collections in Application
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List campaign-level collections from all campaigns in a given Application.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: withTotalResultSize
+        in: query
+        description: 'When this flag is set, the result includes the total number of results for this query. This might decrease performance on large data sets.
+
+
+          - When `true`: `totalResultSize` contains the total number of results for this query.
+
+          - When `false`: Only `hasMore` is returned, and it is set to `true` when there are more results than shown on the page.
+
+          '
+        example: false
+        schema:
+          type: boolean
+      - name: name
+        in: query
+        description: Filter by collection name.
+        example: collection1
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CollectionWithoutPayload'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/applications/{applicationId}/campaigns/{campaignId}/collections:
+    get:
+      operationId: listCollections
+      summary: List collections in campaign
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List collections in a given campaign.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: withTotalResultSize
+        in: query
+        description: 'When this flag is set, the result includes the total number of results for this query. This might decrease performance on large data sets.
+
+
+          - When `true`: `totalResultSize` contains the total number of results for this query.
+
+          - When `false`: Only `hasMore` is returned, and it is set to `true` when there are more results than shown on the page.
+
+          '
+        example: false
+        schema:
+          type: boolean
+      - name: name
+        in: query
+        description: Filter by collection name.
+        example: collection1
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CollectionWithoutPayload'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    post:
+      operationId: createCollection
+      summary: Create campaign-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create a campaign-level collection in a given campaign.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCampaignCollection'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+  /v1/applications/{applicationId}/campaigns/{campaignId}/collections/{collectionId}:
+    get:
+      operationId: getCollection
+      summary: Get campaign-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve a given campaign-level collection.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in Application](#tag/Collections/operation/listCollectionsInApplication) endpoint.
+        example: 44
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    put:
+      operationId: updateCollection
+      summary: Update campaign-level collection's description
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Edit the description of a given campaign-level collection.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in Application](#tag/Collections/operation/listCollectionsInApplication) endpoint.
+        example: 44
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignCollection'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    delete:
+      operationId: deleteCollection
+      summary: Delete campaign-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete a given campaign-level collection.'
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in Application](#tag/Collections/operation/listCollectionsInApplication) endpoint.
+        example: 44
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/collections/{collectionId}/import:
+    post:
+      operationId: importAccountCollection
+      summary: Import data into existing account-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Upload a CSV file containing the collection of string values that should be
+
+        attached as payload for collection.
+
+
+        The file should be sent as multipart data.
+
+
+        The import **replaces** the initial content of the collection.
+
+
+        The CSV file **must** only contain the following column:
+
+
+        - `item`: the values in your collection.
+
+
+        A collection is limited to 500,000 items.
+
+
+        ## Example
+
+
+        ```
+
+        item
+
+        Adidas
+
+        Nike
+
+        Asics
+
+        ```
+
+
+        > [!note] Before sending a request to this endpoint, ensure the data in the
+
+        > CSV to import is different from the data currently stored in the collection.
+
+        '
+      tags:
+      - Collections
+      parameters:
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in account](#tag/Collections/operation/listAccountCollections) endpoint.
+        example: 22
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/applications/{applicationId}/campaigns/{campaignId}/collections/{collectionId}/import:
+    post:
+      operationId: importCollection
+      summary: Import data into existing campaign-level collection
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Upload a CSV file containing the collection of string values that should be
+
+        attached as payload for collection.
+
+
+        The file should be sent as multipart data.
+
+
+        The import **replaces** the initial content of the collection.
+
+
+        The CSV file **must** only contain the following column:
+
+
+        - `item`: the values in your collection.
+
+
+        A collection is limited to 500,000 items.
+
+
+        ## Example
+
+
+        ```
+
+        item
+
+        Adidas
+
+        Nike
+
+        Asics
+
+        ```
+
+
+        > [!note] Before sending a request to this endpoint, ensure the data in the
+
+        > CSV to import is different from the data currently stored in the collection.
+
+        '
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in Application](#tag/Collections/operation/listCollectionsInApplication) endpoint.
+        example: 44
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/collections/{collectionId}/export:
+    get:
+      operationId: exportAccountCollectionItems
+      summary: Export account-level collection's items
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing items from a given account-level collection.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+        '
+      tags:
+      - Collections
+      parameters:
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in account](#tag/Collections/operation/listAccountCollections) endpoint.
+        example: 22
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'item
+
+                    SKU1
+
+                    SKU2
+
+                    SKU3
+
+                    '
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+  /v1/applications/{applicationId}/campaigns/{campaignId}/collections/{collectionId}/export:
+    get:
+      operationId: exportCollectionItems
+      summary: Export campaign-level collection's items
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing items from a given campaign-level collection.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+        '
+      tags:
+      - Collections
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: collectionId
+        in: path
+        required: true
+        description: The ID of the collection. You can get it with the [List collections in Application](#tag/Collections/operation/listCollectionsInApplication) endpoint.
+        example: 44
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'item
+
+                    SKU1
+
+                    SKU2
+
+                    SKU3
+
+                    '
+        '401':
+          description: Unauthorized
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+components:
+  schemas:
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    UpdateCollection:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A short description of the purpose of this collection.
+          example: My collection of SKUs
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications where this collection is enabled.
+          example:
+          - 1
+          - 2
+          - 3
+          items:
+            type: integer
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    NewCampaignCollection:
+      allOf:
+      - $ref: '#/components/schemas/UpdateCampaignCollection'
+      - type: object
+        required:
+        - name
+        properties:
+          name:
+            type: string
+            minLength: 1
+            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
+            description: The name of this collection.
+            example: My collection
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    NewCollection:
+      allOf:
+      - $ref: '#/components/schemas/UpdateCollection'
+      - type: object
+        required:
+        - name
+        properties:
+          name:
+            type: string
+            minLength: 1
+            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
+            description: The name of this collection.
+            example: My collection
+    UpdateCampaignCollection:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A short description of the purpose of this collection.
+          example: My collection of SKUs
+    CollectionWithoutPayload:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewCollection'
+      - type: object
+        required:
+        - createdBy
+        properties:
+          modifiedBy:
+            type: integer
+            description: ID of the user who last updated this effect if available.
+            example: 48
+          createdBy:
+            type: integer
+            description: ID of the user who created this effect.
+            example: 134
+          applicationId:
+            type: integer
+            description: The ID of the Application that owns this entity.
+            example: 1
+          campaignId:
+            type: integer
+            description: The ID of the campaign that owns this entity.
+            example: 7
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    Collection:
+      allOf:
+      - $ref: '#/components/schemas/CollectionWithoutPayload'
+      - type: object
+        properties:
+          payload:
+            type: array
+            description: The content of the collection.
+            maxItems: 50
+            example:
+            - KTL-WH-ET-1
+            - KTL-BL-ET-1
+            items:
+              type: string
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    CollectionItem:
+      allOf:
+      - type: object
+        required:
+        - item
+        properties:
+          item:
+            type: string
+  parameters:
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+  securitySchemes:
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"

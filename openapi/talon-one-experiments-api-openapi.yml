@@ -1,0 +1,1005 @@
+openapi: 3.2.0
+info:
+  title: Management Experiments API
+  version: ''
+  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+servers:
+- url: https://yourbaseurl.talon.one
+security:
+- manager_auth: []
+- management_key: []
+tags:
+- name: Experiments
+  description: 'Represents an A/B testing configuration within a campaign that splits customer sessions across multiple variants to compare rule effects against each other.
+
+    '
+paths:
+  /v1/applications/{applicationId}/experiments:
+    get:
+      operationId: listExperiments
+      summary: List experiments
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List all experiments of the specified Application that match your filter criteria.'
+      tags:
+      - Experiments
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+        example: 42
+        schema:
+          type: integer
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 1000
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 1000
+      - name: skip
+        in: query
+        required: false
+        description: The number of items to skip when paging through large result sets.
+        example: 100
+        schema:
+          type: integer
+      - name: sort
+        in: query
+        required: false
+        description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+          **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+          '
+        example: name
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - totalResultSize
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Experiment'
+  /v1/applications/{applicationId}/experiments/{experimentId}:
+    get:
+      operationId: getExperiment
+      summary: Get experiment in Application
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the given experiment associated with the Application.'
+      tags:
+      - Experiments
+      parameters:
+      - name: applicationId
+        in: path
+        required: true
+        description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+        example: 42
+        schema:
+          type: integer
+      - name: experimentId
+        in: path
+        description: The ID of the experiment.
+        example: 1
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+components:
+  schemas:
+    Ruleset:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/NewRuleset'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            title: Campaign ID
+            description: The ID of the campaign that owns this entity.
+            example: 320
+          templateId:
+            type: integer
+            title: Campaign Template ID
+            description: The ID of the campaign template that owns this entity.
+            example: 3
+          activatedAt:
+            type: string
+            format: date-time
+            description: Timestamp indicating when this Ruleset was activated.
+    ExperimentVariant:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - type: object
+        required:
+        - name
+        - isPrimary
+        properties:
+          name:
+            type: string
+            example: Variant A
+          experimentId:
+            type: integer
+            example: 10
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+          weight:
+            type: integer
+            example: 12
+          isPrimary:
+            type: boolean
+            example: true
+    CampaignVersions:
+      type: object
+      properties:
+        revisionFrontendState:
+          type: string
+          description: The campaign revision state displayed in the Campaign Manager.
+          enum:
+          - revised
+          - pending
+          example: revised
+        activeRevisionId:
+          type: integer
+          description: 'ID of the revision that was last activated on this campaign.
+
+            '
+          example: 6
+        activeRevisionVersionId:
+          type: integer
+          description: 'ID of the revision version that is active on the campaign.
+
+            '
+          example: 6
+        version:
+          type: integer
+          description: 'Incrementing number representing how many revisions have been activated on this campaign, starts from 0 for a new campaign.
+
+            '
+          example: 6
+        currentRevisionId:
+          type: integer
+          description: 'ID of the revision currently being modified for the campaign.
+
+            '
+          example: 6
+        currentRevisionVersionId:
+          type: integer
+          description: 'ID of the latest version applied on the current revision.
+
+            '
+          example: 6
+        stageRevision:
+          type: boolean
+          description: 'Flag for determining whether we use current revision when sending requests with staging API key.
+
+            '
+          example: false
+          default: false
+    Experiment:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - type: object
+        properties:
+          isVariantAssignmentExternal:
+            type: boolean
+            description: 'The source of the assignment. - false - The variant assignment is handled internally by Talon.One. - true - The variant assignment is handled externally.
+
+              '
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+          activated:
+            type: string
+            format: date-time
+            description: 'The date and time the experiment was activated.
+
+              '
+          state:
+            type: string
+            enum:
+            - enabled
+            - disabled
+            - archived
+            default: disabled
+            example: enabled
+            description: 'A disabled experiment is not evaluated for rules or coupons.
+
+              '
+          variants:
+            type: array
+            items:
+              $ref: '#/components/schemas/ExperimentVariant'
+          goalType:
+            type: string
+            enum:
+            - other
+            - maximize_revenue
+            - optimize_discount_efficiency
+            - maximize_items_sold
+            description: 'The goal of the experiment. Determines which single metric is used to decide the winning variant. When set to `other`, multiple metrics are used.
+
+              '
+          goalDescription:
+            type: string
+            description: 'A description of the experiment goal. Provides context for the AI summary and helps it interpret the outcome of the experiment against the stated goal.
+
+              '
+            example: Offering free shipping will increase average order revenue more than a 10% discount
+          deletedat:
+            type: string
+            format: date-time
+            description: 'The date and time the experiment was deleted.
+
+              '
+        required:
+        - state
+        - goalType
+    Rule:
+      type: object
+      required:
+      - title
+      - condition
+      - effects
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: A unique identifier for the rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        parentId:
+          type: string
+          format: uuid
+          description: The ID of the rule that was copied to create this rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        title:
+          type: string
+          description: A short description of the rule.
+          example: Give discount via coupon
+        description:
+          type: string
+          description: A longer, more detailed description of the rule.
+          example: Creates a discount when a coupon is valid
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+        condition:
+          type: array
+          description: A Talang expression that will be evaluated in the context of the given event.
+          minItems: 1
+          example:
+          - and
+          - - couponValid
+          items: {}
+        effects:
+          type: array
+          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
+          items:
+            type: array
+            items: {}
+          example:
+          - catch
+          - - noop
+          - - setDiscount
+            - 10% off
+            - - '*'
+              - - .
+                - Session
+                - Total
+              - - /
+                - 10
+                - 100
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/BaseCampaign'
+      - $ref: '#/components/schemas/AdditionalCampaignProperties'
+      - $ref: '#/components/schemas/CampaignVersions'
+      - type: object
+        required:
+        - reevaluateOnReturn
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    CodeGeneratorSettings:
+      type: object
+      properties:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
+          type: string
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+      required:
+      - couponPattern
+      - validCharacters
+    Binding:
+      type: object
+      required:
+      - name
+      - expression
+      properties:
+        name:
+          type: string
+          description: A descriptive name for the value to be bound.
+          example: Discount percentage
+        type:
+          type: string
+          description: 'The kind of binding. Possible values are:
+
+            - `bundle`
+
+            - `cartItemFilter`
+
+            - `subledgerBalance`
+
+            - `templateParameter`
+
+            '
+          example: templateParameter
+        expression:
+          type: array
+          description: 'A Talang expression that is evaluated, and its result is bound to the name of
+
+            the binding. The first element must be one of the functions or operators supported
+
+            by Talang, followed by its arguments. The arguments can be strings, numbers, or
+
+            nested expressions. For example:
+
+            - `["list", "10014", "10015"]` calls the `list` function to build a list of strings.
+
+            - `["+", 2, 0]` uses the `+` operator to add two numbers.
+
+            '
+          example:
+          - identity
+          - 10
+          items: {}
+        valueType:
+          type: string
+          description: 'The data type of the value. One of the following:
+
+            - `string`
+
+            - `number`
+
+            - `boolean`
+
+            '
+          example: number
+        minValue:
+          type: number
+          description: The minimum value allowed for this placeholder.
+          example: 0
+        maxValue:
+          type: number
+          description: The maximum value allowed for this placeholder.
+          example: 19.9
+        attributeId:
+          type: integer
+          title: Attribute ID
+          description: Identifier of the attribute attached to the placeholder.
+          example: 100
+        description:
+          type: string
+          description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
+          example: The percentage discount applied to the cart total.
+    BaseCampaign:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Campaign Name
+          description: A user-facing name for this campaign.
+          minLength: 1
+          example: Summer promotions
+        description:
+          type: string
+          title: Campaign Description
+          description: A detailed description of the campaign.
+          example: Campaign for all summer 2021 promotions
+        startTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become active.
+          example: '2021-07-20T22:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become inactive.
+          example: '2021-09-22T22:00:00Z'
+        attributes:
+          type: object
+          description: Arbitrary properties associated with this campaign.
+        state:
+          type: string
+          enum:
+          - enabled
+          - disabled
+          - archived
+          default: enabled
+          example: enabled
+          description: 'A disabled or archived campaign is not evaluated for rules or coupons.
+
+            '
+        activeRulesetId:
+          type: integer
+          description: '[ID of Ruleset](https://docs.talon.one/management-api#tag/Campaigns/operation/getRulesets) this
+
+            campaign applies on customer session evaluation.
+
+            '
+          example: 6
+        tags:
+          type: array
+          description: A list of tags for the campaign.
+          example:
+          - summer
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+        reevaluateOnReturn:
+          type: boolean
+          title: Reevaluate on return
+          description: Indicates whether this campaign should be reevaluated when a customer returns an item.
+          example: true
+        features:
+          type: array
+          description: The features enabled in this campaign.
+          example:
+          - coupons
+          - referrals
+          items:
+            type: string
+            enum:
+            - coupons
+            - referrals
+            - loyalty
+            - giveaways
+            - strikethrough
+            - achievements
+            - advancedEvents
+        couponSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        referralSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        limits:
+          type: array
+          description: 'The set of [budget limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets) for this campaign.
+
+            '
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+        campaignGroups:
+          type: array
+          description: 'The IDs of the [campaign groups](https://docs.talon.one/docs/product/account/managing-campaign-groups) this campaign belongs to.
+
+            '
+          example:
+          - 1
+          - 3
+          items:
+            type: integer
+        type:
+          type: string
+          title: Type
+          enum:
+          - cartItem
+          - advanced
+          default: advanced
+          example: advanced
+          description: "The campaign type. Possible type values:\n  - `cartItem`: Type of campaign that can apply effects only to cart items.\n  - `advanced`: Type of campaign that can apply effects to customer sessions and cart items.\n"
+        linkedStoreIds:
+          type: array
+          description: 'A list of store IDs that you want to link to the campaign.
+
+
+            **Note:** Campaigns with linked store IDs will only be evaluated when there is a
+
+            [customer session update](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+
+            that references a linked store.
+
+            '
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        couponAttributes:
+          type: object
+          description: Arbitrary properties associated with coupons in this campaign.
+      required:
+      - name
+      - state
+      - tags
+      - limits
+      - features
+    NewRuleset:
+      type: object
+      required:
+      - rules
+      - bindings
+      properties:
+        rules:
+          type: array
+          description: Set of rules to apply.
+          items:
+            $ref: '#/components/schemas/Rule'
+        strikethroughRules:
+          type: array
+          description: Set of rules to apply for strikethrough.
+          items:
+            $ref: '#/components/schemas/Rule'
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+          example: []
+        rbVersion:
+          type: string
+          description: The version of the rulebuilder used to create this ruleset.
+          example: v2
+        activate:
+          type: boolean
+          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
+          example: true
+    CampaignBudget:
+      type: object
+      required:
+      - action
+      - limit
+      - counter
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        counter:
+          type: number
+          minimum: 0
+          example: 42
+          description: The number of occurrences of the limited action in the context of the campaign.
+    EntityWithTalangVisibleID:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: Unique ID for this entity.
+          example: 4
+        created:
+          type: string
+          format: date-time
+          description: The exact moment this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+    AdditionalCampaignProperties:
+      type: object
+      properties:
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignBudget'
+          description: 'A list of all the budgets that are defined by this campaign and their usage.
+
+
+            **Note:** Budgets that are not defined do not appear in this list and their usage is
+
+            not counted until they are defined.
+
+            '
+        couponRedemptionCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Number of coupons redeemed in the campaign.
+
+            '
+          example: 163
+        referralRedemptionCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Number of referral codes redeemed in the campaign.
+
+            '
+          example: 3
+        discountCount:
+          type: number
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total amount of discounts redeemed in the campaign.
+
+            '
+          example: 288
+        discountEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of times discounts were redeemed in this campaign.
+
+            '
+          example: 343
+        couponCreationCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of coupons created by rules in this campaign.
+
+            '
+          example: 16
+        customEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of custom effects triggered by rules in this campaign.
+
+            '
+          example: 0
+        referralCreationCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of referrals created by rules in this campaign.
+
+            '
+          example: 8
+        addFreeItemEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of times the [add free item effect](https://docs.talon.one/docs/dev/integration-api/api-effects#addfreeitem) can be triggered in this campaign.
+
+            '
+          example: 0
+        awardedGiveawaysCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of giveaways awarded by rules in this campaign.
+
+            '
+          example: 9
+        createdLoyaltyPointsCount:
+          type: number
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty points created by rules in this campaign.
+
+            '
+          example: 9
+        createdLoyaltyPointsEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty point creation effects triggered by rules in this campaign.
+
+            '
+          example: 2
+        redeemedLoyaltyPointsCount:
+          type: number
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty points redeemed by rules in this campaign.
+
+            '
+          example: 8
+        redeemedLoyaltyPointsEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty point redemption effects triggered by rules in this campaign.
+
+            '
+          example: 9
+        callApiEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of webhooks triggered by rules in this campaign.
+
+            '
+          example: 0
+        reservecouponEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of reserve coupon effects triggered by rules in this campaign.
+
+            '
+          example: 9
+        lastActivity:
+          type: string
+          format: date-time
+          example: '2022-11-10T23:00:00Z'
+          description: Timestamp of the most recent event received by this campaign.
+        updated:
+          type: string
+          format: date-time
+          example: '2022-10-27T15:00:00Z'
+          description: 'Timestamp of the most recent update to the campaign''s property. Updates to external entities used in this campaign
+
+            are **not** registered by this property, such as collection or coupon updates.
+
+            '
+        createdBy:
+          type: string
+          description: Name of the user who created this campaign if available.
+          example: John Doe
+        updatedBy:
+          type: string
+          description: Name of the user who last updated this campaign if available.
+          example: Jane Doe
+        templateId:
+          type: integer
+          description: The ID of the Campaign Template this Campaign was created from.
+          example: 3
+        frontendState:
+          type: string
+          description: The campaign state displayed in the Campaign Manager.
+          enum:
+          - expired
+          - scheduled
+          - running
+          - disabled
+          - archived
+          - staged
+          example: running
+        storesImported:
+          type: boolean
+          description: Indicates whether the linked stores were imported via a CSV file.
+          example: true
+        valueMapsIds:
+          type: array
+          description: A list of value map IDs for the campaign.
+          items:
+            type: integer
+          example:
+          - 100
+          - 215
+        experimentId:
+          type: integer
+          description: The ID of the Experiment this Campaign is part of.
+          example: 1
+      required:
+      - state
+      - description
+      - type
+      - frontendState
+      - storesImported
+    LimitConfig:
+      type: object
+      required:
+      - action
+      - limit
+      - entities
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        period:
+          description: The period on which the budget limit recurs.
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+          example: yearly
+        entities:
+          type: array
+          description: The entity that this limit applies to.
+          example:
+          - Coupon
+          items:
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Profile
+            - Identifier
+            - Store
+            - Session
+  securitySchemes:
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"

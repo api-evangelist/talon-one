@@ -1,0 +1,682 @@
+openapi: 3.2.0
+info:
+  title: Notification schemas Coupon notifications API
+  version: ''
+  description: 'Use [Application notifications](/docs/product/applications/application-notifications/overview)
+
+    and [loyalty notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)
+
+    to notify the system of your choice of certain changes that happened in Talon.One.
+
+
+    > [!note] **Note:**
+
+    > - Required fields are not omitted if they are empty (have `null` value).
+
+    > - The notification schemas may be extended with additional properties in future releases.
+
+    > To maintain forward compatibility, ensure your implementation ignores unknown properties.
+
+    '
+servers:
+- url: https://yourbaseurl.talon.one
+security: []
+tags:
+- name: Coupon notifications
+  description: 'Represents the [notifications](/docs/product/applications/application-notifications/overview)
+
+    about coupons.
+
+    '
+paths: {}
+webhooks:
+  createCouponData:
+    post:
+      operationId: createCouponData
+      summary: Coupon created
+      tags:
+      - Coupon notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: "The [notification](/docs/product/applications/application-notifications/overview) indicating that one of the following coupon-related changes occurred:\n- Coupon created (via the Campaign Manager\n  or [Create coupons](/management-api#tag/Coupons/operation/createCoupons) endpoint).\n- Coupon created for multiple recipients\n  (via the [Create coupons for multiple recipients](/management-api#tag/Coupons/operation/createCouponsForMultipleRecipients) endpoint).\n- Coupon created (as a result of the\n  [couponCreated](/docs/dev/integration-api/api-effects#couponcreated) API effect,\n  triggered by the Rule Engine)."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCouponData'
+            examples:
+              LessThan1000Coupons:
+                value:
+                  TypeOfChange: campaign_manager
+                  Operation: CouponCreated
+                  EmployeeName: Franziska Schneider
+                  NotificationType: CouponCreated
+                  totalResultSize: 2
+                  data:
+                  - id: 1
+                    created: '2023-01-31T15:19:25.18417+01:00'
+                    campaignId: 1
+                    value: 73KXKKFP
+                    usageLimit: 1
+                    reservationLimit: 0
+                    usageCounter: 0
+                    attributes: {}
+                    reservation: true
+                    batchId: nqylhnni
+                  - id: 2
+                    created: '2023-01-31T15:19:25.18417+01:00'
+                    campaignId: 1
+                    value: BH3CXXLW
+                    usageLimit: 1
+                    reservationLimit: 0
+                    usageCounter: 0
+                    attributes: {}
+                    reservation: true
+                    batchId: nqylhnni
+              MoreThan1000Coupons:
+                value:
+                  TypeOfChange: campaign_manager
+                  Operation: CouponCreated
+                  EmployeeName: Franziska Schneider
+                  NotificationType: CouponCreated
+                  BatchID: nqylhnni
+        required: true
+  couponsData:
+    post:
+      operationId: couponsData
+      summary: Coupon updated or deleted
+      tags:
+      - Coupon notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: "The [notification](/docs/product/applications/application-notifications/overview) indicating that one of the following coupon-related changes occurred:\n- Coupon updated (via the Campaign Manager\n  or [Update coupon](/management-api#tag/Coupons/operation/updateCoupon) endpoint).\n- Coupon deleted (via the Campaign Manager\n  or [Delete coupon](/management-api#tag/Coupons/operation/deleteCoupon) endpoint).\n- Coupon updated (as a result of the\n  [updateAttribute](/docs/dev/integration-api/api-effects#updateattribute) API effect,\n  triggered by the Rule Engine)."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CouponsNotificationData'
+            example:
+              TypeOfChange: campaign_manager
+              Operation: CouponsUpdated
+              EmployeeName: Franziska Schneider
+              NotificationType: CouponsUpdated
+              BatchID: nqylhnni
+              ApplicationID: 5
+              CampaignID: 3
+        required: true
+  asyncCouponsData:
+    post:
+      operationId: asyncCouponsData
+      summary: Coupons created asynchronously
+      tags:
+      - Coupon notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: 'The [notification](/docs/product/applications/application-notifications/overview) indicating that up to 5 million coupons were created asynchronously via the [Create coupons asynchronously](/management-api#tag/Coupons/operation/createCouponsAsync) endpoint.
+
+
+          In this case, instead of individual notifications for specific coupon changes (such as creation, update, or deletion), a single notification about the completion of the batch processing of coupons with details about the batch is sent.
+
+
+          **Tip:**
+
+          To retrieve information about the generated coupons, after receiving the notification, use the [Export coupons](/management-api#tag/Coupons/operation/exportCoupons) endpoint along with the `batchid`, which indicates the batch to which the coupons belong.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsyncCouponsData'
+            example:
+              TypeOfChange: campaign_manager
+              Operation: AsyncCouponsCreated
+              EmployeeName: Franziska Schneider
+              NotificationType: AsyncCouponsCreated
+              BatchID: nqylhnni
+        required: true
+  updateCouponsData:
+    post:
+      operationId: updateCouponsData
+      summary: Coupons updated
+      tags:
+      - Coupon notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: 'The [notification](/docs/product/applications/application-notifications/overview) indicating that coupons were updated via the [Update coupons](/management-api#tag/Coupons/operation/updateCouponBatch) endpoint.
+
+
+          **Tip:**
+
+          To retrieve information about the generated coupons, after receiving the notification, use the [Export coupons](/management-api#tag/Coupons/operation/exportCoupons) endpoint along with the `batchid`, which indicates the batch to which the coupons belong.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCouponsData'
+            example:
+              TypeOfChange: campaign_manager
+              Operation: CouponsUpdated
+              EmployeeName: Franziska Schneider
+              NotificationType: CouponsUpdated
+              BatchID: nqylhnni
+              ApplicationID: 5
+              CampaignID: 3
+        required: true
+  deleteCouponsData:
+    post:
+      operationId: deleteCouponsData
+      summary: Coupons deleted
+      tags:
+      - Coupon notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: 'The [notification](/docs/product/applications/application-notifications/overview) indicating that coupons were deleted via the [Delete coupons](/management-api#tag/Coupons/operation/deleteCoupons) endpoint.
+
+
+          **Tip:**
+
+          To retrieve information about the generated coupons, after receiving the notification, use the [Export coupons](/management-api#tag/Coupons/operation/exportCoupons) endpoint along with the `batchid`, which indicates the batch to which the coupons belong.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteCouponsData'
+            example:
+              TypeOfChange: campaign_manager
+              Operation: CouponsDeleted
+              EmployeeName: Franziska Schneider
+              NotificationType: CouponsDeleted
+              BatchID: nqylhnni
+              ApplicationID: 5
+              CampaignID: 3
+              TotalResultSize: 200
+        required: true
+  expiringCouponsNotification:
+    post:
+      operationId: expiringCouponsNotification
+      summary: Expiring coupons
+      tags:
+      - Coupon notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) reminding users of expiring coupons.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpiringCouponsNotification'
+            example:
+              TotalResultSize: 1
+              Data:
+              - CouponValue: XMAS-20-2021
+                CreatedDate: '2024-07-24T14:15:22Z'
+                ValidFrom: '2024-10-24T14:15:22Z'
+                ValidUntil: '2024-12-24T14:15:22Z'
+                CampaignId: 3
+                CustomerProfileId: URNGV8294NV
+                UsageLimit: 100
+                UsageCounter: 10
+                BatchId: 32535-43255
+                Attributes: {}
+              NotificationType: CouponCodeExpiring
+        required: true
+components:
+  schemas:
+    ExtendedCoupon:
+      allOf:
+      - $ref: '#/components/schemas/Coupon'
+      - type: object
+        properties:
+          ApplicationId:
+            type: integer
+            format: int64
+            description: The ID of the application.
+    CouponConstraints:
+      type: object
+      properties:
+        usageLimit:
+          type: integer
+          minimum: 0
+          maximum: 999999
+          example: 100
+          description: 'The number of times the coupon code can be redeemed. `0` means unlimited redemptions but any campaign usage limits will still apply.
+
+            '
+        discountLimit:
+          type: number
+          minimum: 0
+          maximum: 1000000000000000
+          example: 30
+          description: 'The total discount value that the code can give. Typically used to represent a gift card value.
+
+            '
+        reservationLimit:
+          type: integer
+          minimum: 0
+          maximum: 999999
+          example: 45
+          description: 'The number of reservations that can be made with this coupon code.
+
+            '
+        startDate:
+          type: string
+          format: date-time
+          example: '2020-01-24T14:15:22Z'
+          description: Timestamp at which point the coupon becomes valid.
+        expiryDate:
+          type: string
+          format: date-time
+          example: '2023-08-24T14:15:22Z'
+          description: Expiration date of the coupon. Coupon never expires if this is omitted.
+    CouponLimitConfigs:
+      type: object
+      properties:
+        limits:
+          type: array
+          description: 'Limits configuration for a coupon. These limits will override the limits
+
+            set from the campaign.
+
+
+            **Note:** Only usable when creating a single coupon which is not tied to a specific recipient.
+
+            Only per-profile limits are allowed to be configured.
+
+            '
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+    UpdateCouponsData:
+      type: object
+      properties:
+        BatchID:
+          type: string
+        ApplicationID:
+          type: integer
+          format: int64
+        CampaignID:
+          type: integer
+          format: int64
+        TypeOfChange:
+          type: string
+        Operation:
+          type: string
+        EmployeeName:
+          type: string
+        NotificationType:
+          type: string
+          description: The type of the notification
+          enum:
+          - CouponsUpdated
+    ExpiringCouponsNotification:
+      type: object
+      properties:
+        TotalResultSize:
+          type: integer
+          example: 1
+        Data:
+          type: array
+          description: The array of expiring coupon notifications.
+          maxLength: 1000
+          items:
+            $ref: '#/components/schemas/ExpiringCouponsData'
+        NotificationType:
+          type: string
+          description: The type of notification.
+          enum:
+          - CouponCodeExpiring
+    AsyncCouponsData:
+      type: object
+      properties:
+        BatchID:
+          type: string
+          description: 'The ID of the batch to which the coupon belongs.
+
+
+            **Note:** The Batch ID is generated when coupons are created.
+
+            '
+          example: haanlypn
+        TypeOfChange:
+          type: string
+          description: ''
+          example: campaign_manager
+        Operation:
+          type: string
+          description: ''
+          example: AsyncCouponsCreated
+        EmployeeName:
+          type: string
+          description: ''
+          example: Franziska Schneider
+        NotificationType:
+          type: string
+          description: The type of the notification
+          enum:
+          - AsyncCouponsCreated
+    CampaignEntity:
+      type: object
+      properties:
+        campaignId:
+          type: integer
+          title: Campaign ID
+          description: The ID of the campaign that owns this entity.
+          example: 211
+    CouponEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The internal ID of the coupon.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time the coupon was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    CouponValue:
+      type: object
+      properties:
+        value:
+          type: string
+          title: Coupon Code
+          description: The coupon code.
+          minLength: 4
+          example: XMAS-20-2021
+    DeleteCouponsData:
+      type: object
+      properties:
+        TypeOfChange:
+          type: string
+        Operation:
+          type: string
+        EmployeeName:
+          type: string
+        BatchID:
+          type: string
+        ApplicationID:
+          type: integer
+          format: int64
+        CampaignID:
+          type: integer
+          format: int64
+        TotalResultSize:
+          type: integer
+          format: int64
+        NotificationType:
+          type: string
+          description: The type of the notification
+          enum:
+          - CouponsDeleted
+    CouponsNotificationData:
+      type: object
+      properties:
+        TypeOfChange:
+          type: string
+          example: campaign_manager
+          description: The type of change that occurred.
+        Operation:
+          type: string
+          example: CouponUpdated
+          description: The operation performed.
+        EmployeeName:
+          type: string
+          example: Franziska Schneider
+          description: The name of the employee associated with the operation.
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtendedCoupon'
+          description: A list of extended coupon data.
+        totalResultSize:
+          type: integer
+          example: 1
+        NotificationType:
+          type: string
+          example: CouponUpdated
+          description: The type of the notification
+          enum:
+          - CouponUpdated
+          - CouponDeleted
+    ExpiringCouponsData:
+      type: object
+      properties:
+        CouponValue:
+          type: string
+          description: The coupon code.
+          example: XMAS-20-2021
+        CreatedDate:
+          type: string
+          format: date-time
+          description: Timestamp at which point the coupon was created.
+          example: '2024-07-24T14:15:22Z'
+        ValidFrom:
+          type: string
+          format: date-time
+          description: Timestamp at which point the coupon becomes valid.
+          example: '2024-10-24T14:15:22Z'
+          minimum: 0
+        ValidUntil:
+          type: string
+          format: date-time
+          description: Timestamp at which point the coupon expires. Coupon never expires if this is omitted, zero, or negative.
+          example: '2024-12-24T14:15:22Z'
+          minimum: 0
+        CampaignId:
+          type: integer
+          description: The ID of the campaign to which the coupon belongs.
+          minimum: 1
+          example: 3
+        CustomerProfileId:
+          type: string
+          description: The Integration ID of the customer that is allowed to redeem this coupon.
+          example: URNGV8294NV
+        UsageLimit:
+          type: integer
+          minimum: 0
+          maximum: 999999
+          example: 100
+          description: 'The number of times the coupon code can be redeemed. `0` means unlimited redemptions but any campaign usage limits will still apply.
+
+            '
+        UsageCounter:
+          type: integer
+          title: Total coupon redemptions
+          example: 10
+          description: The number of times the coupon has been successfully redeemed.
+        BatchId:
+          title: Batch ID
+          type: string
+          description: The ID of the batch the coupon belongs to.
+          example: 32535-43255
+        Attributes:
+          type: object
+          title: Attributes of coupon
+          description: Custom attributes associated with this coupon.
+          additionalProperties: true
+    Coupon:
+      allOf:
+      - $ref: '#/components/schemas/CouponEntity'
+      - $ref: '#/components/schemas/CampaignEntity'
+      - $ref: '#/components/schemas/CouponValue'
+      - $ref: '#/components/schemas/CouponConstraints'
+      - $ref: '#/components/schemas/CouponLimitConfigs'
+      - type: object
+        properties:
+          usageCounter:
+            type: integer
+            title: Total coupon redemptions
+            example: 10
+            description: The number of times the coupon has been successfully redeemed.
+          discountCounter:
+            type: number
+            title: Discounts Given
+            description: The amount of discounts given on rules redeeming this coupon. Only usable if a coupon discount budget was set for this coupon.
+            example: 10
+          discountRemainder:
+            type: number
+            title: Coupon Discount Remainder
+            description: The remaining discount this coupon can give.
+            example: 5
+          reservationCounter:
+            type: number
+            title: Number of reservations
+            description: The number of times this coupon has been reserved.
+            example: 1
+          attributes:
+            type: object
+            title: Attributes of coupon
+            description: Custom attributes associated with this coupon.
+          referralId:
+            type: integer
+            title: Advocate ID
+            description: The integration ID of the referring customer (if any) for whom this coupon was created as an effect.
+            example: 326632952
+          recipientIntegrationId:
+            title: Recipient ID
+            example: URNGV8294NV
+            type: string
+            maxLength: 1000
+            description: The Integration ID of the customer that is allowed to redeem this coupon.
+          importId:
+            title: Import ID
+            type: integer
+            description: The ID of the Import which created this coupon.
+            example: 4
+          reservation:
+            title: Reservation Type
+            type: boolean
+            example: false
+            description: 'Defines the reservation type:
+
+              - `true`: The coupon can be reserved for multiple customers.
+
+              - `false`: The coupon can be reserved only for one customer. It is a personal code.
+
+              '
+            default: true
+          batchId:
+            title: Batch ID
+            type: string
+            description: The id of the batch the coupon belongs to.
+            example: 32535-43255
+          isReservationMandatory:
+            title: Is reservation mandatory
+            type: boolean
+            example: false
+            description: An indication of whether the code can be redeemed only if it has been reserved first.
+            default: false
+          implicitlyReserved:
+            title: Is coupon implicitly reserved for all customers
+            description: An indication of whether the coupon is implicitly reserved for all customers.
+            type: boolean
+            example: false
+    CreateCouponData:
+      type: object
+      properties:
+        data:
+          type: array
+          description: The array of coupons codes. If 1000 or fewer coupons are requested, all coupon data is sent. If 1001 or more coupons are requested, only `BatchID` is sent.
+          items:
+            $ref: '#/components/schemas/ExtendedCoupon'
+          example:
+          - id: 1
+            created: '2023-01-31T15:19:25.18417+01:00'
+            campaignId: 1
+            value: 73KXKKFP
+            usageLimit: 1
+            reservationLimit: 0
+            usageCounter: 0
+            attributes: {}
+            reservation: true
+            batchId: nqylhnni
+          - id: 2
+            created: '2023-01-31T15:19:25.18417+01:00'
+            campaignId: 1
+            value: BH3CXXLW
+            usageLimit: 1
+            reservationLimit: 0
+            usageCounter: 0
+            attributes: {}
+            reservation: true
+            batchId: nqylhnni
+        totalResultSize:
+          type: integer
+          example: 1
+        BatchID:
+          type: string
+          description: 'The ID of the batch to which the coupon belongs.
+
+
+            **Note:** The Batch ID is generated when coupons are created.
+
+            '
+          example: haanlypn
+        TypeOfChange:
+          type: string
+          description: ''
+          example: campaign_manager
+        Operation:
+          type: string
+          description: ''
+          example: AsyncCouponsCreated
+        EmployeeName:
+          type: string
+          description: ''
+          example: Franziska Schneider
+        NotificationType:
+          type: string
+          description: The type of the not
+          enum:
+          - CouponCreated
+    LimitConfig:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        period:
+          description: The period on which the budget limit recurs.
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+          example: yearly
+        entities:
+          type: array
+          description: The entity that this limit applies to.
+          example:
+          - Coupon
+          items:
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Profile
+            - Identifier
+            - Store
+            - Session
+  parameters:
+    x-uuid:
+      name: X-UUID
+      in: header
+      description: The unique message ID. You can use it, for example, to deduplicate messages.
+      schema:
+        type: string
+      example: 9aa05ee1-876f-42e6-9a5d-fc0bd424d9cb

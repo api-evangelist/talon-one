@@ -1,0 +1,2458 @@
+openapi: 3.2.0
+info:
+  title: Notification schemas Campaign notifications API
+  version: ''
+  description: 'Use [Application notifications](/docs/product/applications/application-notifications/overview)
+
+    and [loyalty notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)
+
+    to notify the system of your choice of certain changes that happened in Talon.One.
+
+
+    > [!note] **Note:**
+
+    > - Required fields are not omitted if they are empty (have `null` value).
+
+    > - The notification schemas may be extended with additional properties in future releases.
+
+    > To maintain forward compatibility, ensure your implementation ignores unknown properties.
+
+    '
+servers:
+- url: https://yourbaseurl.talon.one
+security: []
+tags:
+- name: Campaign notifications
+  description: 'Represents the [notifications](/docs/product/applications/application-notifications/overview)
+
+    about campaign-related changes.
+
+
+    > [!note] The value of the `NotificationType` property indicates the campaign change:
+
+    > - `CampaignNotification` signifies one of the following events:
+
+    >   - [Campaign created](#tag/Campaign-notifications/operation/campaignCreatedNotification)
+
+    >   - [Campaign state changed](#tag/Campaign-notifications/operation/campaignStateChangedNotification)
+
+    >   - [Campaign rules changed](#tag/Campaign-notifications/operation/campaignRulesetChangedNotification)
+
+    >   - [Campaign edited](#tag/Campaign-notifications/operation/campaignEditedNotification)
+
+    >   - [Campaign collection edited](#tag/Campaign-notifications/operation/campaignCollectionEditedNotification)
+
+    >   - [Campaign deleted](#tag/Campaign-notifications/operation/campaignDeletedNotification)
+
+    > - `CampaignEvaluationTreeChanged` signifies [Campaign evaluation tree changed](#tag/Campaign-notifications/operation/campaignEvaluationTreeChangedNotification).
+
+    '
+paths: {}
+webhooks:
+  campaignCreatedNotification:
+    post:
+      operationId: campaignCreatedNotification
+      summary: Campaign created
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) indicating a campaign was created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignCreatedNotification'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              Data:
+              - Event: campaign_state_changed
+                campaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                ruleset:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  userId: 388
+                  rules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `text`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  strikethroughRules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `number`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  bindings: []
+                  rbVersion: v2
+                  activate: true
+                  campaignId: 320
+                  templateId: 3
+                  activatedAt: '2019-08-24T14:15:22Z'
+                evaluationPosition:
+                  groupId: 2
+                  groupName: Summer campaigns
+                  position: 2
+                placeholders:
+                - name: my property
+                  type: String
+                  value:
+                  - string2
+        required: true
+  campaignStateChangedNotification:
+    post:
+      operationId: campaignStateChangedNotification
+      summary: Campaign state changed
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) indicating the state of a campaign changed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignStateChangedNotification'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              Data:
+              - Event: campaign_state_changed
+                campaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                oldState: disabled
+                newState: running
+                ruleset:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  userId: 388
+                  rules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `text`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  strikethroughRules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `number`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  bindings: []
+                  rbVersion: v2
+                  activate: true
+                  campaignId: 320
+                  templateId: 3
+                  activatedAt: '2019-08-24T14:15:22Z'
+                placeholders:
+                - name: my property
+                  type: String
+                  value:
+                  - string2
+        required: true
+  campaignRulesetChangedNotification:
+    post:
+      operationId: campaignRulesetChangedNotification
+      summary: Campaign rules changed
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) indicating the rules of a campaign changed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignRulesetChangedNotification'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              Data:
+              - Event: campaign_state_changed
+                campaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                oldRuleset:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  userId: 388
+                  rules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `text`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  strikethroughRules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `number`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  bindings: []
+                  rbVersion: v2
+                  activate: true
+                  campaignId: 320
+                  templateId: 3
+                  activatedAt: '2019-08-24T14:15:22Z'
+                oldPlaceholders:
+                - name: my property
+                  type: String
+                  value:
+                  - string2
+                ruleset:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  userId: 388
+                  rules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `text`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  strikethroughRules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `number`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  bindings: []
+                  rbVersion: v2
+                  activate: true
+                  campaignId: 320
+                  templateId: 3
+                  activatedAt: '2019-08-24T14:15:22Z'
+                placeholders:
+                - name: my property
+                  type: String
+                  value:
+                  - string2
+        required: true
+  campaignEditedNotification:
+    post:
+      operationId: campaignEditedNotification
+      summary: Campaign edited
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) indicating a campaign was edited.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignEditedNotification'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              Data:
+              - Event: campaign_state_changed
+                campaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                oldCampaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                ruleset:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  userId: 388
+                  rules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `text`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  strikethroughRules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `number`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  bindings: []
+                  rbVersion: v2
+                  activate: true
+                  campaignId: 320
+                  templateId: 3
+                  activatedAt: '2019-08-24T14:15:22Z'
+                placeholders:
+                - name: my property
+                  type: String
+                  value:
+                  - string2
+        required: true
+  campaignCollectionEditedNotification:
+    post:
+      operationId: campaignCollectionEditedNotification
+      summary: Campaign collection edited
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) indicating the collection was edited.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignCollectionEditedNotification'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              Data:
+              - Event: campaign_state_changed
+                campaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                ruleset:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  userId: 388
+                  rules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `text`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  strikethroughRules:
+                  - id: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    parentId: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+                    title: Give discount via coupon
+                    description: Creates a discount when a coupon is valid
+                    bindings:
+                    - name: my property
+                      type: templateParameter
+                      expression:
+                      - string1
+                      - string2
+                      valueType: string
+                      minValue: 0
+                      maxValue: 19.9
+                      attributeId: 100
+                      description: This is a template parameter of type `number`.
+                    condition:
+                    - and
+                    - - couponValid
+                    effects:
+                    - catch
+                    - - noop
+                    - - setDiscount
+                      - 10% off
+                      - - '*'
+                        - - .
+                          - Session
+                          - Total
+                        - - /
+                          - 10
+                          - 100
+                  bindings: []
+                  rbVersion: v2
+                  activate: true
+                  campaignId: 320
+                  templateId: 3
+                  activatedAt: '2019-08-24T14:15:22Z'
+                collection:
+                  id: 6
+                  created: '2020-06-10T09:05:27.993483Z'
+                  accountId: 3886
+                  modified: '2021-09-12T10:12:42Z'
+                  description: My collection of SKUs
+                  subscribedApplicationsIds:
+                  - 1
+                  - 2
+                  - 3
+                  name: My collection
+                  modifiedBy: 48
+                  createdBy: 134
+                  applicationId: 1
+                  campaignId: 7
+                placeholders:
+                - name: my property
+                  type: String
+                  value:
+                  - string2
+        required: true
+  campaignDeletedNotification:
+    post:
+      operationId: campaignDeletedNotification
+      summary: Campaign deleted
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: The [notification](/docs/product/applications/application-notifications/overview) indicating a campaign was deleted.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignDeletedNotification'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              Data:
+              - Event: campaign_state_changed
+                campaign:
+                  id: 4
+                  created: '2020-06-10T09:05:27.993483Z'
+                  applicationId: 322
+                  userId: 388
+                  name: Summer promotions
+                  description: Campaign for all summer 2021 promotions
+                  startTime: '2021-07-20T22:00:00Z'
+                  endTime: '2021-09-22T22:00:00Z'
+                  attributes: {}
+                  state: enabled
+                  activeRulesetId: 6
+                  tags:
+                  - summer
+                  reevaluateOnReturn: false
+                  features:
+                  - coupons
+                  - referrals
+                  couponSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  referralSettings:
+                    validCharacters:
+                    - A
+                    - B
+                    - C
+                    couponPattern: SUMMER-####-####
+                  limits:
+                  - action: createCoupon
+                    limit: 1000
+                    period: yearly
+                    entities:
+                    - Coupon
+                  campaignGroups:
+                  - 1
+                  - 3
+                  type: advanced
+                  linkedStoreIds:
+                  - 1
+                  - 2
+                  - 3
+                  budgets:
+                  - action: createCoupon
+                    limit: 1000
+                    counter: 42
+                  couponRedemptionCount: 163
+                  referralRedemptionCount: 3
+                  discountCount: 288
+                  discountEffectCount: 343
+                  couponCreationCount: 16
+                  customEffectCount: 0
+                  referralCreationCount: 8
+                  addFreeItemEffectCount: 0
+                  awardedGiveawaysCount: 9
+                  createdLoyaltyPointsCount: 9
+                  createdLoyaltyPointsEffectCount: 2
+                  redeemedLoyaltyPointsCount: 8
+                  redeemedLoyaltyPointsEffectCount: 9
+                  callApiEffectCount: 0
+                  reservecouponEffectCount: 9
+                  lastActivity: '2022-11-10T23:00:00Z'
+                  updated: '2022-10-27T15:00:00Z'
+                  createdBy: John Doe
+                  updatedBy: Jane Doe
+                  templateId: 3
+                  frontendState: running
+                  storesImported: true
+                  valueMapsIds:
+                  - 100
+                  - 215
+                  revisionFrontendState: revised
+                  activeRevisionId: 6
+                  activeRevisionVersionId: 6
+                  version: 6
+                  currentRevisionId: 6
+                  currentRevisionVersionId: 6
+                  stageRevision: false
+                deletedAt: '2022-11-10T23:00:00Z'
+        required: true
+  campaignEvaluationTreeChangedNotification:
+    post:
+      operationId: campaignEvaluationTreeChangedNotification
+      summary: Campaign evaluation tree changed
+      tags:
+      - Campaign notifications
+      parameters:
+      - $ref: '#/components/parameters/x-uuid'
+      requestBody:
+        description: 'The [notification](/docs/product/applications/application-notifications/overview) indicating the campaign evaluation tree of an Application changed.
+
+
+          The campaign evaluation tree changes, for example, when a campaign is created (including copying other campaigns) or deleted, or when a campaign evaluation group is modified.
+
+          To learn more, see [Managing campaign evaluation](/docs/product/applications/managing-campaign-evaluation).
+
+          '
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignEvaluationTreeChangedMessage'
+            example:
+              NotificationType: CampaignNotification
+              TotalResultSize: 0
+              data:
+              - event: string
+                applicationId: 78
+                oldEvaluationTree:
+                  applicationId: 322
+                  id: 6
+                  version: 3
+                  set:
+                    type: SET
+                    name: name
+                    operator: ALL
+                    elements:
+                    - type: type
+                    groupId: 0
+                    locked: true
+                    description: string
+                    evaluationMode: stackable
+                    evaluationScope: cartItem
+                  updatedBy: Jane Doe
+                evaluationTree:
+                  applicationId: 322
+                  id: 6
+                  version: 3
+                  set:
+                    type: SET
+                    name: name
+                    operator: ALL
+                    elements:
+                    - type: type
+                    groupId: 0
+                    locked: true
+                    description: string
+                    evaluationMode: stackable
+                    evaluationScope: cartItem
+                  updatedBy: Jane Doe
+        required: true
+components:
+  schemas:
+    CampaignCollectionEditedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignCollectionEditedNotificationItem'
+            description: A list of campaign notification data.
+    CampaignEvaluationPosition:
+      type: object
+      description: The campaign position within the evaluation tree.
+      properties:
+        groupId:
+          type: integer
+          example: 2
+          description: The ID of the campaign evaluation group the campaign belongs to.
+        groupName:
+          type: string
+          description: The name of the campaign evaluation group the campaign belongs to.
+          example: Summer campaigns
+        position:
+          type: integer
+          description: The position of the campaign node in its parent group.
+          example: 2
+    CampaignEditedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign which was edited.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          oldCampaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign before the change.
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+    AccountEntity:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    CampaignSetBranchNode:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          description: Indicates the node type.
+          enum:
+          - SET
+          example: SET
+        name:
+          type: string
+          description: Name of the set.
+          example: name
+        operator:
+          type: string
+          description: An indicator of how the set operates on its elements.
+          enum:
+          - ALL
+          - FIRST
+          example: ALL
+        elements:
+          type: array
+          description: Child elements of this set.
+          items:
+            $ref: '#/components/schemas/CampaignSetNode'
+        groupId:
+          type: integer
+          description: The ID of the campaign set.
+        locked:
+          type: boolean
+          description: An indicator of whether the campaign set is locked for modification.
+        description:
+          type: string
+          description: A description of the campaign set.
+        evaluationMode:
+          type: string
+          enum:
+          - stackable
+          - listOrder
+          - lowestDiscount
+          - highestDiscount
+          description: The mode by which campaigns in the campaign evaluation group are evaluated.
+        evaluationScope:
+          type: string
+          enum:
+          - cartItem
+          - session
+          description: The evaluation scope of the campaign evaluation group.
+    Entity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    UserEntity:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    CampaignEvaluationTreeChangedMessage:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            description: The array of changes.
+            items:
+              $ref: '#/components/schemas/ApplicationNotification'
+    Binding:
+      type: object
+      properties:
+        name:
+          type: string
+          description: A descriptive name for the value to be bound.
+          example: Discount percentage
+        type:
+          type: string
+          description: 'The kind of binding. Possible values are:
+
+            - `bundle`
+
+            - `cartItemFilter`
+
+            - `subledgerBalance`
+
+            - `templateParameter`
+
+            '
+          example: templateParameter
+        expression:
+          type: array
+          description: 'A Talang expression that is evaluated, and its result is bound to the name of
+
+            the binding. The first element must be one of the functions or operators supported
+
+            by Talang, followed by its arguments. The arguments can be strings, numbers, or
+
+            nested expressions. For example:
+
+            - `["list", "10014", "10015"]` calls the `list` function to build a list of strings.
+
+            - `["+", 2, 0]` uses the `+` operator to add two numbers.
+
+            '
+          example:
+          - identity
+          - 10
+          items: {}
+        valueType:
+          type: string
+          description: 'The data type of the value. One of the following:
+
+            - `string`
+
+            - `number`
+
+            - `boolean`
+
+            '
+          example: number
+        minValue:
+          type: number
+          description: The minimum value allowed for this placeholder.
+          example: 0
+        maxValue:
+          type: number
+          description: The maximum value allowed for this placeholder.
+          example: 19.9
+        attributeId:
+          type: integer
+          title: Attribute ID
+          description: Identifier of the attribute attached to the placeholder.
+          example: 100
+        description:
+          type: string
+          description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
+          example: The percentage discount applied to the cart total.
+    UpdateCollection:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A short description of the purpose of this collection.
+          example: My collection of SKUs
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications where this collection is enabled.
+          example:
+          - 1
+          - 2
+          - 3
+          items:
+            type: integer
+    NewRuleset:
+      type: object
+      properties:
+        rules:
+          type: array
+          description: Set of rules to apply.
+          items:
+            $ref: '#/components/schemas/Rule'
+        strikethroughRules:
+          type: array
+          description: Set of rules to apply for strikethrough.
+          items:
+            $ref: '#/components/schemas/Rule'
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+          example: []
+        rbVersion:
+          type: string
+          description: The version of the rulebuilder used to create this ruleset.
+          example: v2
+        activate:
+          type: boolean
+          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
+          example: true
+    ApplicationNotification:
+      type: object
+      properties:
+        event:
+          description: 'Event type. It can be one of the following: [''campaign_evaluation_tree_changed'']
+
+            '
+          type: string
+      oneOf:
+      - $ref: '#/components/schemas/CampaignEvaluationTreeChangedNotification'
+    BaseCampaign:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Campaign Name
+          description: A user-facing name for this campaign.
+          minLength: 1
+          example: Summer promotions
+        description:
+          type: string
+          title: Campaign Description
+          description: A detailed description of the campaign.
+          example: Campaign for all summer 2021 promotions
+        startTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become active.
+          example: '2021-07-20T22:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become inactive.
+          example: '2021-09-22T22:00:00Z'
+        attributes:
+          type: object
+          description: Arbitrary properties associated with this campaign.
+        state:
+          type: string
+          enum:
+          - enabled
+          - disabled
+          - archived
+          default: enabled
+          example: enabled
+          description: 'A disabled or archived campaign is not evaluated for rules or coupons.
+
+            '
+        activeRulesetId:
+          type: integer
+          description: '[ID of Ruleset](https://docs.talon.one/management-api#tag/Campaigns/operation/getRulesets) this
+
+            campaign applies on customer session evaluation.
+
+            '
+          example: 6
+        tags:
+          type: array
+          description: A list of tags for the campaign.
+          example:
+          - summer
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+        reevaluateOnReturn:
+          type: boolean
+          title: Reevaluate on return
+          description: Indicates whether this campaign should be reevaluated when a customer returns an item.
+          example: true
+        features:
+          type: array
+          description: The features enabled in this campaign.
+          example:
+          - coupons
+          - referrals
+          items:
+            type: string
+            enum:
+            - coupons
+            - referrals
+            - loyalty
+            - giveaways
+            - strikethrough
+            - achievements
+            - advancedEvents
+        couponSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        referralSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        limits:
+          type: array
+          description: 'The set of [budget limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets) for this campaign.
+
+            '
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+        campaignGroups:
+          type: array
+          description: 'The IDs of the [campaign groups](https://docs.talon.one/docs/product/account/managing-campaign-groups) this campaign belongs to.
+
+            '
+          example:
+          - 1
+          - 3
+          items:
+            type: integer
+        type:
+          type: string
+          title: Type
+          enum:
+          - cartItem
+          - advanced
+          default: advanced
+          example: advanced
+          description: "The campaign type. Possible type values:\n  - `cartItem`: Type of campaign that can apply effects only to cart items.\n  - `advanced`: Type of campaign that can apply effects to customer sessions and cart items.\n"
+        linkedStoreIds:
+          type: array
+          description: 'A list of store IDs that you want to link to the campaign.
+
+
+            **Note:** Campaigns with linked store IDs will only be evaluated when there is a
+
+            [customer session update](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+
+            that references a linked store.
+
+            '
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        couponAttributes:
+          type: object
+          description: Arbitrary properties associated with coupons in this campaign.
+    CampaignEditedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignEditedNotificationItem'
+            description: A list of campaign notification data.
+    ApplicationEntity:
+      type: object
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+    CampaignStateChangedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign whose state changed.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          oldState:
+            type: string
+            description: 'The campaign''s old state. Can be one of the following: [''running'', ''disabled'', ''scheduled'', ''expired'', ''archived'']
+
+              '
+            example: disabled
+          newState:
+            type: string
+            description: 'The campaign''s new state. Can be one of the following: [''running'', ''disabled'', ''scheduled'', ''expired'', ''archived'']
+
+              '
+            example: running
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+    MutableEntity:
+      type: object
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    PlaceholderDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the placeholder.
+          example: my property
+        type:
+          type: string
+          description: The type of the value assigned to the placeholder.
+          example: list string
+        value:
+          type: array
+          description: The current value of the placeholder.
+          example:
+          - 1
+          - sku_value
+          items: {}
+    CampaignCollectionEditedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a collection that was edited.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The current campaign.
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+          collection:
+            $ref: '#/components/schemas/CollectionWithoutPayload'
+            type: object
+            description: The collection that was edited.
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: A unique identifier for the rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        parentId:
+          type: string
+          format: uuid
+          description: The ID of the rule that was copied to create this rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        title:
+          type: string
+          description: A short description of the rule.
+          example: Give discount via coupon
+        description:
+          type: string
+          description: A longer, more detailed description of the rule.
+          example: Creates a discount when a coupon is valid
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+        condition:
+          type: array
+          description: A Talang expression that will be evaluated in the context of the given event.
+          minItems: 1
+          example:
+          - and
+          - - couponValid
+          items: {}
+        effects:
+          type: array
+          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
+          items:
+            type: array
+            items: {}
+          example:
+          - catch
+          - - noop
+          - - setDiscount
+            - 10% off
+            - - '*'
+              - - .
+                - Session
+                - Total
+              - - /
+                - 10
+                - 100
+    CampaignDeletedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign that was deleted.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          deletedAt:
+            type: string
+            format: date-time
+            example: '2022-11-10T23:00:00Z'
+            description: Time when the campaign was deleted.
+    CampaignNotificationBase:
+      type: object
+      properties:
+        NotificationType:
+          type: string
+          description: The type of the notification
+          example: CampaignNotification
+          enum:
+          - CampaignNotification
+        TotalResultSize:
+          type: integer
+          description: The total size of the result set.
+    NewCollection:
+      allOf:
+      - $ref: '#/components/schemas/UpdateCollection'
+      - type: object
+        properties:
+          name:
+            type: string
+            minLength: 1
+            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
+            description: The name of this collection.
+            example: My collection
+    CampaignRulesetChangedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignRulesetChangedNotificationItem'
+            description: A list of campaign notification data.
+    CodeGeneratorSettings:
+      type: object
+      properties:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
+          type: string
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+    AdditionalCampaignProperties:
+      type: object
+      properties:
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignBudget'
+          description: 'A list of all the budgets that are defined by this campaign and their usage.
+
+
+            **Note:** Budgets that are not defined do not appear in this list and their usage is
+
+            not counted until they are defined.
+
+            '
+        couponRedemptionCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Number of coupons redeemed in the campaign.
+
+            '
+          example: 163
+        referralRedemptionCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Number of referral codes redeemed in the campaign.
+
+            '
+          example: 3
+        discountCount:
+          type: number
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total amount of discounts redeemed in the campaign.
+
+            '
+          example: 288
+        discountEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of times discounts were redeemed in this campaign.
+
+            '
+          example: 343
+        couponCreationCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of coupons created by rules in this campaign.
+
+            '
+          example: 16
+        customEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of custom effects triggered by rules in this campaign.
+
+            '
+          example: 0
+        referralCreationCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of referrals created by rules in this campaign.
+
+            '
+          example: 8
+        addFreeItemEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of times the [add free item effect](https://docs.talon.one/docs/dev/integration-api/api-effects#addfreeitem) can be triggered in this campaign.
+
+            '
+          example: 0
+        awardedGiveawaysCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of giveaways awarded by rules in this campaign.
+
+            '
+          example: 9
+        createdLoyaltyPointsCount:
+          type: number
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty points created by rules in this campaign.
+
+            '
+          example: 9
+        createdLoyaltyPointsEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty point creation effects triggered by rules in this campaign.
+
+            '
+          example: 2
+        redeemedLoyaltyPointsCount:
+          type: number
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty points redeemed by rules in this campaign.
+
+            '
+          example: 8
+        redeemedLoyaltyPointsEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of loyalty point redemption effects triggered by rules in this campaign.
+
+            '
+          example: 9
+        callApiEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of webhooks triggered by rules in this campaign.
+
+            '
+          example: 0
+        reservecouponEffectCount:
+          type: integer
+          deprecated: true
+          description: 'This property is **deprecated**. The count should be available under *budgets* property.
+
+            Total number of reserve coupon effects triggered by rules in this campaign.
+
+            '
+          example: 9
+        lastActivity:
+          type: string
+          format: date-time
+          example: '2022-11-10T23:00:00Z'
+          description: Timestamp of the most recent event received by this campaign.
+        updated:
+          type: string
+          format: date-time
+          example: '2022-10-27T15:00:00Z'
+          description: 'Timestamp of the most recent update to the campaign''s property. Updates to external entities used in this campaign
+
+            are **not** registered by this property, such as collection or coupon updates.
+
+            '
+        createdBy:
+          type: string
+          description: Name of the user who created this campaign if available.
+          example: John Doe
+        updatedBy:
+          type: string
+          description: Name of the user who last updated this campaign if available.
+          example: Jane Doe
+        templateId:
+          type: integer
+          description: The ID of the Campaign Template this Campaign was created from.
+          example: 3
+        frontendState:
+          type: string
+          description: The campaign state displayed in the Campaign Manager.
+          enum:
+          - expired
+          - scheduled
+          - running
+          - disabled
+          - archived
+          - staged
+          example: running
+        storesImported:
+          type: boolean
+          description: Indicates whether the linked stores were imported via a CSV file.
+          example: true
+        valueMapsIds:
+          type: array
+          description: A list of value map IDs for the campaign.
+          items:
+            type: integer
+          example:
+          - 100
+          - 215
+        experimentId:
+          type: integer
+          description: The ID of the Experiment this Campaign is part of.
+          example: 1
+    Ruleset:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/NewRuleset'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            title: Campaign ID
+            description: The ID of the campaign that owns this entity.
+            example: 320
+          templateId:
+            type: integer
+            title: Campaign Template ID
+            description: The ID of the campaign template that owns this entity.
+            example: 3
+          activatedAt:
+            type: string
+            format: date-time
+            description: Timestamp indicating when this Ruleset was activated.
+    CampaignDeletedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignDeletedNotificationItem'
+            description: A list of campaign notification data.
+    CampaignNotificationItemBase:
+      type: object
+      properties:
+        Event:
+          description: 'The type of the event. Can be one of the following: [''campaign_state_changed'', ''campaign_ruleset_changed'', ''campaign_edited'', ''campaign_created'', ''campaign_deleted'']
+
+            '
+          type: string
+          example: campaign_state_changed
+    CampaignCreatedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign that was created.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+          evaluationPosition:
+            $ref: '#/components/schemas/CampaignEvaluationPosition'
+            type: object
+            description: The campaign position within the evaluation tree.
+    CollectionWithoutPayload:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewCollection'
+      - type: object
+        properties:
+          modifiedBy:
+            type: integer
+            description: ID of the user who last updated this effect if available.
+            example: 48
+          createdBy:
+            type: integer
+            description: ID of the user who created this effect.
+            example: 134
+          applicationId:
+            type: integer
+            description: The ID of the Application that owns this entity.
+            example: 1
+          campaignId:
+            type: integer
+            description: The ID of the campaign that owns this entity.
+            example: 7
+    CampaignSetLeafNode:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          description: Indicates the node type.
+          enum:
+          - CAMPAIGN
+        campaignId:
+          type: integer
+          description: ID of the campaign
+    CampaignBudget:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        counter:
+          type: number
+          minimum: 0
+          example: 42
+          description: The number of occurrences of the limited action in the context of the campaign.
+    CampaignCreatedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignCreatedNotificationItem'
+            description: A list of campaign notification data.
+    CampaignSetNode:
+      type: object
+      properties:
+        type:
+          type: string
+          example: type
+      oneOf:
+      - $ref: '#/components/schemas/CampaignSetBranchNode'
+      - $ref: '#/components/schemas/CampaignSetLeafNode'
+    CampaignSet:
+      allOf:
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - type: object
+        properties:
+          id:
+            type: integer
+            description: The internal ID of this entity.
+            example: 6
+          version:
+            type: integer
+            minimum: 1
+            description: Version of the campaign set.
+            example: 3
+          set:
+            $ref: '#/components/schemas/CampaignSetBranchNode'
+          updatedBy:
+            type: string
+            description: Name of the user who last updated this campaign set, if available.
+            example: Jane Doe
+    LimitConfig:
+      type: object
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        period:
+          description: The period on which the budget limit recurs.
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+          example: yearly
+        entities:
+          type: array
+          description: The entity that this limit applies to.
+          example:
+          - Coupon
+          items:
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Profile
+            - Identifier
+            - Store
+            - Session
+    CampaignVersions:
+      type: object
+      properties:
+        revisionFrontendState:
+          type: string
+          description: The campaign revision state displayed in the Campaign Manager.
+          enum:
+          - revised
+          - pending
+          example: revised
+        activeRevisionId:
+          type: integer
+          description: 'ID of the revision that was last activated on this campaign.
+
+            '
+          example: 6
+        activeRevisionVersionId:
+          type: integer
+          description: 'ID of the revision version that is active on the campaign.
+
+            '
+          example: 6
+        version:
+          type: integer
+          description: 'Incrementing number representing how many revisions have been activated on this campaign, starts from 0 for a new campaign.
+
+            '
+          example: 6
+        currentRevisionId:
+          type: integer
+          description: 'ID of the revision currently being modified for the campaign.
+
+            '
+          example: 6
+        currentRevisionVersionId:
+          type: integer
+          description: 'ID of the latest version applied on the current revision.
+
+            '
+          example: 6
+        stageRevision:
+          type: boolean
+          description: 'Flag for determining whether we use current revision when sending requests with staging API key.
+
+            '
+          example: false
+          default: false
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/BaseCampaign'
+      - $ref: '#/components/schemas/AdditionalCampaignProperties'
+      - $ref: '#/components/schemas/CampaignVersions'
+      - type: object
+    EntityWithTalangVisibleID:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique ID for this entity.
+          example: 4
+        created:
+          type: string
+          format: date-time
+          description: The exact moment this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    CampaignRulesetChangedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign whose ruleset was changed.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          oldRuleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: string
+            description: The old ruleset, if the ruleset was changed.
+          oldPlaceholders:
+            type: array
+            description: The previous details of the placeholders before the ruleset was changed.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: string
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+    CampaignStateChangedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignStateChangedNotificationItem'
+            description: A list of campaign notification data.
+    CampaignEvaluationTreeChangedNotification:
+      type: object
+      description: Notification about an Application whose campaign evaluation tree changed.
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application whose campaign evaluation tree changed.
+          example: 78
+        oldEvaluationTree:
+          $ref: '#/components/schemas/CampaignSet'
+          type: object
+          description: The previous campaign evaluation tree.
+        evaluationTree:
+          $ref: '#/components/schemas/CampaignSet'
+          type: object
+          description: The new campaign evaluation tree.
+  parameters:
+    x-uuid:
+      name: X-UUID
+      in: header
+      description: The unique message ID. You can use it, for example, to deduplicate messages.
+      schema:
+        type: string
+      example: 9aa05ee1-876f-42e6-9a5d-fc0bd424d9cb

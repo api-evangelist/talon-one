@@ -1,0 +1,826 @@
+openapi: 3.2.0
+info:
+  version: ''
+  title: Third-party M Particle API
+  description: "Use the Third-party API to exchange data between Talon.One and one of the supported [technology partners](https://docs.talon.one/docs/dev/technology-partners/overview).\n\nFor example, use the Braze-specific endpoints from your Braze campaigns to interact with Talon.One.\n\nIf the CDP or CEP you are using isn't listed here, use the generic\n[Customer Data Platforms](#tag/Customer-data-platforms) and [Customer Engagement Platform](#tag/Customer-engagement-platforms) endpoints.\n\n> [!note] \n> All endpoints of this API start with `https://integration.talon.one`.\n> You must specify the base URL of your deployment in the headers or parameters.\n\n> [!note] **Are you looking for a different API?**\n> - To implement use cases that aren't covered by the Third-party API, see the [Integration API](https://docs.talon.one/management-api).\n> - To interact with the Campaign Manager for back-office operations, see the [Management API](https://docs.talon.one/management-api).\n"
+servers:
+- url: https://integration.talon.one
+security:
+- ApiKeyAuth: []
+tags:
+- name: mParticle
+  description: '[mParticle](https://www.mparticle.com/) is the customer data platform that helps unify data and simplify partner integrations with enterprise-class security and reliability.
+
+
+    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/mparticle).
+
+    '
+paths:
+  /mparticle:
+    post:
+      tags:
+      - mParticle
+      summary: Send event (mParticle)
+      operationId: mparticle/sendevent
+      description: 'Send an mParticle event to Talon.One.
+
+
+        This endpoint supports the following mParticle events:
+
+        - `module_registration_request`: A new client has set up the Talon.One integration in mParticle.
+
+        - `audience_membership_change_request`: Customers have been added to or removed from an audience in mParticle.
+
+        - `audience_subscription_request`: An audience has been added, updated, or deleted in mParticle.
+
+        - `event_processing_request`: One or more events have been triggered in mParticle.
+
+
+        > [!warning]
+
+        > This endpoint is not meant to be triggered manually. The above events are handled internally when using mParticle''s feed inputs, event outputs, and audience outputs.
+
+        '
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/ModuleRegistrationRequest'
+              - $ref: '#/components/schemas/AudienceMembershipChangeRequest'
+              - $ref: '#/components/schemas/AudienceSubscriptionRequest'
+              - $ref: '#/components/schemas/EventProcessingRequest'
+            examples:
+              moduleRegistrationRequest:
+                $ref: '#/components/examples/ModuleRegistrationRequest'
+              audienceMembershipChangeRequest:
+                $ref: '#/components/examples/AudienceMembershipChangeRequest'
+              audienceSubscriptionRequest:
+                $ref: '#/components/examples/AudienceSubscriptionRequest'
+              eventProcessingRequest:
+                $ref: '#/components/examples/EventProcessingRequest'
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ModuleRegistrationResponse'
+                - $ref: '#/components/schemas/AudienceSubscriptionResponse'
+                - $ref: '#/components/schemas/AudienceMembershipChangeResponse'
+                - $ref: '#/components/schemas/EventProcessingResponse'
+              examples:
+                moduleRegistrationResponse:
+                  $ref: '#/components/examples/ModuleRegistrationResponse'
+                audienceSubscriptionResponse:
+                  $ref: '#/components/examples/AudienceSubscriptionResponse'
+                audienceMembershipChangeResponse:
+                  $ref: '#/components/examples/AudienceMembershipChangeResponse'
+                eventProcessingResponse:
+                  $ref: '#/components/examples/EventProcessingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/AudienceAlreadyExist'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  examples:
+    AudienceSubscriptionResponse:
+      value:
+        type: audience_subscription_response
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+    AudienceMembershipChangeRequest:
+      value:
+        type: audience_membership_change_request
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+        account:
+          account_id: 1234567
+          account_settings:
+            apiKey: someapikey
+            deploymentURL: mycompany.europe-west1.talon.one
+            userIdField: customerId
+            runRuleEngine: true
+        user_profiles:
+        - mpid: c314b207-f3ae-4d21-9ae7-5983af40876a
+          audiences:
+          - audience_id: 234
+            audience_name: Travel audience
+            action: add
+            user_attributes:
+            - key: currency
+              value: USD
+              action: upsert
+          user_identities:
+          - type: customerId
+            encoding: raw
+            required: true
+            value: 0a7e3eb4-911d-4b8b
+    ModuleRegistrationRequest:
+      value:
+        type: module_registration_request
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+        account:
+          account_id: 1234567
+          account_settings:
+            apiKey: someapikey
+            deploymentURL: mycompany.europe-west1.talon.one
+            userIdField: email
+    EventProcessingResponse:
+      value:
+        type: event_processing_response
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+    AudienceMembershipChangeResponse:
+      value:
+        type: audience_membership_change_response
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+    AudienceSubscriptionRequest:
+      value:
+        type: audience_subscription_request
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+        account:
+          account_id: 1234567
+          account_settings:
+            apiKey: someapikey
+            deploymentURL: mycompany.europe-west1.talon.one
+            userIdField: email
+        audience_id: 234
+        audience_name: Travel audience
+        action: add
+        audience_subscription_settings:
+          customField: 1
+        user_attributes:
+        - key: email
+          value: john@doe.com
+    ModuleRegistrationResponse:
+      value:
+        type: module_registration_response
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+        name: Talon.One
+        description: <a href='https://talon.one'>Talon.One</a> is the world's most flexible Promotion Engine. Create, manage and track coupon codes, discount campaigns, loyalty programs and referrals in one system.
+        version: 0.0.1
+        permissions:
+          allow_consent_state: true
+          allow_access_mpid: true
+          allow_user_attributes: true
+          allow_audience_user_attributes: true
+          user_identities:
+          - type: email
+            encoding: raw
+            required: false
+            value: john@doe.com
+          - type: customerId
+            encoding: raw
+            required: false
+            value: 0a7e3eb4-911d-4b8b
+        audience_processing_registration:
+          account_settings:
+          - type: text
+            id: deploymentURL
+            name: Deployment URL
+            description: URL of your Talon.One deployment
+            visible: true
+            required: true
+            confidential: true
+            default_value: ''
+          - type: text
+            id: apiKey
+            name: API Key
+            description: API Key to be used for requests to your Talon.One deployment
+            visible: true
+            required: true
+            confidential: true
+            default_value: ''
+          - type: text
+            id: userIdField
+            name: User ID
+            description: Select which user identity to forward to Talon.One as your customer's user ID.
+            visible: true
+            required: true
+            confidential: true
+            default_value: customerId
+          - type: boolean
+            id: runRuleEngine
+            name: Run Rule Engine
+            description: Dictates whether the Rule Engine should be run after each membership change.
+            visible: true
+            required: true
+            confidential: false
+            default_value: false
+          audience_subscription_settings:
+          - type: integer
+            id: t1AudienceID
+            name: Talon.One Audience ID
+            visible: false
+            required: false
+        event_processing_registration:
+          account_settings:
+          - type: text
+            id: deploymentURL
+            name: Deployment URL
+            description: URL of your Talon.One deployment
+            visible: true
+            required: true
+            confidential: true
+            default_value: ''
+          - type: text
+            id: apiKey
+            name: API Key
+            description: API Key to be used for requests to your Talon.One deployment
+            visible: true
+            required: true
+            confidential: true
+            default_value: ''
+          - type: text
+            id: userIdField
+            name: User ID
+            description: Select which user identity to forward to Talon.One as your customer's user ID.
+            visible: true
+            required: true
+            confidential: true
+            default_value: customerId
+          - type: boolean
+            id: runRuleEngine
+            name: Run Rule Engine
+            description: Dictates whether the Rule Engine should be run after each membership change.
+            visible: true
+            required: true
+            confidential: false
+            default_value: false
+          supported_event_types:
+          - custom_event
+          supported_runtime_environments:
+          - unknown
+          - android
+          - ios
+          - tvos
+          - mobileweb
+          - roku
+          - xbox
+          - firetv
+          - alexa
+          - smarttv
+          supported_system_notification_types: []
+          max_data_age_hours: -1
+    EventProcessingRequest:
+      value:
+        type: event_processing_request
+        id: 62cdcd11-3913-4c66-a2c7-01ae7a445a61
+        timestamp_ms: 1586980879793
+        firehose_version: 2.4.0
+        account:
+          account_settings:
+            apiKey: someapikey
+            deploymentURL: mycompany.europe-west1.talon.one
+            userIdField: customerId
+            runRuleEngine: true
+        user_identities:
+        - type: customerId
+          encoding: raw
+          required: true
+          value: 0a7e3eb4-911d-4b8b
+        mpid: c314b207-f3ae-4d21-9ae7-5983af40876a
+        events:
+        - name: click_event
+          type: custom_event
+          session_id: 109
+          attributes:
+            platform: iOS
+  schemas:
+    AudienceMembershipChangeRequest:
+      allOf:
+      - type: object
+        required:
+        - type
+        properties:
+          type:
+            type: string
+            description: The type of the mParticle request. Must be set to `audience_membership_change_request`.
+            example: audience_membership_change_request
+      - $ref: '#/components/schemas/mparticleBaseFields'
+      - $ref: '#/components/schemas/mparticleAccount'
+      - type: object
+        properties:
+          user_profiles:
+            type: array
+            description: The customer profiles to add to or remove from an audience.
+            items:
+              $ref: '#/components/schemas/mparticleUserProfiles'
+    actionMembershipChange:
+      type: string
+      description: The action to perform on the customer in the audience.
+      example: add
+      enum:
+      - add
+      - delete
+      - attribute_update
+    mparticleResponseType:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - module_registration_response
+          - audience_membership_change_response
+          - audience_subscription_response
+          - event_processing_response
+          description: The type of the mParticle response.
+          example: module_registration_response
+    ModuleRegistrationResponse:
+      allOf:
+      - $ref: '#/components/schemas/mparticleResponseType'
+      - $ref: '#/components/schemas/mparticleBaseFields'
+      - type: object
+        properties:
+          name:
+            type: string
+            description: The name of the Talon.One integration.
+            example: Talon.One
+          description:
+            type: string
+            description: The description of the Talon.One integration.
+            example: <a href='https://talon.one'>Talon.One</a> is the world's most flexible Promotion Engine. Create, manage and track coupon codes, discount campaigns, loyalty programs and referrals in one system.
+          version:
+            type: string
+            description: The version of the Talon.One integration.
+            example: 0.0.1
+          permissions:
+            $ref: '#/components/schemas/mparticlePermissions'
+          audience_processing_registration:
+            $ref: '#/components/schemas/mparticleAudienceProcessingRegistration'
+          event_processing_registration:
+            $ref: '#/components/schemas/mparticleEventProcessingRegistration'
+    EventProcessingRequest:
+      allOf:
+      - type: object
+        required:
+        - type
+        properties:
+          type:
+            type: string
+            description: The type of the mParticle request. Must be set to `event_processing_request`.
+            example: event_processing_request
+      - $ref: '#/components/schemas/mparticleBaseFields'
+      - $ref: '#/components/schemas/mparticleAccount'
+      - type: object
+        required:
+        - mpid
+        - events
+        properties:
+          mpid:
+            type: string
+            description: The mParticle ID.
+            example: 6423PSJVY7492
+          user_identities:
+            type: array
+            description: The customer identity data associated with this event. Required if `account.account_settings.userIdField` is set to `email` or `customerId`.
+            items:
+              $ref: '#/components/schemas/mparticleUserIdentity'
+          events:
+            type: array
+            description: The event data.
+            items:
+              $ref: '#/components/schemas/mparticleEvent'
+    AudienceSubscriptionRequest:
+      allOf:
+      - type: object
+        required:
+        - type
+        properties:
+          type:
+            type: string
+            description: The type of the mParticle request. Must be set to `audience_subscription_request`.
+            example: audience_subscription_request
+      - $ref: '#/components/schemas/mparticleBaseFields'
+      - $ref: '#/components/schemas/mparticleAccount'
+      - type: object
+        required:
+        - audience_id
+        - audience_name
+        - action
+        properties:
+          audience_id:
+            type: integer
+            description: The ID of the audience to add, update, or delete.
+            example: 29
+          audience_name:
+            type: string
+            description: The name of the audience.
+            example: Travel audience
+          action:
+            description: The action to perform on the audience.
+            example: add
+            enum:
+            - add
+            - update
+            - remove
+          audience_subscription_settings:
+            type: object
+            description: Additional settings for the audience.
+            additionalProperties: true
+          user_attributes:
+            description: Additional user attributes to add, update, or delete.
+            type: array
+            items:
+              $ref: '#/components/schemas/mparticleUserAttribute'
+    mparticleEventProcessingRegistration:
+      type: object
+      description: The configuration required to process events.
+      properties:
+        account_settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/mparticleAccountSettings'
+        supported_event_types:
+          type: array
+          items:
+            type: string
+            example: custom_event
+        supported_runtime_environments:
+          type: array
+          items:
+            type: string
+            example: android
+        supported_system_notification_types:
+          type: array
+          items:
+            type: string
+        max_data_age_hours:
+          type: integer
+          example: -1
+    AudienceMembershipChangeResponse:
+      allOf:
+      - $ref: '#/components/schemas/mparticleResponseType'
+      - $ref: '#/components/schemas/mparticleBaseFields'
+    AudienceSubscriptionResponse:
+      allOf:
+      - $ref: '#/components/schemas/mparticleResponseType'
+      - $ref: '#/components/schemas/mparticleBaseFields'
+      - type: object
+        properties:
+          audience_subscription_settings:
+            type: object
+            additionalProperties: true
+    mparticleBaseFields:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/mparticleId'
+        timestamp_ms:
+          $ref: '#/components/schemas/timestampMS'
+        firehose_version:
+          $ref: '#/components/schemas/firehoseVersion'
+    errorResponseWithStatus:
+      type: object
+      properties:
+        StatusCode:
+          type: integer
+          description: The error code.
+          example: 400
+        Error:
+          type: string
+          example: Bad request
+        RequestUUID:
+          type: string
+          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
+    timestampMS:
+      type: integer
+      description: The timestamp of the request (in milliseconds).
+      example: 1586980879793
+    mparticleAccountSettings:
+      type: object
+      description: The configuration to be set by the client.
+      properties:
+        type:
+          type: string
+          example: text
+        id:
+          type: string
+          example: deploymentURL
+        name:
+          type: string
+          example: Deployment URL
+        description:
+          type: string
+          example: The URL of your Talon.One deployment.
+        visible:
+          type: boolean
+          example: true
+        required:
+          type: boolean
+          example: true
+        confidential:
+          type: boolean
+          example: true
+        default_value:
+          type: string
+          example: ''
+    mparticleId:
+      type: string
+      description: The ID of the request.
+      example: dd33f-dd-b3fb3-def0000
+    mparticleUserAttribute:
+      type: object
+      properties:
+        key:
+          type: string
+          description: The name of the user attribute.
+          example: country
+        value:
+          description: The value of the user attribute.
+          example: DE
+        action:
+          type: string
+          description: The action to perform on the user attribute (add/update or delete).
+          example: upsert
+          enum:
+          - upsert
+          - delete
+    mparticlePermissions:
+      type: object
+      description: The identities the integration requires access to.
+      properties:
+        allow_consent_state:
+          type: boolean
+          example: true
+        allow_access_mpid:
+          type: boolean
+          example: true
+        allow_user_attributes:
+          type: boolean
+          example: true
+        allow_audience_user_attributes:
+          type: boolean
+          example: true
+        user_identities:
+          type: array
+          items:
+            $ref: '#/components/schemas/mparticleUserIdentity'
+    firehoseVersion:
+      type: string
+      description: The internal mParticle API version.
+      example: 2.4.0
+    EventProcessingResponse:
+      allOf:
+      - $ref: '#/components/schemas/mparticleResponseType'
+      - $ref: '#/components/schemas/mparticleBaseFields'
+    mparticleUserIdentity:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of customer identity data.
+          enum:
+          - email
+          - customer
+          example: customer
+        encoding:
+          type: string
+          enum:
+          - raw
+          - md5
+          - sha1
+          - sha256
+          example: raw
+          description: The format used to encode the customer identity data.
+        value:
+          type: string
+          description: The customer identity data. Can be a customer ID or an email address.
+          example: RGV6358UYY
+    mparticleEvent:
+      type: object
+      required:
+      - name
+      - type
+      properties:
+        name:
+          type: string
+          description: The name of the event.
+          example: click_event
+        type:
+          type: string
+          description: The type of the event. Must be set to `custom_event`.
+          enum:
+          - custom_event
+          example: custom_event
+        session_id:
+          type: integer
+          description: The session ID of the event.
+          example: 109
+        id:
+          type: string
+          description: The event ID.
+          example: 342PV86540CR
+        source_id:
+          type: string
+          description: The event source ID.
+          example: B5720CRPPN7
+        attributes:
+          type: object
+          description: Additional attributes to submit to Talon.One.
+          additionalProperties: true
+    mparticleAudienceProcessingRegistration:
+      type: object
+      description: The configuration required to process audiences.
+      properties:
+        account_settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/mparticleAccountSettings'
+        audience_subscription_settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/mparticleAudienceSubscriptionSettings'
+    mparticleAudience:
+      type: object
+      required:
+      - action
+      - audience_id
+      - audience_name
+      properties:
+        audience_id:
+          type: integer
+          description: The ID of the audience.
+          example: 234
+        audience_name:
+          type: string
+          description: The name of the audience.
+          example: Travel audience
+        action:
+          $ref: '#/components/schemas/actionMembershipChange'
+        audience_subscription_settings:
+          type: object
+          description: Additional settings for the audience.
+          additionalProperties: true
+        user_attributes:
+          type: array
+          description: Additional user attributes to add, update, or delete.
+          items:
+            $ref: '#/components/schemas/mparticleUserAttribute'
+    ModuleRegistrationRequest:
+      allOf:
+      - type: object
+        required:
+        - type
+        properties:
+          type:
+            type: string
+            description: The type of the mParticle request. Must be set to `module_registration_request`.
+            example: module_registration_request
+      - $ref: '#/components/schemas/mparticleBaseFields'
+      - $ref: '#/components/schemas/mparticleAccount'
+    mparticleAudienceSubscriptionSettings:
+      type: object
+      description: The audience-specific configuration.
+      properties:
+        type:
+          type: string
+          example: integer
+        id:
+          type: string
+          example: t1AudienceID
+        name:
+          type: string
+          example: Talon.One Audience ID
+        visible:
+          type: boolean
+          example: false
+        required:
+          type: boolean
+          example: false
+    mparticleUserProfiles:
+      type: object
+      required:
+      - mpid
+      properties:
+        mpid:
+          type: string
+          description: The mParticle ID.
+          example: c314b207-f3ae-4d21-9ae7-5983af40876a
+        audiences:
+          type: array
+          description: The audiences to modify.
+          items:
+            $ref: '#/components/schemas/mparticleAudience'
+        user_identities:
+          type: array
+          description: The customers to add to or remove from an audience.
+          items:
+            $ref: '#/components/schemas/mparticleUserIdentity'
+    mparticleAccount:
+      type: object
+      required:
+      - account
+      properties:
+        account:
+          type: object
+          description: The account settings for your Talon.One integration.
+          properties:
+            account_id:
+              type: integer
+              description: The mParticle account ID.
+              example: 1234567
+            account_settings:
+              type: object
+              required:
+              - apiKey
+              - deploymentURL
+              - userIdField
+              properties:
+                apiKey:
+                  type: string
+                  description: The mParticle API key you created in Talon.One.
+                  example: someapikey
+                deploymentURL:
+                  type: string
+                  description: The base URL of your Talon.One deployment.
+                  example: mycompany.europe-west1.talon.one
+                userIdField:
+                  type: string
+                  description: Indicates how to identify customer profiles. If set to `email` or `customerId`, you must provide customer data in `user_identities`.
+                  example: email
+                  enum:
+                  - email
+                  - customerId
+                  - mpid
+                runRuleEngine:
+                  type: boolean
+                  description: Indicates whether to run the Rule Engine.
+                  example: false
+  responses:
+    AudienceAlreadyExist:
+      description: The audience with the ID already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 409
+                Error: The audience with the ID '382370BKDB946' already exists
+                RequestUUID: 80322e41-d7d2-48eb-b6c5-c458e13b4b65
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 401
+                Error: Missing Session Token
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    TooManyRequests:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 429
+                Error: Too many requests
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 400
+                Error: No Deployment URL specified
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "To authenticate to use these endpoints, create a Third-party API key in the Campaign Manager:\n\n1. Sign in to the Campaign Manager, and open the [Application](https://docs.talon.one/docs/product/applications/overview) of your choice.\n2. Click **Settings** > **Integration API Keys**.\n3. Click **Create API Key**.\n4. In the **Create API Key** drawer, if you are asked for a key type, select **Production**.\n5. In **Key name**, type a name to identify the key.\n6. In **Key expiration date**, select a date.\n   \n   **Tip**: Avoid choosing expiration dates that fall at the end of\n   the year or during other high-traffic periods.\n\n7. In **Third-party integration**, select **Yes** and the platform to integrate with.\n8. Click **Create API Key**, and copy the generated value for use.\n\nYou can now use the API key in the `Authorization` HTTP header of your requests, prefixing it with `ApiKey-v1 `:\n\n```\nAuthorization: ApiKey-v1 dbc644d33aa74d582bd9479c59e16f970fe13bf3\n```\n"
+    ApiKeyBasicAuth:
+      type: http
+      scheme: basic
+      description: "To authenticate to use these endpoints, create a Third-party API key in the Campaign Manager:\n\n1. Sign in to the Campaign Manager, and open the [Application](https://docs.talon.one/docs/product/applications/overview) of your choice.\n2. Click **Settings** > **Integration API Keys**.\n3. Click **Create API Key**.\n4. In the **Create API Key** drawer, if you are asked for a key type, select **Production**.\n5. In **Key name**, type a name to identify the key.\n6. In **Key expiration date**, select a date.\n\n   **Tip**: Avoid choosing expiration dates that fall at the end of\n   the year or during other high-traffic periods.\n   \n7. In **Third-party integration**, select **Yes** and the platform to integrate with.\n8. Click **Create API Key**, and copy the generated value for use.\n9. Modify the generated value by prefixing it with `ApiKey-v1 ` and suffixing it with `:`. For example: `ApiKey-v1 <generated-api-key>:`.\n10. Encode this modified value to Base64.\n\nYou can now use the API key, prefixing the Base64-encoded string with `Authorization: Basic `:\n\n```\nAuthorization: Basic YmFzZTY0ZW5vZGV0aGlzcGxlYXNlYXNhcDQzMjE0MTI=\n```\n"

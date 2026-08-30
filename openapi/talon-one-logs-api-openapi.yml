@@ -1,0 +1,786 @@
+openapi: 3.2.0
+info:
+  title: Management Logs API
+  version: ''
+  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+servers:
+- url: https://yourbaseurl.talon.one
+security:
+- manager_auth: []
+- management_key: []
+tags:
+- name: Logs
+  description: 'Represents the Talon.One logs, which contain all incoming and outgoing requests.
+
+    '
+paths:
+  /v1/applications/{applicationId}/access_logs/no_total:
+    get:
+      operationId: getAccessLogsWithoutTotalCount
+      summary: Get access logs for Application
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the list of API calls sent to the specified Application.
+
+        '
+      tags:
+      - Logs
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - name: path
+        in: query
+        description: Only return results where the request path matches the given regular expression.
+        example: pattern1
+        schema:
+          type: string
+      - name: method
+        in: query
+        description: Only return results where the request method matches the given regular expression.
+        example: get
+        schema:
+          type: string
+          enum:
+          - get
+          - put
+          - post
+          - delete
+          - patch
+      - name: status
+        in: query
+        description: Filter results by HTTP status codes.
+        example: success
+        required: false
+        schema:
+          type: string
+          enum:
+          - success
+          - error
+      - name: rangeStart
+        in: query
+        required: true
+        description: 'Only return results from after this timestamp.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: rangeEnd
+        in: query
+        required: true
+        description: 'Only return results from before this timestamp.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccessLogEntry'
+  /v1/message_logs:
+    get:
+      operationId: getMessageLogs
+      summary: List message log entries
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve all message log entries.'
+      tags:
+      - Logs
+      parameters:
+      - name: messageID
+        in: query
+        description: Filter results by message ID.
+        example: message1
+        required: false
+        schema:
+          type: string
+      - name: changeType
+        in: query
+        description: Filter results by change type.
+        example: CampaignEvaluationTreeChanged
+        required: false
+        schema:
+          type: string
+          enum:
+          - CampaignEvaluationTreeChanged
+          - CampaignNotification
+          - CouponCreated
+          - CouponUpdated
+          - CouponDeleted
+          - AsyncCouponsCreated
+          - CouponsDeleted
+          - CouponsUpdated
+          - CouponCodeExpiring
+          - StrikethroughPrice
+          - LoyaltyPointsAdded
+          - LoyaltyPointsDeducted
+          - LoyaltyPointsExpiring
+          - LoyaltyPointsPendingToActive
+          - LoyaltyAddedDeductedPointsBalances
+          - LoyaltyCardAddedDeductedPointsBalances
+          - TierWillDowngrade
+          - TierUpgrade
+          - TierDowngrade
+          - LoyaltyCardPointsAdded
+          - LoyaltyCardPointsDeducted
+          - LoyaltyCardPointsExpiring
+      - name: notificationIDs
+        in: query
+        description: Filter results by notification ID (include up to 30 values, separated by a comma).
+        example: 23,46
+        required: false
+        schema:
+          type: string
+      - name: createdBefore
+        in: query
+        description: Filter results where request and response times to return entries before parameter value, expected to be an RFC3339 timestamp string. Use UTC time.
+        required: false
+        example: '2024-05-29T15:04:05Z'
+        schema:
+          type: string
+          format: date-time
+      - name: createdAfter
+        in: query
+        description: Filter results where request and response times to return entries after parameter value, expected to be an RFC3339 timestamp string. Use UTC time.
+        required: false
+        example: '2024-05-29T15:04:05Z'
+        schema:
+          type: string
+          format: date-time
+      - name: cursor
+        in: query
+        description: 'A specific unique value in the database. If this value is not given, the server fetches results starting with the first record.
+
+          '
+        example: U3dhZ2dlciByb2Nrcw==
+        required: false
+        schema:
+          type: string
+          format: byte
+      - name: period
+        in: query
+        description: 'Filter results by time period. Choose between the available relative time frames.
+
+          '
+        example: 15m
+        required: false
+        schema:
+          type: string
+          enum:
+          - 15m
+          - 30m
+          - 1h
+          - 4h
+          - 1d
+          - 2d
+      - in: query
+        name: isSuccessful
+        description: 'Indicates whether to return log entries with either successful or unsuccessful HTTP response codes. When set to`true`, only log entries with `2xx` response codes are returned. When set to `false`, only log entries with `4xx` and `5xx` response codes are returned.
+
+          '
+        example: false
+        required: false
+        schema:
+          type: boolean
+      - in: query
+        name: entityType
+        description: 'The entity type the log is related to.
+
+          '
+        example: application
+        required: true
+        schema:
+          type: string
+          enum:
+          - application
+          - loyalty_program
+          - webhook
+      - name: applicationId
+        in: query
+        description: Filter results by Application ID.
+        example: 19
+        required: false
+        schema:
+          type: number
+      - name: campaignId
+        in: query
+        description: Filter results by campaign ID.
+        example: 49
+        schema:
+          type: number
+      - in: query
+        name: loyaltyProgramId
+        description: Identifier of the loyalty program.
+        example: 40
+        required: false
+        schema:
+          type: integer
+      - in: query
+        name: responseCode
+        description: Filter results by response status code.
+        example: 200
+        required: false
+        schema:
+          type: integer
+      - in: query
+        name: webhookIDs
+        description: Filter results by webhook ID (include up to 30 values, separated by a comma).
+        example: 23,46
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageLogEntries'
+  /v1/changes:
+    get:
+      operationId: getChanges
+      summary: Get audit logs for an account
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the audit logs displayed in **Accounts > Audit logs**.
+
+        '
+      tags:
+      - Logs
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: applicationId
+        in: query
+        description: Filter results by Application ID.
+        example: 19
+        required: false
+        schema:
+          type: number
+      - name: entityPath
+        in: query
+        description: Filter results on a case insensitive matching of the url path of the entity
+        example: example/url/path
+        required: false
+        schema:
+          type: string
+      - in: query
+        description: Filter results by user ID.
+        example: 34
+        required: false
+        name: userId
+        schema:
+          type: integer
+      - name: createdBefore
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the change creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: createdAfter
+        in: query
+        description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the change creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
+        required: false
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: withTotalResultSize
+        in: query
+        description: 'When this flag is set, the result includes the total number of results for this query. This might decrease performance on large data sets.
+
+
+          - When `true`: `totalResultSize` contains the total number of results for this query.
+
+          - When `false`: Only `hasMore` is returned, and it is set to `true` when there are more results than shown on the page.
+
+          '
+        example: false
+        schema:
+          type: boolean
+      - name: managementKeyId
+        in: query
+        description: Filter results that match the given management key ID.
+        example: 16
+        required: false
+        schema:
+          type: integer
+      - name: includeOld
+        in: query
+        description: When this flag is set to false, the state without the change will not be returned. The default value is true.
+        example: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Change'
+  /v1/exports:
+    get:
+      operationId: getExports
+      summary: Get exports
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List all past exports
+
+        '
+      tags:
+      - Logs
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - name: applicationId
+        in: query
+        description: Filter results by Application ID.
+        example: 19
+        required: false
+        schema:
+          type: number
+      - name: campaignId
+        in: query
+        description: Filter by the campaign ID on which the limit counters are used.
+        example: 8
+        required: false
+        schema:
+          type: integer
+      - name: entity
+        in: query
+        required: false
+        description: The name of the entity type that was exported.
+        example: Coupon
+        schema:
+          type: string
+          enum:
+          - Coupon
+          - Referral
+          - Effect
+          - CustomerSession
+          - LoyaltyLedger
+          - LoyaltyLedgerLog
+          - Collection
+          - AudienceMembership
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Export'
+components:
+  schemas:
+    MessageLogEntries:
+      type: object
+      required:
+      - data
+      properties:
+        nextCursor:
+          description: 'The next value in the database.
+
+
+            **Note:** If this value is not present, it means that there are no more values in the database for this combination of request parameters.
+
+            '
+          type: string
+          format: byte
+          example: SmJlNERRMHdyNWFsTmRDZDVYU0c=
+        data:
+          type: array
+          description: List of message logs.
+          items:
+            $ref: '#/components/schemas/MessageLogEntry'
+    MessageLogRequest:
+      type: object
+      description: Details of the request.
+      required:
+      - createdAt
+      - request
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the request was made.
+          example: '2021-07-20T21:59:00Z'
+        request:
+          type: string
+          format: byte
+          description: Raw request data.
+          example: SGVsbG8sIHdvcmxkIQ==
+    MessageLogResponse:
+      type: object
+      description: Details of the response.
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the response was received.
+          example: '2021-07-20T22:00:50Z'
+        response:
+          type: string
+          format: byte
+          description: Raw response data.
+          example: UmVzcG9uc2UgY29udGVudA==
+        status:
+          type: integer
+          description: HTTP status code of the response.
+          example: 200
+    Change:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - entity
+        properties:
+          applicationId:
+            type: integer
+            description: ID of application associated with change.
+            example: 359
+          entity:
+            type: string
+            description: API endpoint on which the change was initiated.
+            example: /v1/applications/359/campaigns/6727
+          old:
+            type: object
+            description: Resource before the change occurred.
+            example: {}
+          new:
+            type: object
+            description: Resource after the change occurred.
+            example:
+              applicationId": 359
+              attributes": {}
+              campaignGroups": []
+              created": '2022-07-08T13:04:02.972762328Z'
+              description": ''
+              features":
+              - referrals
+              - loyalty
+              id: 6727
+          managementKeyId:
+            type: integer
+            description: ID of management key used to perform changes.
+            example: 3
+    Export:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - entity
+        - filter
+        properties:
+          entity:
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Effect
+            - CustomerSession
+            - LoyaltyLedger
+            - LoyaltyLedgerLog
+            - Collection
+            description: The name of the entity that was exported.
+          filter:
+            type: object
+            description: Map of keys and values that were used to filter the exported rows.
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    AccessLogEntry:
+      type: object
+      description: Log of application accesses.
+      required:
+      - uuid
+      - status
+      - method
+      - requestUri
+      - time
+      - requestPayload
+      - responsePayload
+      properties:
+        uuid:
+          type: string
+          description: UUID reference of request.
+          example: 606e7d34-2d36-4d53-ac71-d4442c325985
+        status:
+          type: integer
+          description: HTTP status code of response.
+          example: 200
+        method:
+          type: string
+          description: HTTP method of request.
+          example: PUT
+        requestUri:
+          type: string
+          description: target URI of request
+          example: /v2/customer_sessions/Session136667
+        time:
+          type: string
+          format: date-time
+          description: timestamp of request
+          example: '2023-01-16T16:00:00.700763Z'
+        requestPayload:
+          type: string
+          description: payload of request
+          example: "{\n    \"customerSession\": {\n        \"profileId\": \"customer123\",\n        \"state\": \"closed\",\n...\n}"
+        responsePayload:
+          type: string
+          description: payload of response
+          example: '{"coupons":[],"createdCoupons":[],...}'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    MessageLogEntry:
+      type: object
+      description: Message Log.
+      required:
+      - service
+      - createdAt
+      - id
+      - entityType
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the message.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        service:
+          type: string
+          description: Name of the service that generated the log entry.
+          example: NotificationService
+        changeType:
+          type: string
+          description: Type of change that triggered the notification.
+          example: Update
+        notificationId:
+          type: integer
+          description: ID of the notification.
+          example: 101
+        notificationName:
+          type: string
+          description: The name of the notification.
+          example: My campaign notification
+        webhookId:
+          type: integer
+          description: ID of the webhook.
+          example: 101
+        webhookName:
+          type: string
+          description: The name of the webhook.
+          example: My webhook
+        request:
+          $ref: '#/components/schemas/MessageLogRequest'
+        response:
+          $ref: '#/components/schemas/MessageLogResponse'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the log entry was created.
+          example: '2021-07-20T22:00:00Z'
+        entityType:
+          type: string
+          description: 'The entity type the log is related to.
+
+            '
+          enum:
+          - application
+          - loyalty_program
+          - webhook
+          example: loyalty_program
+        url:
+          type: string
+          description: The target URL of the request.
+          example: www.my-company.com/my-endpoint-name
+        applicationId:
+          type: integer
+          description: Identifier of the Application.
+          example: 5
+          minimum: 1
+        loyaltyProgramId:
+          type: integer
+          description: Identifier of the loyalty program.
+          example: 2
+          minimum: 1
+        campaignId:
+          type: integer
+          description: Identifier of the campaign.
+          example: 2
+          minimum: 1
+  parameters:
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+  securitySchemes:
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"

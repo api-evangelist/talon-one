@@ -1,0 +1,1678 @@
+openapi: 3.2.0
+info:
+  title: Management Accounts and users API
+  version: ''
+  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+servers:
+- url: https://yourbaseurl.talon.one
+security:
+- manager_auth: []
+- management_key: []
+tags:
+- name: Accounts and users
+  description: 'Represents account and user management, including billing email addresses and user invitations.
+
+    '
+paths:
+  /v1/users:
+    get:
+      operationId: getUsers
+      summary: List users in account
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve all users in your account.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+  /v1/users/{userId}:
+    get:
+      operationId: getUser
+      summary: Get user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the data (including an invitation code) for a user. Non-admin users can only get their own profile.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      operationId: updateUser
+      summary: Update user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update the details of a specific user.'
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      operationId: deleteUser
+      summary: Delete user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete a specific user.'
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+  /v1/provisioning/okta:
+    get:
+      operationId: oktaEventHandlerChallenge
+      summary: Validate Okta API ownership
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Validate the ownership of the API through a challenge-response mechanism.
+
+
+        This challenger endpoint is used by Okta to confirm that communication between Talon.One and Okta is correctly configured and accessible
+
+        for provisioning and deprovisioning of Talon.One users, and that only Talon.One can receive and respond to events from Okta.
+
+        '
+      tags:
+      - Accounts and users
+      responses:
+        '200':
+          description: OK
+  /v1/provisioning/scim/Groups:
+    get:
+      operationId: scimGetGroups
+      summary: List SCIM groups
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve a paginated list of groups created using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      tags:
+      - Accounts and users
+      responses:
+        '200':
+          description: List of SCIM groups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimGroupsListResponse'
+    post:
+      operationId: scimCreateGroup
+      summary: Create SCIM group
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create a new Talon.One group using the SCIM Group provisioning protocol with an identity provider, for example, Microsoft Entra ID, and assign members from the payload to the new group.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      tags:
+      - Accounts and users
+      requestBody:
+        $ref: '#/components/requestBodies/ScimNewGroup'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimGroup'
+  /v1/provisioning/scim/Groups/{groupId}:
+    get:
+      operationId: scimGetGroup
+      summary: Get SCIM group
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve data for a specific group created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      tags:
+      - Accounts and users
+      parameters:
+      - name: groupId
+        in: path
+        description: The ID of the group.
+        example: 44
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Group details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimGroup'
+    delete:
+      operationId: scimDeleteGroup
+      summary: Delete SCIM group
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete a specific group created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      tags:
+      - Accounts and users
+      parameters:
+      - name: groupId
+        in: path
+        description: The ID of the group.
+        example: 44
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+    put:
+      operationId: scimReplaceGroupAttributes
+      summary: Update SCIM group
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update the details of a specific group created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID. This endpoint replaces all attributes of the given group with the attributes provided in the request payload.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: groupId
+        in: path
+        description: The ID of the group.
+        example: 44
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/ScimNewGroup'
+      responses:
+        '200':
+          description: Group details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimGroup'
+    patch:
+      operationId: scimPatchGroup
+      summary: Update SCIM group attributes
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update certain attributes of a group created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID. This endpoint allows for selective adding, removing, or replacing of specific group attributes while other attributes remain unchanged.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: groupId
+        in: path
+        description: The ID of the group.
+        example: 44
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScimPatchRequest'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: Group details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimGroup'
+  /v1/provisioning/scim/Users:
+    get:
+      operationId: scimGetUsers
+      summary: List SCIM users
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve a paginated list of users that have been provisioned using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.'
+      tags:
+      - Accounts and users
+      responses:
+        '200':
+          description: List of SCIM users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimUsersListResponse'
+    post:
+      operationId: scimCreateUser
+      summary: Create SCIM user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create a new Talon.One user using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.'
+      tags:
+      - Accounts and users
+      requestBody:
+        $ref: '#/components/requestBodies/ScimNewUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimUser'
+  /v1/provisioning/scim/Users/{userId}:
+    get:
+      operationId: scimGetUser
+      summary: Get SCIM user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve data for a specific Talon.One user created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.'
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimUser'
+    delete:
+      operationId: scimDeleteUser
+      summary: Delete SCIM user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete a specific Talon.One user created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.'
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+    put:
+      operationId: scimReplaceUserAttributes
+      summary: Update SCIM user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update the details of a specific Talon.One user created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+
+
+        This endpoint replaces all attributes of the specific user with the attributes provided in the request payload.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/ScimNewUser'
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimUser'
+    patch:
+      operationId: scimPatchUser
+      summary: Update SCIM user attributes
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update certain attributes of a specific Talon.One user created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+
+
+        This endpoint allows for selective adding, removing, or replacing specific attributes while leaving other attributes unchanged.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user.
+        example: 33
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScimPatchRequest'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimUser'
+  /v1/provisioning/scim/ResourceTypes:
+    get:
+      operationId: scimGetResourceTypes
+      summary: List supported SCIM resource types
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve a list of resource types supported by the SCIM provisioning protocol.
+
+
+        Resource types define the various kinds of resources that can be managed via the SCIM API, such as users, groups, or custom-defined resources.
+
+        '
+      tags:
+      - Accounts and users
+      responses:
+        '200':
+          description: List of resource types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimResourceTypesListResponse'
+  /v1/provisioning/scim/ServiceProviderConfig:
+    get:
+      operationId: scimGetServiceProviderConfig
+      summary: Get SCIM service provider configuration
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the configuration settings of the SCIM service provider. It provides details about the features and capabilities supported by the SCIM API, such as the different operation settings.
+
+        '
+      tags:
+      - Accounts and users
+      responses:
+        '200':
+          description: Service configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimServiceProviderConfigResponse'
+  /v1/provisioning/scim/Schemas:
+    get:
+      operationId: scimGetSchemas
+      summary: List supported SCIM schemas
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve a list of schemas supported by the SCIM provisioning protocol.
+
+
+        Schemas define the structure and attributes of the different resources that can be managed via the SCIM API, such as users, groups, and any custom-defined resources.
+
+        '
+      tags:
+      - Accounts and users
+      responses:
+        '200':
+          description: List of schemas supported by the SCIM provisioning protocol
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScimSchemasListResponse'
+  /v1/users/delete:
+    post:
+      operationId: deleteUserByEmail
+      summary: Delete user by email address
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        [Delete a specific user](https://docs.talon.one/docs/product/account/account-settings/managing-users#deleting-a-user) by their email address.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRequest'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: No Content
+  /v1/users/activate:
+    post:
+      operationId: activateUserByEmail
+      summary: Enable user by email address
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Enable a [disabled user](https://docs.talon.one/docs/product/account/account-settings/managing-users#disabling-a-user) by their email address.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateUserRequest'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: No Content
+  /v1/users/deactivate:
+    post:
+      operationId: deactivateUserByEmail
+      summary: Disable user by email address
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        [Disable a specific user](https://docs.talon.one/docs/product/account/account-settings/managing-users#disabling-a-user) by their email address.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeactivateUserRequest'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: No Content
+  /v1/users/invite:
+    post:
+      operationId: inviteUserExternal
+      summary: Invite user from identity provider
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        [Invite a user](https://docs.talon.one/docs/product/account/account-settings/managing-users#inviting-a-user) from an external identity provider to Talon.One by sending an invitation to their email address.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewExternalInvitation'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: Invitation email sent
+  /v2/invites:
+    post:
+      operationId: createInviteV2
+      summary: Invite user
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create a new user in the account and send an invitation to their email
+
+        address.
+
+
+        > [!note] The invitation token is valid for 24 hours after the email has
+
+        > been sent. You can resend an invitation to a user with the [Resend
+
+        > invitation email](https://docs.talon.one/management-api#tag/Accounts-and-users/operation/createInviteEmail)
+
+        > endpoint.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        $ref: '#/components/requestBodies/NewInvitation'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /v1/invite_emails:
+    post:
+      operationId: createInviteEmail
+      summary: Resend invitation email
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Resend an email invitation to an existing user.
+
+
+        > [!note] The invitation token is valid for 24 hours after the email has been sent.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewInviteEmail'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewInviteEmail'
+  /v1/password_recovery_emails:
+    post:
+      operationId: createPasswordRecoveryEmail
+      summary: Request a password reset
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Send an email with a password recovery link to the email address of an
+
+        existing account.
+
+
+        > [!note] The password recovery link expires 30 minutes after this endpoint is triggered.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPasswordEmail'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewPasswordEmail'
+  /v1/reset_password:
+    post:
+      operationId: resetPassword
+      summary: Reset password
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Consumes the supplied password reset token and updates the password for
+
+        the associated account.
+
+        '
+      tags:
+      - Accounts and users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPassword'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewPassword'
+  /v1/accounts/{accountId}:
+    get:
+      operationId: getAccount
+      summary: Get account details
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Return the details of your companies Talon.One account.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: accountId
+        in: path
+        description: 'The identifier of the account. Retrieve it via the
+
+          [List users in account](https://docs.talon.one/management-api#tag/Accounts-and-users/operation/getUsers) endpoint in the `accountId`
+
+          property.
+
+          '
+        example: 28
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+  /v1/accounts/{accountId}/analytics:
+    get:
+      operationId: getAccountAnalytics
+      summary: Get account analytics
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Return the analytics of your Talon.One account.
+
+        '
+      tags:
+      - Accounts and users
+      parameters:
+      - name: accountId
+        in: path
+        description: 'The identifier of the account. Retrieve it via the
+
+          [List users in account](https://docs.talon.one/management-api#tag/Accounts-and-users/operation/getUsers) endpoint in the `accountId`
+
+          property.
+
+          '
+        example: 28
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountAnalytics'
+components:
+  schemas:
+    ScimResourceTypesListResponse:
+      type: object
+      description: List of resource types supported by the SCIM provisioning protocol.
+      required:
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimResource'
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    NewInviteEmail:
+      type: object
+      required:
+      - email
+      - token
+      properties:
+        email:
+          type: string
+          description: Email address of the user.
+          format: email
+          example: john.doe@example.com
+        token:
+          type: string
+          description: Invitation token of the user.
+          example: Gy9b8w1irmQtEPo5RmbMmSPheL5h4
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the user.
+          example: John Doe
+        state:
+          type: string
+          enum:
+          - deactivated
+          - active
+          description: "The state of the user.\n  - `deactivated`: The user has been deactivated.\n  - `active`: The user is active.\n\n**Note**: Only `admin` users can update the state of another user.\n"
+          example: deactivated
+        isAdmin:
+          type: boolean
+          description: Indicates whether the user is an `admin`.
+          example: false
+        policy:
+          type: string
+          description: Indicates the access level of the user.
+          example:
+            Role: 127
+            Applications: null
+        roles:
+          type: array
+          items:
+            type: integer
+          description: 'A list of the IDs of the roles assigned to the user.
+
+
+            **Note**: To find the ID of a role, use the [List roles](/management-api#tag/Roles/operation/listAllRolesV2) endpoint.
+
+            '
+          example:
+          - 1
+          - 3
+        applicationNotificationSubscriptions:
+          type: object
+          description: Application notifications that the user is subscribed to.
+    DeleteUserRequest:
+      allOf:
+      - $ref: '#/components/schemas/EmailEntity'
+    Account:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewAccount'
+      - type: object
+        required:
+        - domainName
+        - state
+        - billingEmail
+        - applicationCount
+        - userCount
+        - campaignsActiveCount
+        - campaignsInactiveCount
+        properties:
+          domainName:
+            type: string
+            description: Subdomain Name for yourcompany.talon.one.
+          state:
+            type: string
+            enum:
+            - active
+            - deactivated
+            description: State of the account (active, deactivated).
+          billingEmail:
+            type: string
+            format: email
+            description: The billing email address associated with your company account.
+          planName:
+            type: string
+            description: The name of your booked plan.
+          planExpires:
+            type: string
+            format: date-time
+            description: The point in time at which your current plan expires.
+          applicationLimit:
+            type: integer
+            description: The maximum number of Applications covered by your plan.
+          userLimit:
+            type: integer
+            description: The maximum number of Campaign Manager Users covered by your plan.
+          campaignLimit:
+            type: integer
+            description: The maximum number of Campaigns covered by your plan.
+          apiLimit:
+            type: integer
+            description: The maximum number of Integration API calls covered by your plan per billing period.
+          applicationCount:
+            type: integer
+            description: The current number of Applications in your account.
+          userCount:
+            type: integer
+            description: The current number of Campaign Manager Users in your account.
+          campaignsActiveCount:
+            type: integer
+            description: The current number of active Campaigns in your account.
+          campaignsInactiveCount:
+            type: integer
+            description: The current number of inactive Campaigns in your account.
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this campaign.
+    ScimUsersListResponse:
+      type: object
+      description: List of users that have been provisioned using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.
+      required:
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimUser'
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          description: Number of total results in the response.
+      example:
+        Resources:
+        - active: true
+          displayName: John Doe
+          id: '283'
+          meta:
+            resourceType: User
+            created: '2024-06-25T17:43:46+02:00'
+          userName: john.doe@example.com
+          schemas:
+          - urn:ietf:params:scim:schemas:core:2.0:User
+          - urn:ietf:params:scim:schemas:extension:enterprise:2.0:User
+        schemas:
+        - urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults: 1
+    ScimGroup:
+      type: object
+      description: 'Define the schema for groups created using the SCIM provisioning protocol.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      allOf:
+      - $ref: '#/components/schemas/ScimBaseGroup'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: string
+            description: ID of the group.
+            example: '359'
+    NewExternalInvitation:
+      type: object
+      description: Parameters for inviting a new user from an external identity provider.
+      required:
+      - email
+      properties:
+        name:
+          type: string
+          description: Name of the user.
+          example: John Doe
+        userGroups:
+          type: array
+          items:
+            type: string
+          description: 'List of user groups in the external identity provider.
+
+
+            If there are roles in Talon.One whose names match these user groups,
+
+            those roles will be automatically assigned to the user upon invitation.
+
+            '
+          example:
+          - Managers
+          - Customer support
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+          example: john.doe@example.com
+    User:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/EmailEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - type: object
+        required:
+        - inviteToken
+        - state
+        - name
+        - policy
+        properties:
+          name:
+            type: string
+            description: Name of the user.
+            example: John Doe
+          state:
+            type: string
+            enum:
+            - invited
+            - active
+            - deactivated
+            description: State of the user.
+            example: invited
+          inviteToken:
+            type: string
+            description: 'Invitation token of the user.
+
+
+              **Note**: If the user has already accepted their invitation, this is `null`.
+
+              '
+            example: Gy9b8w1irmQtEPo5RmbMmSPheL5h4
+          isAdmin:
+            type: boolean
+            description: Indicates whether the user is an `admin`.
+            example: false
+          policy:
+            type: object
+            format: acl
+            description: Access level of the user.
+            example:
+              Role: 127
+              Applications: null
+          roles:
+            type: array
+            description: A list of the IDs of the roles assigned to the user.
+            example:
+            - 71
+            items:
+              type: integer
+          authMethod:
+            type: string
+            description: Authentication method for this user.
+            example: basic_auth
+          applicationNotificationSubscriptions:
+            type: object
+            description: Application notifications that the user is subscribed to.
+            example: {}
+          lastSignedIn:
+            type: string
+            format: date-time
+            description: Timestamp when the user last signed in to Talon.One.
+            example: '2021-09-12T10:12:42Z'
+          lastAccessed:
+            type: string
+            format: date-time
+            description: Timestamp of the user's last activity after signing in to Talon.One.
+            example: '2021-09-12T10:14:42Z'
+          latestFeedTimestamp:
+            type: string
+            format: date-time
+            description: Timestamp when the user was notified for feed.
+            example: '2020-06-01T00:00:00Z'
+          additionalAttributes:
+            type: object
+            description: Additional user attributes, created and used by external identity providers.
+            example: {}
+    ScimSchemaResource:
+      type: object
+      description: Resource schema definition for the SCIM provisioning protocol.
+      properties:
+        id:
+          type: string
+          description: ID of the resource.
+        name:
+          type: string
+          description: Name of the resource.
+        description:
+          type: string
+          description: Human-readable description of the schema resource.
+        attributes:
+          type: array
+          items:
+            type: object
+            description: Key-value attributes of the resource.
+      example:
+        id: urn:ietf:params:scim:schemas:core:2.0:User
+        name: User
+        description: User Account
+        attributes:
+        - name: userName
+          required: true
+          mutability: readWrite
+        - name: profileUrl
+          required: false
+          mutability: readWrite
+    ScimUser:
+      type: object
+      description: Schema definition for users that have been provisioned using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.
+      allOf:
+      - $ref: '#/components/schemas/ScimNewUser'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: string
+            description: ID of the user.
+            example: '359'
+    ActivateUserRequest:
+      allOf:
+      - $ref: '#/components/schemas/EmailEntity'
+    ScimResource:
+      type: object
+      description: Resource definition for the SCIM provisioning protocol.
+      properties:
+        id:
+          type: string
+          description: ID of the resource.
+        name:
+          type: string
+          description: Name of the resource.
+        description:
+          type: string
+          description: Human-readable description of the resource.
+      example:
+        id: User
+        name: User
+        description: User Account
+    ScimBaseGroup:
+      type: object
+      description: Define the schema for base fields in a group using the SCIM provisioning protocol. Talon.One uses this schema to create roles.
+      properties:
+        displayName:
+          type: string
+          description: Display name of the group (Talon.One role).
+          example: Manager
+        members:
+          type: array
+          description: List of members to assign to the new Talon.One role.
+          items:
+            $ref: '#/components/schemas/ScimGroupMember'
+    NewInvitation:
+      type: object
+      description: Parameters for inviting a new user.
+      required:
+      - email
+      properties:
+        name:
+          type: string
+          description: Name of the user.
+          example: John Doe
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+          example: john.doe@example.com
+        isAdmin:
+          type: boolean
+          description: Indicates whether the user is an `admin`.
+          example: false
+        roles:
+          type: array
+          description: A list of the IDs of the roles assigned to the user.
+          items:
+            type: integer
+            example: 13
+        acl:
+          type: string
+          description: Indicates the access level of the user.
+    ScimSchemasListResponse:
+      type: object
+      description: List of resource schemas supported by the SCIM provisioning protocol.
+      required:
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimSchemaResource'
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          description: Number of total results in the response.
+    ScimServiceProviderConfigResponse:
+      type: object
+      description: Service provider configuration details.
+      properties:
+        bulk:
+          type: object
+          description: Configuration related to bulk operations, which allow multiple SCIM requests to be processed in a single HTTP request.
+          properties:
+            maxOperations:
+              type: integer
+              description: The maximum number of individual operations that can be included in a single bulk request.
+            maxPayloadSize:
+              type: integer
+              description: The maximum size, in bytes, of the entire payload for a bulk operation request.
+            supported:
+              type: boolean
+              description: Indicates whether the SCIM service provider supports bulk operations.
+        changePassword:
+          type: object
+          description: Configuration settings related to the ability to change user passwords.
+          properties:
+            supported:
+              type: boolean
+              description: Indicates whether the service provider supports password changes via the SCIM API.
+        documentationUri:
+          type: string
+          description: The URI that points to the SCIM service provider's documentation, providing further details about the service's capabilities and usage.
+        filter:
+          type: object
+          description: Configuration settings related to filtering SCIM resources based on specific criteria.
+          properties:
+            maxResults:
+              type: integer
+              description: The maximum number of resources that can be returned in a single filtered query response.
+            supported:
+              type: boolean
+              description: Indicates whether the SCIM service provider supports filtering operations.
+        patch:
+          type: object
+          description: Configuration settings related to patch operations, which allow partial updates to SCIM resources.
+          properties:
+            supported:
+              type: boolean
+              description: Indicates whether the service provider supports patch operations for modifying resources.
+        schemas:
+          type: array
+          description: A list of SCIM schemas that define the structure and data types supported by the service provider.
+          items:
+            type: string
+        sort:
+          type: object
+          description: Configuration settings related to sorting SCIM resources in query responses.
+          properties:
+            supported:
+              type: boolean
+              description: Indicates whether the service provider supports sorting operations for ordered query results.
+      example:
+        bulk:
+          maxOperations: 1000
+          maxPayloadSize: 1048576
+          supported: true
+        changePassword:
+          supported: false
+        documentationUri: example.com/scim/docs
+        filter:
+          maxResults: 100
+          supported: true
+        patch:
+          supported: true
+        schemas:
+        - urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig
+        x-sort:
+          supported: false
+    NewPasswordEmail:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+    EmailEntity:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+          description: The email address associated with the user profile.
+    ScimPatchRequest:
+      type: object
+      description: SCIM Patch request
+      required:
+      - Operations
+      properties:
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:PatchOp
+        Operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimPatchOperation'
+      example:
+        Operations:
+        - op: replace
+          path: active
+          value: test
+        - op: add
+          path: nickName
+          value: johndoe
+        schemas:
+        - urn:ietf:params:scim:api:messages:2.0:PatchOp
+    ScimPatchOperation:
+      type: object
+      description: Patch operation that is used to update the information.
+      required:
+      - op
+      properties:
+        op:
+          type: string
+          enum:
+          - add
+          - remove
+          - replace
+          description: The method that should be used in the operation.
+        path:
+          type: string
+          description: The path specifying the attribute that should be updated.
+        value:
+          type: string
+          description: The value that should be updated. Required if `op` is `add` or `replace`.
+      example:
+        op: add
+        path: nickName
+        value: John
+    ScimBaseUser:
+      type: object
+      description: Schema definition for base user fields, provisioned using the SCIM protocol and used by Talon.One.
+      properties:
+        active:
+          type: boolean
+          description: Status of the user.
+          example: true
+        displayName:
+          type: string
+          description: Display name of the user.
+          example: John Doe
+        userName:
+          type: string
+          description: Unique identifier of the user. This is usually an email address.
+          example: john.doe@example.com
+        name:
+          type: object
+          description: The components of the user's real name.
+          properties:
+            formatted:
+              type: string
+              description: The full name, including all middle names, titles, and suffixes as appropriate, formatted for display.
+              example: Mr. John J Doe
+    ScimGroupMember:
+      type: object
+      description: Member of the SCIM group. In Talon.One, the member is a [user](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to a specific role.
+      properties:
+        value:
+          type: string
+          description: Unique identifier of the member.
+          example: '258'
+        display:
+          type: string
+          description: Identifier of the user. This is usually an email address.
+          example: john.doe@example.com
+    DeactivateUserRequest:
+      allOf:
+      - $ref: '#/components/schemas/EmailEntity'
+    NewAccount:
+      type: object
+      required:
+      - companyName
+      properties:
+        companyName:
+          type: string
+          minLength: 1
+    AccountAnalytics:
+      type: object
+      required:
+      - applications
+      - liveApplications
+      - sandboxApplications
+      - campaigns
+      - activeCampaigns
+      - liveActiveCampaigns
+      - coupons
+      - activeCoupons
+      - expiredCoupons
+      - referralCodes
+      - activeReferralCodes
+      - expiredReferralCodes
+      - activeRules
+      - users
+      - roles
+      - customAttributes
+      - webhooks
+      - loyaltyPrograms
+      - liveLoyaltyPrograms
+      - lastUpdatedAt
+      properties:
+        applications:
+          type: integer
+          description: Total number of applications in the account.
+          example: 11
+        liveApplications:
+          type: integer
+          description: Total number of live applications in the account.
+          example: 6
+        sandboxApplications:
+          type: integer
+          description: Total number of sandbox applications in the account.
+          example: 2
+        campaigns:
+          type: integer
+          description: Total number of campaigns in the account.
+          example: 35
+        activeCampaigns:
+          type: integer
+          description: Total number of active campaigns in the account.
+          example: 15
+        liveActiveCampaigns:
+          type: integer
+          description: Total number of active campaigns in live applications in the account.
+          example: 10
+        coupons:
+          type: integer
+          description: Total number of coupons in the account.
+          example: 850
+        activeCoupons:
+          type: integer
+          description: Total number of active coupons in the account.
+          example: 650
+        expiredCoupons:
+          type: integer
+          description: Total number of expired coupons in the account.
+          example: 200
+        referralCodes:
+          type: integer
+          description: Total number of referral codes in the account.
+          example: 500
+        activeReferralCodes:
+          type: integer
+          description: Total number of active referral codes in the account.
+          example: 100
+        expiredReferralCodes:
+          type: integer
+          description: Total number of expired referral codes in the account.
+          example: 400
+        activeRules:
+          type: integer
+          description: Total number of active rules in the account.
+          example: 35
+        users:
+          type: integer
+          description: Total number of users in the account.
+        roles:
+          type: integer
+          description: Total number of roles in the account.
+          example: 10
+        customAttributes:
+          type: integer
+          description: Total number of custom attributes in the account.
+          example: 18
+        webhooks:
+          type: integer
+          description: Total number of webhooks in the account.
+          example: 2
+        loyaltyPrograms:
+          type: integer
+          description: Total number of all loyalty programs in the account.
+          example: 5
+        liveLoyaltyPrograms:
+          type: integer
+          description: Total number of live loyalty programs in the account.
+          example: 5
+        lastUpdatedAt:
+          type: string
+          format: date-time
+          description: The point in time when the analytics numbers were updated last.
+          example: '2022-12-12T12:12:12Z'
+    NewPassword:
+      type: object
+      required:
+      - password
+      - resetToken
+      properties:
+        password:
+          type: string
+          description: The new password for your account.
+          example: Admin&12943!7
+        resetToken:
+          type: string
+          minLength: 1
+          example: Z2VgacVNkexLKBUIzsRDDZSGxnIkC53y
+    ScimNewUser:
+      type: object
+      description: Payload for users that are created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+      required:
+      - userName
+      allOf:
+      - $ref: '#/components/schemas/ScimBaseUser'
+      - type: object
+        description: Additional user properties, that are not processed by Talon.One, but only stored and returned in the User response.
+    ScimGroupsListResponse:
+      type: object
+      description: 'List of groups created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      required:
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimGroup'
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          description: Number of results in the response.
+      example:
+        Resources:
+        - displayName: Manager Role
+          id: '283'
+          meta:
+            resourceType: Group
+            created: '2024-06-25T17:43:46+02:00'
+          members:
+          - value: '15'
+            display: john.doe@example.com
+          schemas:
+          - urn:ietf:params:scim:schemas:core:2.0:Group
+        schemas:
+        - urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults: 1
+  requestBodies:
+    ScimNewUser:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScimNewUser'
+      description: body
+      required: true
+    NewInvitation:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewInvitation'
+      description: body
+      required: true
+    ScimNewGroup:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScimBaseGroup'
+      description: body
+      required: true
+  parameters:
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+  securitySchemes:
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"

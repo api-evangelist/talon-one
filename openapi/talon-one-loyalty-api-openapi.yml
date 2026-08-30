@@ -1,0 +1,3993 @@
+openapi: 3.2.0
+info:
+  title: Talon One Loyalty API
+  version: ''
+  description: 'Operations tagged Loyalty across 2 of this provider''s published API definitions: talon-one-integration-api-openapi.yml, talon-one-management-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://yourbaseurl.talon.one
+tags:
+- name: Loyalty
+  description: 'Represents loyalty programs or concepts related to them.
+
+
+    Loyalty programs can be _profile-based_ or _card-based_, depending on whether loyalty points are linked
+
+    to [customer profiles](https://docs.talon.one/docs/product/applications/displaying-customer-profiles) or [loyalty cards](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview).
+
+
+    See [the Product docs](https://docs.talon.one/docs/product/loyalty-programs/overview) for more information.
+
+    '
+paths:
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/balances:
+    get:
+      operationId: getLoyaltyBalances
+      summary: Get customer's loyalty balances
+      description: 'Retrieve loyalty ledger balances for the given Integration ID in the
+
+        specified loyalty program.
+
+
+        You can filter balances by date and subledger ID, and include tier-related
+
+        information in the response.
+
+
+        > [!note] If no filtering options are applied, you retrieve all loyalty
+
+        > balances on the current date for the given integration ID.
+
+
+        Loyalty balances are calculated when Talon.One receives your request using
+
+        the points stored in our database, so retrieving a large number of balances
+
+        at once can impact performance.
+
+
+        For more information, see:
+
+        - [Managing card-based loyalty program data](https://docs.talon.one/docs/product/loyalty-programs/card-based/managing-loyalty-cards)
+
+        - [Managing profile-based loyalty program data](https://docs.talon.one/docs/product/loyalty-programs/profile-based/managing-pb-lp-data)
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: endDate
+        in: query
+        required: false
+        description: 'Used to return expired, active, and pending loyalty balances before this
+
+          timestamp. You can enter any past, present, or future timestamp value.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: subledgerId
+        in: query
+        required: false
+        description: The ID of the subledger by which we filter the data.
+        example: subledger1
+        schema:
+          type: string
+      - name: includeTiers
+        in: query
+        required: false
+        description: 'Indicates whether tier information is included in the response.
+
+
+          When set to `true`, the response includes information about the current tier and the number of points required to move to next tier.
+
+          '
+        example: false
+        schema:
+          type: boolean
+          default: false
+      - name: includeProjectedTier
+        in: query
+        required: false
+        description: 'Indicates whether the customer''s projected tier information is included in the response.
+
+
+          When set to `true`, the response includes information about the customer''s active points and the name of the projected tier.
+
+
+          **Note** We recommend filtering by `subledgerId` for better performance.
+
+          '
+        example: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyBalancesWithTiers'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/transactions:
+    get:
+      operationId: getLoyaltyProgramProfileTransactions
+      summary: List customer's loyalty transactions
+      description: 'Retrieve paginated results of loyalty transaction logs for the given
+
+        Integration ID in the specified loyalty program.
+
+
+        You can filter transactions by date. If no filters are applied, the last 50
+
+        loyalty transactions for the given integration ID are returned.
+
+
+        > [!note] To retrieve all loyalty program transaction logs in a given
+
+        > loyalty program, use the [List loyalty program transactions](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyProgramTransactions)
+
+        > endpoint.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: customerSessionIDs
+        in: query
+        required: false
+        description: 'Filter the results by a list of customer session IDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?customerSessionIDs=id1&customerSessionIDs=id2`.
+
+
+          The response contains only data associated with the specified sessions.
+
+          '
+        example:
+        - session_integration_id_1
+        - session_integration_id_1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: transactionUUIDs
+        in: query
+        required: false
+        description: 'Filter the results by a list of transaction UUIDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.
+
+
+          The response contains only data associated with the specified transactions.
+
+          '
+        example:
+        - dc608634-0100-40d9-b371-e964476bbe0f
+        - 9e829590-05cf-407b-b4c0-5f28468a81e1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: subledgerId
+        in: query
+        required: false
+        description: The ID of the subledger by which we filter the data.
+        example: subledger1
+        schema:
+          type: string
+      - name: loyaltyTransactionType
+        in: query
+        required: false
+        description: 'Filter results by loyalty transaction type:
+
+          - `manual`: Loyalty transaction that was done manually.
+
+          - `session`: Loyalty transaction that resulted from a customer session.
+
+          - `import`: Loyalty transaction that was imported from a CSV file.
+
+          '
+        example: manual
+        schema:
+          type: string
+          enum:
+          - manual
+          - session
+          - import
+      - name: startDate
+        in: query
+        required: false
+        description: 'Date and time from which results are returned. Results are filtered by
+
+          transaction creation date.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: false
+        description: 'Date and time by which results are returned. Results are filtered by
+
+          transaction creation date.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - name: awaitsActivation
+        in: query
+        required: false
+        description: 'If `true`: Filters results to include only point transactions that have action-based activation and have not expired.
+
+
+          If `false`: Returns a `400` response.
+
+          '
+        example: true
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LedgerTransactionLogEntryIntegrationAPI'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/delete_transactions:
+    post:
+      operationId: deleteLoyaltyTransactionsFromLedgers
+      summary: Delete customer's transactions from loyalty ledgers
+      description: 'Delete a customer''s transactions in all loyalty ledgers or a specified ledger.
+
+
+        > [!note] To retrieve loyalty transaction logs for a specific customer in a given loyalty program,
+
+        > use the [List customer''s loyalty transactions](https://docs.talon.one/integration-api#tag/Loyalty/operation/getLoyaltyProgramProfileTransactions)
+
+        > endpoint.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - name: integrationId
+        in: path
+        required: true
+        description: 'The integration ID of the customer profile. You can get the `integrationId` of a profile using:
+
+          - A customer session integration ID with the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.
+
+          - The Management API with the [List application''s customers](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationCustomers) endpoint.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteLoyaltyTransactionsRequest'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/join:
+    post:
+      operationId: joinLoyaltyProgram
+      summary: Join customer profile to loyalty program
+      description: 'Join a customer profile to the specified loyalty program.
+
+
+        If the customer profile does not exist, it will be created first using the
+
+        provided `integrationId`, then joined to the loyalty program.
+
+
+        > [!note] This endpoint only works with profile-based loyalty programs.
+
+
+        **Behavior**:
+
+        - If the loyalty program does not exist, the request fails.
+
+        - If the customer profile is already joined to the loyalty program, the request fails.
+
+        - If the customer profile does not exist, it is created and then joined to the loyalty program.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - name: integrationId
+        in: path
+        required: true
+        description: 'The integration ID of the customer profile. You can get the `integrationId` of a profile using:
+
+          - A customer session integration ID with the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.
+
+          - The Management API with the [List application''s customers](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationCustomers) endpoint.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/points:
+    get:
+      operationId: getLoyaltyProgramProfilePoints
+      summary: List customer's unused loyalty points
+      description: 'Get paginated results of loyalty points for a given Integration ID in the specified profile-based loyalty program. This endpoint returns only the balances of unused points linked to a customer profile.
+
+
+        You can filter points by status:
+
+        - `active`: Points ready to be redeemed.
+
+        - `pending`: Points with a start date in the future.
+
+        - `expired`: Points with an expiration date in the past.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter points based on their status.
+        example: active
+        schema:
+          type: string
+          enum:
+          - active
+          - pending
+          - expired
+          default: active
+      - name: subledgerId
+        in: query
+        required: false
+        description: 'Filter the results by a list of subledger IDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?subledgerId=id1&subledgerId=id2`.
+
+
+          The response contains only data associated with the specified subledgers.
+
+          '
+        example:
+        - subledger1
+        - subledger2
+        schema:
+          type: array
+          items:
+            type: string
+      - name: customerSessionIDs
+        in: query
+        required: false
+        description: "Filter the results by a list of customer session IDs. \n\nTo include multiple IDs, repeat the parameter for each one, for example, \n`?customerSessionIDs=id1&customerSessionIDs=id2`.\n\nThe response contains only data associated with the specified sessions.\n"
+        example:
+        - session_integration_id_1
+        - session_integration_id_1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: transactionUUIDs
+        in: query
+        required: false
+        description: "Filter the results by a list of transaction UUIDs.\n\nTo include multiple IDs, repeat the parameter for each one, for example, \n`?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.\n\nThe response contains only data associated with the specified transactions.\n"
+        example:
+        - dc608634-0100-40d9-b371-e964476bbe0f
+        - 9e829590-05cf-407b-b4c0-5f28468a81e1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - name: sort
+        in: query
+        required: false
+        description: "The field by which results should be sorted. You can enter one of the following values:\n\n- `startDate`: Sorts the results by the start date of the points.\n- `expiryDate`: Sorts the results by the expiry date of the points.\n\nBy default, results are sorted in ascending order. \nTo sort them in descending order, prefix the field name with `-`.\n\n**Note:** You can only sort by one field at a time.\n"
+        example: startDate
+        schema:
+          type: string
+          enum:
+          - startDate
+          - expiryDate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LedgerPointsEntryIntegrationAPI'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/activate_points:
+    post:
+      operationId: activateLoyaltyPoints
+      summary: Activate loyalty points
+      description: "Activate points when a defined action occurs.\n\nYou can activate pending points using one of the following parameters:\n- `sessionId`: Activates all points earned in the specified session. \n- `transactionUUIDs`: Activates points earned in the transactions specified by the \ngiven UUIDs. \n"
+      tags:
+      - Loyalty
+      security:
+      - api_key_v1: []
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: 'The identifier for the loyalty program. You can get the ID with the [List loyalty
+
+          programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms)
+
+          endpoint.
+
+          '
+        example: 33
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/ActivateLoyaltyPoints'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivateLoyaltyPointsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/ledger_balances:
+    get:
+      operationId: getLoyaltyLedgerBalances
+      summary: Get customer's loyalty balances (Management API)
+      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nRetrieve loyalty ledger balances for the given Integration ID in the\nspecified loyalty program.\n\nYou can filter balances by date and subledger ID, and include tier-related\ninformation in the response.\n\n> [!note] **Note**\n> - For most use cases, especially real-time integrations, use the Integration API endpoint:\n    [Get customer's loyalty balances](https://docs.talon.one/integration-api#tag/Loyalty/operation/getLoyaltyBalances).\n> - If no filtering options are applied, you retrieve all loyalty balances on the current date for the given integration ID.\n\nLoyalty balances are calculated when Talon.One receives your request using\nthe points stored in our database, so retrieving a large number of balances\nat once can impact performance.\n\nFor more information, see:\n\n- [Managing card-based loyalty program\ndata](https://docs.talon.one/docs/product/loyalty-programs/card-based/managing-loyalty-cards)\n\n- [Managing profile-based loyalty program\ndata](https://docs.talon.one/docs/product/loyalty-programs/profile-based/managing-pb-lp-data)\n"
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: endDate
+        in: query
+        required: false
+        description: 'Used to return expired, active, and pending loyalty balances before this
+
+          timestamp. You can enter any past, present, or future timestamp value.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: subledgerId
+        in: query
+        required: false
+        description: The ID of the subledger used to filter the data. Leave this value empty ("") to query the main ledger.
+        example: subledger1
+        schema:
+          type: string
+      - name: includeTiers
+        in: query
+        required: false
+        description: 'Indicates whether tier information is included in the response.
+
+
+          When set to `true`, the response includes information about the current tier and the number of points required to move to next tier.
+
+          '
+        example: false
+        schema:
+          type: boolean
+          default: false
+      - name: includeProjectedTier
+        in: query
+        required: false
+        description: 'Indicates whether the customer''s projected tier information is included in the response.
+
+
+          When set to `true`, the response includes information about the customer''s active points and the name of the projected tier.
+
+
+          **Note** We recommend filtering by `subledgerId` for better performance.
+
+          '
+        example: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyBalancesWithTiers'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/ledger_transactions:
+    get:
+      operationId: getLoyaltyProgramProfileLedgerTransactions
+      summary: List customer's loyalty transactions (Management API)
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve paginated results of loyalty transaction logs for the given
+
+        Integration ID in the specified loyalty program.
+
+
+        You can filter transactions by date or by ledger (subledger or main ledger). If no filters are applied, the last 50
+
+        loyalty transactions for the given integration ID are returned.
+
+
+        > [!note] **Note**
+
+        > - For most use cases, especially real-time integrations, use the Integration API endpoint:
+
+        >   [List customer''s loyalty transactions](https://docs.talon.one/integration-api#tag/Loyalty/operation/getLoyaltyProgramProfileTransactions).
+
+        > - To retrieve all loyalty program transaction logs in a given loyalty program, use the
+
+        >   [List loyalty program transactions](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyProgramTransactions) endpoint.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 33
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: customerSessionIDs
+        in: query
+        required: false
+        description: 'Filter the results by a list of customer session IDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?customerSessionIDs=id1&customerSessionIDs=id2`.
+
+
+          The response contains only data associated with the specified sessions.
+
+          '
+        example:
+        - session_integration_id_1
+        - session_integration_id_1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: transactionUUIDs
+        in: query
+        required: false
+        description: 'Filter the results by a list of transaction UUIDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.
+
+
+          The response contains only data associated with the specified transactions.
+
+          '
+        example:
+        - dc608634-0100-40d9-b371-e964476bbe0f
+        - 9e829590-05cf-407b-b4c0-5f28468a81e1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: subledgerId
+        in: query
+        required: false
+        description: The ID of the subledger used to filter the data. Leave this value empty ("") to query the main ledger.
+        example: subledger1
+        schema:
+          type: string
+      - name: loyaltyTransactionType
+        in: query
+        required: false
+        description: 'Filter results by loyalty transaction type:
+
+          - `manual`: Loyalty transaction that was done manually.
+
+          - `session`: Loyalty transaction that resulted from a customer session.
+
+          - `import`: Loyalty transaction that was imported from a CSV file.
+
+          '
+        example: manual
+        schema:
+          type: string
+          enum:
+          - manual
+          - session
+          - import
+      - name: startDate
+        in: query
+        required: false
+        description: 'Date and time from which results are returned. Results are filtered by
+
+          transaction creation date.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: false
+        description: 'Date and time by which results are returned. Results are filtered by
+
+          transaction creation date.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - name: awaitsActivation
+        in: query
+        required: false
+        description: 'If `true`: Filters results to include only point transactions that have action-based activation and have not expired.
+
+
+          If `false`: Returns a `400` response.
+
+          '
+        example: true
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LedgerTransactionLogEntryIntegrationAPI'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs:
+    get:
+      operationId: getLoyaltyPrograms
+      summary: List loyalty programs
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List the loyalty programs of the account.'
+      tags:
+      - Loyalty
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LoyaltyProgram'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}:
+    get:
+      operationId: getLoyaltyProgram
+      summary: Get loyalty program
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get the specified [loyalty
+
+        program](https://docs.talon.one/docs/product/loyalty-programs/overview).
+
+
+        To list all loyalty programs in your Application, use [List loyalty
+
+        programs](#tag/Loyalty/operation/getLoyaltyPrograms).
+
+
+        To list the loyalty programs that a customer profile is part of, use
+
+        [List customer data](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/getCustomerInventory).
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyProgram'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/dashboard:
+    get:
+      operationId: getDashboardStatistics
+      summary: Get statistics for loyalty dashboard
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the statistics displayed on the specified loyalty program''s
+
+        dashboard, such as the total active points, pending points, spent points, and expired
+
+        points.
+
+
+        > [!important] The returned data does not include the current day. All statistics
+
+        > are updated daily at 11:59 PM in the loyalty program time zone.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      - name: subledgerId
+        in: query
+        required: false
+        description: The ID of the subledger by which we filter the data.
+        example: subledger1
+        schema:
+          type: string
+      - name: rangeStart
+        in: query
+        required: true
+        description: 'Only return results from after this timestamp.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: rangeEnd
+        in: query
+        required: true
+        description: 'Only return results from before this timestamp.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LoyaltyDashboardData'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/import_points:
+    post:
+      operationId: importLoyaltyPoints
+      summary: Import loyalty points
+      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nUpload a CSV file containing the loyalty points you want to import into a\ngiven loyalty program.\n\nSend the file as multipart data.\n\nDepending on the type of loyalty program, you can import points into a given\ncustomer profile or loyalty card.\n\nThe CSV file contains the following columns:\n\n- `customerprofileid` (optional): For profile-based loyalty programs, the\n  integration ID of the customer profile where the loyalty points are\n  imported.\n  **Note**: If the customer profile does not exist, it will be created. The profile will not be visible in any Application\n  until a session or profile update is received for that profile.\n- `identifier` (optional): For card-based loyalty programs, the identifier of the loyalty card where the loyalty points are imported.\n- `amount`: The amount of points to award to the customer profile.\n- `startdate` (optional): The earliest date when the points can be redeemed. The points are `active` from this date until the expiration date.\n  This parameter accepts one of the following values:\n    - A timestamp string in RFC3339 format.\n    - `immediate`\n    - `on_action`\n  **Note**: Empty or missing values default to `immediate`.\n- `expirydate` (optional): The latest date when the points can be redeemed.\n  The points are `expired` after this date.\n  **Note**: It must be an RFC3339 timestamp string or string `unlimited`. Empty or missing values are considered `unlimited`.\n  If passed, `validityDuration` should be omitted.\n- `validityDuration` (optional): The duration for which the points remain active, relative to the\n  activation date. The time format is an **integer** followed by one letter indicating the time unit.<br />\n  Examples: `30s`, `40m`, `1h`, `5D`, `7W`, `10M`, `15Y`.\n\n  Available units:\n\n  - `s`: seconds\n  - `m`: minutes\n  - `h`: hours\n  - `D`: days\n  - `W`: weeks\n  - `M`: months\n  - `Y`: years\n\n  You can round certain units up or down:\n\n  - `_D` for rounding down days only. Signifies the start of the day.\n  - `_U` for rounding up days, weeks, months and years. Signifies the end of\n  the day, week, month or year.\n\n  If passed, `expirydate` should be omitted.\n- `subledgerid` (optional): The ID of the subledger that should received the points.\n- `reason` (optional): The reason why these points are awarded.\n\nYou can use the time zone of your choice. It is converted to UTC internally by Talon.One.\n\n> [!note] For existing customer profiles and loyalty cards, the imported\n> points are added to any previous active or pending points, depending on the\n> value provided for `startdate`. If `startdate` matches the current date, the\n> imported points are _active_. If it is later, the points are _pending_ until\n> the date provided for `startdate` is reached.\n\n> [!note] We recommend limiting your file size to 500 MB.\n\n## Example for profile-based programs\n\n```text\ncustomerprofileid,amount,startdate,expirydate,subledgerid,reason\nURNGV8294NV,100,2009-11-10T23:00:00Z,2009-11-11T23:00:00Z,subledger1,appeasement\n```\n\n## Example for card-based programs\n\n```text\nidentifier,amount,startdate,expirydate,subledgerid,reason\nsummer-loyalty-card-0543,100,2009-11-10T23:00:00Z,2009-11-11T23:00:00Z,subledger1,appeasement\n```\n"
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      - name: notificationsEnabled
+        in: query
+        description: 'Indicates whether the points import triggers notifications about its effects. For example, a notification is sent if the import upgrades a customer''s tier or offsets their negative points balance.
+
+
+          This parameter is optional and defaults to `true`.
+
+          '
+        example: true
+        required: false
+        schema:
+          type: boolean
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/import_customers_tiers:
+    post:
+      operationId: importLoyaltyCustomersTiers
+      summary: Import customers into loyalty tiers
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Upload a CSV file containing existing customers to be assigned to existing
+
+        tiers.
+
+
+        Send the file as multipart data.
+
+
+        > [!important] This endpoint only works with loyalty programs with advanced
+
+        > tiers (with expiration and downgrade policy) feature enabled.
+
+
+        The CSV file should contain the following columns:
+
+
+        - `subledgerid` (optional): The ID of the subledger. If this field is empty,
+
+        the main ledger will be used.
+
+        - `customerprofileid`: The integration ID of the customer profile to whom
+
+        the tier should be assigned.
+
+        - `tiername`: The name of an existing tier to assign to the customer.
+
+        - `expirydate`: The expiry date of the tier when the tier is
+
+        reevaluated. It should be a future date.
+
+
+        About customer assignment to a tier:
+
+
+        - If the customer isn''t already in a tier, the customer is assigned to the
+
+        specified tier during the tier import.
+
+        - If the customer is already in the tier that''s specified in the CSV file,
+
+        only the expiry date is updated.
+
+
+        > [!note] We recommend importing customers into the tier that matches their
+
+        > current balance. If a customer is imported into a lower tier, any session
+
+        > or points update automatically upgrades them to the tier they qualify for.
+
+
+        To update a customer''s tier, you can
+
+        [add](/management-api#tag/Loyalty/operation/addLoyaltyPoints) or
+
+        [deduct](/management-api#tag/Loyalty/operation/removeLoyaltyPoints) their
+
+        loyalty points.
+
+
+        You can use the time zone of your choice. It is converted to UTC internally
+
+        by Talon.One.
+
+
+        > [!note] We recommend limiting your file size to 500 MB.
+
+
+        ## Example
+
+
+        ```csv
+
+        subledgerid,customerprofileid,tiername,expirydate
+
+        SUB1,alexa,Gold,2024-03-21T07:32:14Z
+
+        ,george,Silver,2025-04-16T21:12:37Z
+
+        SUB2,avocado,Bronze,2026-05-03T11:47:01Z
+
+        ```
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/import_join_dates:
+    post:
+      operationId: importLoyaltyJoinDates
+      summary: Import join dates for a loyalty program
+      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nUpload a CSV file containing customer profile IDs and their join dates for the\nspecified loyalty program. Send the file as multipart data.\n\n> [!important] This endpoint only works with profile-based loyalty programs.\n\nThe CSV file **must** contain the following columns:\n\n- `customerprofileid`: The integration ID of the customer profile whose join\n  date you want to update.\n- `newjoindate`: The new join date for the customer in RFC3339 format. You\n  can use the time zone of your choice. It is converted to UTC internally\n  by Talon.One.\n\n**Note**:\n- Customer profiles must already exist. If a referenced profile does not exist, the import fails with a `400` error.\n- If a join date already exists for a profile, the uploaded date replaces it.\n\n> [!note] We recommend limiting your file size to 500 MB.\n\n## Example\n\n```csv\ncustomerprofileid,newjoindate\ncustomer1,2024-03-21T07:32:14Z\ncustomer2,2025-04-16T21:12:37Z\ncustomer3,2026-05-03T11:47:01Z\n```\n"
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the profile-based loyalty program. You can get the ID with the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}:
+    get:
+      operationId: getLoyaltyPoints
+      summary: Get customer's full loyalty ledger
+      deprecated: true
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get the loyalty ledger for this profile integration ID.
+
+
+        To get the `integrationId` of the profile from a `sessionId`, use the
+
+        [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.
+
+
+        **Important:** To get loyalty transaction logs for a given Integration ID in a loyalty program,
+
+        we recommend using the Integration API''s [Get customer''s loyalty logs](https://docs.talon.one/integration-api#tag/Loyalty/operation/getLoyaltyProgramProfileTransactions).
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyLedger'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/add_points:
+    put:
+      operationId: addLoyaltyPoints
+      summary: Add points to customer profile
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Add points in the specified loyalty program for the given customer.
+
+
+        To get the `integrationId` of the profile from a `sessionId`, use the
+
+        [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/AddLoyaltyPoints'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/deduct_points:
+    put:
+      operationId: removeLoyaltyPoints
+      summary: Deduct points from customer profile
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Deduct points from the specified loyalty program and specified customer
+
+        profile.
+
+
+        > [!note] **Note**
+
+        > - Only active points can be deducted.
+
+        > - Only pending points are rolled back when a session is cancelled or reopened.
+
+
+        To get the `integrationId` of the profile from a `sessionId`, use the
+
+        [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+
+        endpoint.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/DeductLoyaltyPoints'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/export_log:
+    get:
+      operationId: exportLoyaltyLedger
+      summary: Export customer's transaction logs
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing a customer''s transaction logs in the loyalty
+
+        program.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+
+        The generated file can contain the following columns:
+
+
+        - `customerprofileid`: The ID of the profile.
+
+        - `customersessionid`: The ID of the customer session.
+
+        - `rulesetid`: The ID of the rule set.
+
+        - `rulename`: The name of the rule.
+
+        - `programid`: The ID of the loyalty program.
+
+        - `type`: The transaction type, such as `addition` or `subtraction`.
+
+        - `name`: The reason for the transaction.
+
+        - `subledgerid`: The ID of the subledger, when applicable.
+
+        - `startdate`: The start date of the program.
+
+        - `expirydate`: The expiration date of the program.
+
+        - `id`: The ID of the transaction.
+
+        - `created`: The timestamp of the creation of the loyalty program.
+
+        - `amount`: The number of points in that transaction.
+
+        - `archived`: Whether the session related to the transaction is archived.
+
+        - `campaignid`: The ID of the campaign.
+
+        - `flags`: The flags of the transaction, when applicable. The `createsNegativeBalance` flag indicates whether the transaction results in a negative balance.
+
+        - `transactionUUID`: Unique identifier of the transaction in the UUID format.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: rangeStart
+        in: query
+        required: true
+        description: 'Only return results from after this timestamp.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: rangeEnd
+        in: query
+        required: true
+        description: 'Only return results from before this timestamp.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: dateFormat
+        in: query
+        description: Determines the format of dates in the export document.
+        example: excel
+        required: false
+        schema:
+          type: string
+          enum:
+          - excel
+          - ISO8601
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'customerprofileid,customersessionid,rulesetid,rulename,programid,type,name,subledgerid,startdate,expirydate,id,created,amount,archived,campaignid,flags,transactionuuid,validityduration
+
+                    8NHOS78H,06b0fafb-ccbf-42c7-b44b-d858e8b525022,1691,test,37,subtraction,10% of current total,,immediate,unlimited,60803,2022-11-29 16:16:10,100.00,false,5,createsNegativeBalance,8c122fb1-1874-4ee2-b7e2-e7b5f8b7b801,""
+
+                    EB780RDN,06b0fafb-ccbf-42c7-b44b-d858e8b525022,1691,test,37,addition,Reimbursed loyalty points,,on_action,unlimited,60804,2022-11-29 16:16:23,100.00,false,5,,8c122fb1-1874-4ee2-b7e2-e7b5f8b7b801,"30D"
+
+                    '
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/export_join_dates:
+    get:
+      operationId: exportLoyaltyJoinDates
+      summary: Export customers' loyalty program join dates
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing the join dates of all customers in the loyalty program.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+
+        The generated file can contain the following columns:
+
+
+        - `loyaltyProgramID`: The ID of the loyalty program.
+
+        - `profileIntegrationID`: The integration ID of the customer profile.
+
+        - `joinDate`: The customer''s loyalty program join date in RFC3339 format.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier of the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'loyaltyProgramID,profileIntegrationID,joinDate
+
+                    40,8786NTHSAO8,2024-05-29T15:04:05Z
+
+                    40,2735HATHOH8,2023-11-13T07:12:34Z
+
+                    '
+        '400':
+          description: Bad request
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/export_customers_tiers:
+    get:
+      operationId: exportCustomersTiers
+      summary: Export customers' tier data
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing the tier information for customers of the specified loyalty program.
+
+
+        The generated file contains the following columns:
+
+
+        - `programid`: The identifier of the loyalty program. It is displayed in your Talon.One deployment URL.
+
+        - `subledgerid`: The ID of the subledger associated with the loyalty program. This column is empty if the loyalty program has no subledger. In this case, refer to the export file name to get the ID of the loyalty program.
+
+        - `customerprofileid`: The ID used to integrate customer profiles with the loyalty program.
+
+        - `tiername`: The name of the tier.
+
+        - `startdate`: The tier start date in RFC3339.
+
+        - `expirydate`: The tier expiry date in RFC3339.
+
+
+        You can filter the results by providing the following optional input parameters:
+
+
+        - `subledgerIds` (optional): Filter results by an array of subledger IDs. If no value is provided, all subledger data for the specified loyalty program will be exported.
+
+        - `tierNames` (optional): Filter results by an array of tier names. If no value is provided, all tier data for the specified loyalty program will be exported.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - name: subledgerIds
+        in: query
+        required: false
+        description: An array of subledgers IDs to filter the export by.
+        example:
+        - subledger1
+        - subledger2
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: tierNames
+        in: query
+        required: false
+        description: An array of tier names to filter the export by.
+        example:
+        - tier1
+        - tier2
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'programid,subledgerid,customerprofileid,tiername,startdate,expirydate
+
+                    1,SUB1,Dinesh,Golden,2023-08-02T15:04:05Z07:00,2024-08-02T15:04:05Z07:00
+
+                    1,SUB2,Gilfoyle,Silver,2023-03-21T03:45:12Z05:00,2026-03-21T03:45:12Z05:00
+
+                    '
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/statistics:
+    get:
+      operationId: getLoyaltyStatistics
+      summary: Get loyalty program statistics
+      deprecated: true
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        > [warning] This endpoint is deprecated.
+
+
+        To retrieve statistics for a loyalty program, use the
+
+        [Get statistics for loyalty dashboard](/management-api#tag/Loyalty/operation/getDashboardStatistics)
+
+        endpoint.
+
+
+        Retrieve the statistics of the specified loyalty program, such as the
+
+        total active points, pending points, spent points, and expired points.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltyDashboardData'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/export_customer_balances:
+    get:
+      operationId: exportLoyaltyBalances
+      summary: Export customer loyalty balances
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing the balance of each customer in the loyalty
+
+        program.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+
+        The generated file can contain the following columns:
+
+
+        - `loyaltyProgramID`: The ID of the loyalty program.
+
+        - `loyaltySubledger`: The name of the subledger, when applicable.
+
+        - `profileIntegrationID`: The integration ID of the customer profile.
+
+        - `currentBalance`: The current point balance.
+
+        - `pendingBalance`: The number of pending points.
+
+        - `expiredBalance`: The number of expired points.
+
+        - `spentBalance`: The number of spent points.
+
+        - `currentTier`: The tier that the customer is in at the time of the export.
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - name: endDate
+        in: query
+        required: false
+        description: 'Used to return expired, active, and pending loyalty balances before this
+
+          timestamp. You can enter any past, present, or future timestamp value.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          > - This parameter does not affect the `currentTier` field in the CSV file, which shows the customer''s tier at the time of export.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: balances
+        in: query
+        required: false
+        description: 'Filters which balance fields are included in the CSV export. `currentBalance`
+
+          is always returned.
+
+
+          By default, all balance fields are included. When this parameter is provided, only the
+
+          listed fields contain values and the rest are returned empty.
+
+
+          Accepted values:
+
+          - `currentBalance`
+
+          - `pendingBalance`
+
+          - `expiredBalance`
+
+          - `spentBalance`
+
+          - `negativeBalance`
+
+
+          Multiple values must be provided as a comma-separated list.
+
+          '
+        example: currentBalance,pendingBalance
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'loyaltyProgramID,loyaltySubledger,profileIntegrationID,currentBalance,pendingBalance,expiredBalance,spentBalance,currentTier
+
+                    40,,8786NTHSAO8,10.00,0.00,0.00,0.00,First
+
+                    40,,2735HATHOH8,20.00,0.00,0.00,0.00,First
+
+                    '
+        '400':
+          description: Bad request
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/export_customer_balance:
+    get:
+      operationId: exportLoyaltyBalance
+      summary: Export customer loyalty balance to CSV
+      deprecated: true
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        To export customer loyalty balances to CSV, use the [Export customer loyalty
+
+        balances to CSV](/management-api#tag/Loyalty/operation/exportLoyaltyBalances) endpoint.
+
+
+        Download a CSV file containing the balance of each customer in the loyalty
+
+        program.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        description: The identifier for the loyalty program.
+        example: '45'
+        required: true
+        schema:
+          type: string
+      - name: endDate
+        in: query
+        required: false
+        description: 'Used to return expired, active, and pending loyalty balances before this
+
+          timestamp. You can enter any past, present, or future timestamp value.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: balances
+        in: query
+        required: false
+        description: 'Filters which balance fields are included in the CSV export. `currentBalance`
+
+          is always returned.
+
+
+          By default, all balance fields are included. When this parameter is provided, only the
+
+          listed fields contain values and the rest are returned empty.
+
+
+          Accepted values:
+
+          - `currentBalance`
+
+          - `pendingBalance`
+
+          - `expiredBalance`
+
+          - `spentBalance`
+
+          - `negativeBalance`
+
+
+          Multiple values must be provided as a comma-separated list.
+
+          '
+        example: currentBalance,pendingBalance
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+        '400':
+          description: Bad request
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/loyalty_programs/{loyaltyProgramId}/transactions:
+    get:
+      operationId: getLoyaltyProgramTransactions
+      summary: List loyalty program transactions
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve loyalty program transaction logs in a given loyalty program with
+
+        filtering options applied. Manual and imported transactions are also
+
+        included.
+
+
+        > [!note] **Note**
+
+        > - If no filters are applied, the last 50 loyalty transactions for the given loyalty program are returned.
+
+        > - To get loyalty transaction logs for a given Integration ID in
+
+        >   a loyalty program, we recommend using the Integration API''s [Get customer''s loyalty
+
+        >   logs](https://docs.talon.one/integration-api#tag/Loyalty/operation/getLoyaltyProgramProfileTransactions).
+
+        '
+      tags:
+      - Loyalty
+      parameters:
+      - name: loyaltyProgramId
+        in: path
+        required: true
+        description: 'Identifier of the loyalty program. You can get the ID with
+
+          the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+
+          '
+        example: 8
+        schema:
+          type: integer
+      - name: loyaltyTransactionType
+        in: query
+        required: false
+        description: 'Filter results by loyalty transaction type:
+
+          - `manual`: Loyalty transaction that was done manually.
+
+          - `session`: Loyalty transaction that resulted from a customer session.
+
+          - `import`: Loyalty transaction that was imported from a CSV file.
+
+          '
+        example: manual
+        schema:
+          type: string
+          enum:
+          - manual
+          - session
+          - import
+      - name: subledgerId
+        in: query
+        required: false
+        description: The ID of the subledger by which we filter the data.
+        example: subledger1
+        schema:
+          type: string
+      - name: customerSessionIDs
+        in: query
+        required: false
+        description: 'Filter the results by a list of customer session IDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?customerSessionIDs=id1&customerSessionIDs=id2`.
+
+
+          The response contains only data associated with the specified sessions.
+
+          '
+        example:
+        - session_integration_id_1
+        - session_integration_id_1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: transactionUUIDs
+        in: query
+        required: false
+        description: 'Filter the results by a list of transaction UUIDs.
+
+
+          To include multiple IDs, repeat the parameter for each one, for example,
+
+          `?transactionUUIDs=uuid1&transactionUUIDs=uuid2`.
+
+
+          The response contains only data associated with the specified transactions.
+
+          '
+        example:
+        - dc608634-0100-40d9-b371-e964476bbe0f
+        - 9e829590-05cf-407b-b4c0-5f28468a81e1
+        schema:
+          type: array
+          items:
+            type: string
+      - name: startDate
+        in: query
+        required: false
+        description: 'Date and time from which results are returned. Results are filtered by
+
+          transaction creation date.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: false
+        description: 'Date and time by which results are returned. Results are filtered by
+
+          transaction creation date.
+
+
+          > [!note] **Note**
+
+          > - This must be an RFC3339 timestamp string.
+
+          > - You can include a time component in your string, for example, `T23:59:59` to specify the end of the day. The time zone setting
+
+          >   considered is `UTC`. If you do not include a time component, a default time value of `T00:00:00` (midnight) in `UTC` is considered.
+
+          '
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - name: awaitsActivation
+        in: query
+        required: false
+        description: 'If `true`: Filters results to include only point transactions that have action-based activation and have not expired.
+
+
+          If `false`: Returns a `400` response.
+
+          '
+        example: true
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LoyaltyProgramTransaction'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+components:
+  schemas:
+    Tier:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          description: The internal ID of the tier.
+          example: 11
+        name:
+          type: string
+          description: The name of the tier.
+          example: bronze
+        startDate:
+          type: string
+          format: date-time
+          description: Date and time when the customer moved to this tier. This value uses the loyalty program's time zone setting.
+          example: 2021-05-03T12:32:00Z07:00
+        expiryDate:
+          type: string
+          format: date-time
+          description: Date when tier level expires in the RFC3339 format (in the Loyalty Program's timezone).
+          example: 2022-08-02T15:04:05Z07:00
+        downgradePolicy:
+          type: string
+          enum:
+          - one_down
+          - balance_based
+          description: "The policy that defines how customer tiers are downgraded in the loyalty program after tier reevaluation.\n - `one_down`: If the customer doesn't have enough points to stay in the current tier, they are downgraded by one tier.\n - `balance_based`: The customer's tier is reevaluated based on the amount of active points they have at the moment.\n"
+    LedgerPointsEntryIntegrationAPI:
+      type: object
+      description: Loyalty profile points with start and expiry dates.
+      required:
+      - id
+      - transactionUUID
+      - created
+      - programId
+      - name
+      - startDate
+      - expiryDate
+      - subledgerId
+      - amount
+      properties:
+        id:
+          type: integer
+          description: ID of the transaction that adds loyalty points.
+          example: 123
+        transactionUUID:
+          type: string
+          description: Unique identifier of the transaction in the UUID format.
+          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
+        created:
+          type: string
+          format: date-time
+          description: Date and time the loyalty points were added.
+          example: 2022-01-02T15:04:05Z07:00
+        programId:
+          type: integer
+          description: ID of the loyalty program.
+          example: 324
+        customerSessionId:
+          type: string
+          description: ID of the customer session where points were added.
+          maxLength: 255
+          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
+        name:
+          type: string
+          description: Name or reason of the transaction that adds loyalty points.
+          maxLength: 255
+          example: Reward 10% points of a purchase's current total
+        startDate:
+          type: string
+          description: "When points become active. Possible values:\n  - `immediate`: Points are active immediately.\n  - `timestamp value`: Points become active at a given date and time.\n"
+          maxLength: 64
+          example: 2022-01-02T15:04:05Z07:00
+        expiryDate:
+          type: string
+          description: "Date when points expire. Possible values are:\n  - `unlimited`: Points have no expiration date.\n  - `timestamp value`: Points expire on the given date and time.\n"
+          example: 2022-08-02T15:04:05Z07:00
+        subledgerId:
+          type: string
+          description: ID of the subledger.
+          maxLength: 64
+          example: sub-123
+        amount:
+          type: number
+          description: Amount of loyalty points added in the transaction.
+          example: 10.25
+        validityDuration:
+          type: string
+          description: 'The duration for which the points remain active, relative to the  activation date.
+
+
+            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
+
+            '
+          example: 30D
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    LoyaltyBalance:
+      type: object
+      description: Point balance of a ledger in the Loyalty Program.
+      properties:
+        activePoints:
+          type: number
+          title: Current Balance
+          description: Total amount of points awarded to this customer and available to spend.
+          example: 286
+        pendingPoints:
+          type: number
+          title: Total pending points
+          description: Total amount of points awarded to this customer but not available until their start date.
+          example: 50
+        spentPoints:
+          type: number
+          title: Total spent points
+          description: Total amount of points already spent by this customer.
+          example: 150
+        expiredPoints:
+          type: number
+          title: Total expired points
+          description: Total amount of points awarded but never redeemed. They cannot be used anymore.
+          example: 286
+        negativePoints:
+          type: number
+          title: Current negative balance
+          description: Total amount of negative points. This implies that `activePoints` is `0`.
+          example: 286
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    LoyaltyBalanceWithTier:
+      allOf:
+      - $ref: '#/components/schemas/LoyaltyBalance'
+      - type: object
+        properties:
+          currentTier:
+            $ref: '#/components/schemas/Tier'
+            description: Customer's current tier.
+            example: bronze
+          projectedTier:
+            $ref: '#/components/schemas/ProjectedTier'
+          pointsToNextTier:
+            type: number
+            description: The number of points required to move up a tier.
+            example: 20
+          nextTierName:
+            type: string
+            description: 'The name of the next higher tier level in the loyalty program.
+
+
+              **Note**:
+
+              - Returns `null` if the customer has reached the highest available tier.
+
+              - Returns the lowest level tier name if the customer is not currently assigned to any tier.
+
+              '
+            example: Silver
+    ProjectedTier:
+      type: object
+      required:
+      - projectedActivePoints
+      properties:
+        projectedActivePoints:
+          type: number
+          description: The active points of the customer when their current tier expires.
+          example: 198
+        stayInTierPoints:
+          type: number
+          description: 'The number of points the customer needs to stay in the current tier.
+
+
+            **Note**: This is included in the response when the customer is projected to be downgraded.
+
+            '
+          example: 2
+        projectedTierName:
+          type: string
+          description: The name of the tier the user will enter once their current tier expires.
+          example: Tier 1
+    LedgerTransactionLogEntryIntegrationAPI:
+      type: object
+      description: Log entry for a given loyalty profile transaction.
+      required:
+      - transactionUUID
+      - created
+      - programId
+      - type
+      - name
+      - startDate
+      - expiryDate
+      - subledgerId
+      - amount
+      - id
+      properties:
+        transactionUUID:
+          type: string
+          description: Unique identifier of the transaction in the UUID format.
+          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
+        created:
+          type: string
+          format: date-time
+          description: Date and time the loyalty transaction occurred.
+          example: 2022-01-02T15:04:05Z07:00
+        programId:
+          type: integer
+          description: ID of the loyalty program.
+          example: 324
+        customerSessionId:
+          type: string
+          description: ID of the customer session where the transaction occurred.
+          maxLength: 255
+          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
+        storeIntegrationId:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: The integration ID of the store where the transaction occurred. Only set for transactions created by a customer session or event that referenced a store.
+          example: STORE-001
+        type:
+          type: string
+          enum:
+          - addition
+          - subtraction
+          description: "Type of transaction. Possible values:\n  - `addition`: Signifies added points.\n  - `subtraction`: Signifies deducted points.\n"
+          maxLength: 255
+          example: addition
+        name:
+          type: string
+          description: Name or reason of the loyalty ledger transaction.
+          maxLength: 255
+          example: Reward 10% points of a purchase's current total
+        startDate:
+          type: string
+          description: "When points become active. Possible values:\n  - `immediate`: Points are immediately active.\n  - `on_action`: Points become active based on the customer's action.\n  - a timestamp value: Points become active at a given date and time.\n"
+          maxLength: 64
+          example: 2022-01-02T15:04:05Z07:00
+        expiryDate:
+          type: string
+          description: "Date when points expire. Possible values are:\n  - `unlimited`: Points have no expiration date.\n  - `timestamp value`: Points expire on the given date.\n"
+          example: 2022-08-02T15:04:05Z07:00
+        subledgerId:
+          type: string
+          description: ID of the subledger.
+          maxLength: 64
+          example: sub-123
+        amount:
+          type: number
+          description: Amount of loyalty points added or deducted in the transaction.
+          example: 10.25
+        id:
+          type: integer
+          description: ID of the loyalty ledger transaction.
+          example: 123
+        rulesetId:
+          type: integer
+          description: The ID of the ruleset containing the rule that triggered this effect.
+          example: 11
+        ruleName:
+          type: string
+          description: The name of the rule that triggered this effect.
+          example: Add 2 points
+        flags:
+          $ref: '#/components/schemas/LoyaltyLedgerEntryFlags'
+          description: The flags of the transaction, when applicable. The `createsNegativeBalance`  flag indicates whether the transaction results in a negative balance.
+        validityDuration:
+          type: string
+          description: 'The duration for which the points remain active, relative to the  activation date.
+
+
+            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
+
+            '
+          example: 30D
+    ActivateLoyaltyPointsResponse:
+      type: object
+      properties:
+        ledgerEntries:
+          type: array
+          description: Updated ledger entries after activation.
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+    LoyaltyLedgerEntry:
+      type: object
+      description: A single row of the ledger, describing one addition or deduction.
+      required:
+      - programID
+      - type
+      - amount
+      - created
+      - name
+      - subLedgerID
+      properties:
+        created:
+          type: string
+          format: date-time
+          example: '2021-07-20T22:00:00Z'
+        programID:
+          type: integer
+          example: 5
+        customerProfileID:
+          type: string
+          example: URNGV8294NV
+        cardID:
+          type: integer
+          example: 241
+        customerSessionID:
+          type: string
+          example: t2gy5s-47274
+        eventID:
+          type: integer
+          example: 5
+        type:
+          type: string
+          description: 'The type of the ledger transaction. Possible values are:
+
+            - `addition`
+
+            - `subtraction`
+
+            - `expire`
+
+            - `expiring` (for expiring points ledgers)
+
+            '
+          example: addition
+        amount:
+          type: number
+          example: 100
+        startDate:
+          type: string
+          format: date-time
+          example: '2021-07-20T22:00:00Z'
+        expiryDate:
+          type: string
+          format: date-time
+          example: '2022-07-20T22:00:00Z'
+        name:
+          type: string
+          description: A name referencing the condition or effect that added this entry, or the specific name provided in an API call.
+          example: Add points on purchase
+        subLedgerID:
+          type: string
+          description: This specifies if we are adding loyalty points to the main ledger or a subledger.
+          example: mysubledger
+        userID:
+          type: integer
+          description: This is the ID of the user who created this entry, if the addition or subtraction was done manually.
+          example: 499
+        archived:
+          type: boolean
+          description: Indicates if the entry belongs to the archived session.
+          example: false
+        flags:
+          $ref: '#/components/schemas/LoyaltyLedgerEntryFlags'
+          description: A map of flags providing additional details about the entry.
+        validityDuration:
+          type: string
+          description: 'The duration for which the points remain active, relative to the  activation date.
+
+
+            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
+
+            '
+          example: 30D
+    LoyaltyBalancesWithTiers:
+      type: object
+      description: List of loyalty balances for a ledger and its subledgers.
+      properties:
+        balance:
+          $ref: '#/components/schemas/LoyaltyBalanceWithTier'
+          title: Loyalty points balance of a ledger
+        subledgerBalances:
+          type: object
+          description: Map of the loyalty balances of the subledgers of a ledger.
+          additionalProperties:
+            $ref: '#/components/schemas/LoyaltyBalanceWithTier'
+          example:
+            mysubledger:
+              activePoints: 286
+              pendingPoints: 50
+              spentPoints: 150
+              expiredPoints: 25
+              negativePoints: 0
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    ActivateLoyaltyPoints:
+      type: object
+      description: Activate loyalty points
+      additionalProperties: false
+      properties:
+        transactionUUIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+          maxItems: 50
+          uniqueItems: true
+          description: 'An array of transaction UUIDs used to activate specific pending point transactions.
+
+
+            If provided, do not include the `sessionId` parameter.
+
+            '
+          example:
+          - 8f1a8d7c-9c3e-4a5e-9f0d-2c5f7a3b1cde
+        sessionId:
+          type: string
+          minLength: 1
+          description: 'The ID of the session containing the pending point transactions to activate.
+
+
+            If provided, do not include the `transactionUUIDs` parameter.
+
+            '
+          example: ac08cc3c43470426591ad75b2d685ec04_v2
+    LoyaltyLedgerEntryFlags:
+      type: object
+      description: A map of flags providing additional details about the entry.
+      properties:
+        createsNegativeBalance:
+          type: boolean
+          description: Set to true if the entry creates negative balance.
+    DeleteLoyaltyTransactionsRequest:
+      type: object
+      description: Request to delete transactions based on the specified scope.
+      additionalProperties: false
+      required:
+      - scope
+      properties:
+        scope:
+          type: string
+          description: '`AllSubledgers` deletes all transactions for the specified customer profile from all ledgers in the loyalty program.
+
+
+            `SelectedSubledgers` deletes all transactions for the specified customer profile only from the given ledgers in the loyalty program.
+
+            '
+          enum:
+          - AllSubledgers
+          - SelectedSubledgers
+          example: SelectedSubledgers
+        subledgerIds:
+          type:
+          - array
+          - 'null'
+          description: 'The IDs of the ledgers from which to delete the customer''s transactions. This parameter is required if the `scope` is set to `SelectedSubledgers`.
+
+
+            To specify the main ledger, provide an empty string ("").
+
+            '
+          items:
+            type: string
+          example:
+          - subledger1
+          - subledger2
+    BaseLoyaltyProgram:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The display title for the Loyalty Program.
+          example: Point collection
+        description:
+          type: string
+          description: Description of our Loyalty Program.
+          example: Customers collect 10 points per 1$ spent
+        subscribedApplications:
+          type: array
+          description: A list containing the IDs of all applications that are subscribed to this Loyalty Program.
+          example:
+          - 132
+          - 97
+          items:
+            type: integer
+        defaultValidity:
+          type: string
+          description: 'The default duration after which new loyalty points should expire. Can be ''unlimited'' or a specific time.
+
+            The time format is a number followed by one letter indicating the time unit, like ''30s'', ''40m'', ''1h'', ''5D'', ''7W'', or 10M''. These rounding suffixes are also supported:
+
+            - ''_D'' for rounding down. Can be used as a suffix after ''D'', and signifies the start of the day.
+
+            - ''_U'' for rounding up. Can be used as a suffix after ''D'', ''W'', and ''M'', and signifies the end of the day, week, and month.
+
+            '
+          example: 2W_U
+        defaultPending:
+          type: string
+          description: 'The default duration of the pending time after which points should be valid. Accepted values: ''immediate'', ''on_action'' or a specific time.
+
+            The time format is a number followed by one letter indicating the time unit, like ''30s'', ''40m'', ''1h'', ''5D'', ''7W'', or 10M''. These rounding suffixes are also supported:
+
+            - ''_D'' for rounding down. Can be used as a suffix after ''D'', and signifies the start of the day.
+
+            - ''_U'' for rounding up. Can be used as a suffix after ''D'', ''W'', and ''M'', and signifies the end of the day, week, and month.
+
+            '
+          example: immediate
+        allowSubledger:
+          type: boolean
+          description: Indicates if this program supports subledgers inside the program.
+          example: false
+        usersPerCardLimit:
+          type: integer
+          minimum: 0
+          example: 111
+          description: 'The max amount of user profiles with whom a card can be shared. This can be set to 0 for no limit.
+
+            This property is only used when `cardBased` is `true`.
+
+            '
+        sandbox:
+          type: boolean
+          description: Indicates if this program is a live or sandbox program. Programs of a given type can only be connected to Applications of the same type.
+          title: Sandbox
+          example: true
+        programJoinPolicy:
+          type: string
+          enum:
+          - not_join
+          - points_activated
+          - points_earned
+          description: "The policy that defines when the customer joins the loyalty program.\n  - `not_join`: The customer does not join the loyalty program but can still earn and spend loyalty points.\n\n     **Note**: The customer does not have a program join date.\n  - `points_activated`: The customer joins the loyalty program only when their earned loyalty points become active for the first time.\n  - `points_earned`: The customer joins the loyalty program when they earn loyalty points for the first time.\n"
+        tiersExpirationPolicy:
+          type: string
+          enum:
+          - tier_start_date
+          - program_join_date
+          - customer_attribute
+          - absolute_expiration
+          description: "The policy that defines how tier expiration, used to reevaluate the customer's current tier, is determined.\n - `tier_start_date`: The tier expiration is relative to when the customer joined the current tier.\n - `program_join_date`: The tier expiration is relative to when the customer joined the loyalty program.\n - `customer_attribute`: The tier expiration is determined by a custom customer attribute.\n - `absolute_expiration`: The tier is reevaluated at the start of each tier cycle. For this policy, it is required to provide a `tierCycleStartDate`.\n"
+        tierCycleStartDate:
+          type: string
+          format: date-time
+          description: 'Timestamp at which the tier cycle starts for all customers in the loyalty program.
+
+
+            **Note**: This is only required when the tier expiration policy is set to `absolute_expiration`.
+
+            '
+          example: '2021-09-12T10:12:42Z'
+        tiersExpireIn:
+          type: string
+          description: 'The amount of time after which the tier expires and is reevaluated.
+
+
+            The time format is an **integer** followed by one letter indicating the time unit.
+
+            Examples: `30s`, `40m`, `1h`, `5D`, `7W`, `10M`, `15Y`.
+
+
+            Available units:
+
+
+            - `s`: seconds
+
+            - `m`: minutes
+
+            - `h`: hours
+
+            - `D`: days
+
+            - `W`: weeks
+
+            - `M`: months
+
+            - `Y`: years
+
+
+            You can round certain units up or down:
+
+            - `_D` for rounding down days only. Signifies the start of the day.
+
+            - `_U` for rounding up days, weeks, months and years. Signifies the end of the day, week, month or year.
+
+            '
+          example: 27W_U
+        tiersDowngradePolicy:
+          type: string
+          enum:
+          - one_down
+          - balance_based
+          description: "The policy that defines how customer tiers are downgraded in the loyalty program after tier reevaluation.\n - `one_down`: If the customer doesn't have enough points to stay in the current tier, they are downgraded by one tier.\n - `balance_based`: The customer's tier is reevaluated based on the amount of active points they have at the moment.\n"
+        cardCodeSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        returnPolicy:
+          type: string
+          enum:
+          - only_pending
+          - within_balance
+          - unlimited
+          description: 'The policy that defines the rollback of points in case of a partially returned, cancelled, or reopened [customer session](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).
+
+            - `only_pending`: Only pending points can be rolled back.
+
+            - `within_balance`: Available active points can be rolled back if there aren''t enough pending points. The active balance of the customer cannot be negative.
+
+            - `unlimited`: Allows negative balance without any limit.
+
+            '
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    LoyaltyDashboardData:
+      type: object
+      description: Datapoint for the graphs and cards on a loyalty program dashboard.
+      required:
+      - date
+      - totalActivePoints
+      - totalPendingPoints
+      - totalSpentPoints
+      - totalExpiredPoints
+      - totalNegativePoints
+      - totalMembers
+      - newMembers
+      - spentPoints
+      - earnedPoints
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: Date at which data point was collected.
+        totalActivePoints:
+          type: number
+          description: Total of active points for this loyalty program.
+          example: 9756
+        totalPendingPoints:
+          type: number
+          description: Total of pending points for this loyalty program.
+          example: 548
+        totalSpentPoints:
+          type: number
+          description: Total of spent points for this loyalty program.
+          example: 25668
+        totalExpiredPoints:
+          type: number
+          description: Total of expired points for this loyalty program.
+          example: 1156
+        totalNegativePoints:
+          type: number
+          description: Total of negative points for this loyalty program.
+          example: 32
+        totalMembers:
+          type: number
+          description: Number of loyalty program members.
+          example: 2582
+        newMembers:
+          type: number
+          description: Number of members who joined on this day.
+          example: 3
+        spentPoints:
+          $ref: '#/components/schemas/LoyaltyDashboardPointsBreakdown'
+          description: Points spent on this day.
+        earnedPoints:
+          $ref: '#/components/schemas/LoyaltyDashboardPointsBreakdown'
+          description: Points that were earned on this day.
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    LoyaltyTier:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/LoyaltyProgramEntity'
+      - $ref: '#/components/schemas/NewLoyaltyTier'
+    LoyaltyDashboardPointsBreakdown:
+      type: object
+      required:
+      - createdManually
+      - createdViaRuleEngine
+      properties:
+        createdManually:
+          type: number
+          example: 125
+        createdViaRuleEngine:
+          type: number
+          example: 9631
+    NewLoyaltyTier:
+      type: object
+      description: A tier in a loyalty program.
+      required:
+      - name
+      - minPoints
+      properties:
+        name:
+          type: string
+          description: The name of the tier.
+          example: Gold
+        minPoints:
+          type: number
+          minimum: 0
+          maximum: 999999999999.99
+          description: The minimum amount of points required to enter the tier.
+          example: 300
+    LoyaltyProgramTransaction:
+      type: object
+      required:
+      - id
+      - transactionUUID
+      - created
+      - programId
+      - type
+      - amount
+      - name
+      - subledgerId
+      - startDate
+      - expiryDate
+      properties:
+        id:
+          type: integer
+          description: ID of the loyalty ledger transaction.
+          example: 123
+        transactionUUID:
+          type: string
+          description: Unique identifier of the transaction in the UUID format.
+          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
+        programId:
+          type: integer
+          description: ID of the loyalty program.
+          example: 324
+        campaignId:
+          type: integer
+          description: ID of the campaign.
+          example: 324
+        created:
+          type: string
+          format: date-time
+          description: Date and time the loyalty transaction occurred.
+          example: 2022-01-02T15:04:05Z07:00
+        type:
+          type: string
+          enum:
+          - addition
+          - subtraction
+          description: "Type of transaction. Possible values:\n  - `addition`: Signifies added points.\n  - `subtraction`: Signifies deducted points.\n"
+          maxLength: 255
+          example: addition
+        amount:
+          type: number
+          description: Amount of loyalty points added or deducted in the transaction.
+          example: 10.25
+        name:
+          type: string
+          description: Name or reason for the loyalty ledger transaction.
+          maxLength: 255
+          example: Reward 50 points for each $500 purchase
+        startDate:
+          type: string
+          description: "When points become active. Possible values:\n  - `immediate`: Points are immediately active.\n  - `on_action`: Points become active based on the customer's action.\n  - a timestamp value: Points become active at a given date and time.\n"
+          maxLength: 64
+          example: 2022-01-02T15:04:05Z07:00
+        expiryDate:
+          type: string
+          description: "When points expire. Possible values:\n  - `unlimited`: Points have no expiration date.\n  - a timestamp value: Points expire at a given date and time.\n"
+          example: 2022-01-02T15:04:05Z07:00
+        customerProfileId:
+          type: string
+          description: Customer profile integration ID used in the loyalty program.
+          maxLength: 255
+          example: kda0fajs0-fad9f-fd9dfsa9-fd9dasjf9
+        cardIdentifier:
+          $ref: '#/components/schemas/LoyaltyCardIdentifier'
+        subledgerId:
+          type: string
+          description: ID of the subledger.
+          maxLength: 64
+          example: sub-123
+        customerSessionId:
+          type: string
+          description: ID of the customer session where the transaction occurred.
+          maxLength: 255
+          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
+        importId:
+          type: integer
+          description: ID of the import where the transaction occurred.
+          example: 4
+        userId:
+          type: integer
+          description: ID of the user who manually added or deducted points. Applies only to manual transactions.
+          example: 5
+        userEmail:
+          type: string
+          description: The email of the Campaign Manager account that manually added or deducted points. Applies only to manual transactions.
+          example: john.doe@example.com
+        rulesetId:
+          type: integer
+          description: ID of the ruleset containing the rule that triggered the effect. Applies only for transactions that resulted from a customer session.
+          example: 11
+        ruleName:
+          type: string
+          description: Name of the rule that triggered the effect. Applies only for transactions that resulted from a customer session.
+          example: 10 points for every $100 spent
+        flags:
+          $ref: '#/components/schemas/LoyaltyLedgerEntryFlags'
+          description: The flags of the transaction, when applicable. The `createsNegativeBalance`  flag indicates whether the transaction results in a negative balance.
+        validityDuration:
+          type: string
+          description: 'The duration for which the points remain active, relative to the  activation date.
+
+
+            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
+
+            '
+          example: 30D
+    LoyaltyProgramEntity:
+      type: object
+      required:
+      - programID
+      properties:
+        programID:
+          type: integer
+          description: The ID of the loyalty program that owns this entity.
+          example: 125
+        programName:
+          type: string
+          description: The integration name of the loyalty program that owns this entity.
+          example: Loyalty_program
+        programTitle:
+          type: string
+          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
+          example: Loyalty program
+    CodeGeneratorSettings:
+      type: object
+      properties:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
+          type: string
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+      required:
+      - couponPattern
+      - validCharacters
+    LoyaltyCardIdentifier:
+      type: string
+      description: 'The identifier of the loyalty card, which must match the regular expression `^[A-Za-z0-9._%+@-]+$`.
+
+        '
+      maxLength: 108
+      minLength: 4
+      pattern: ^[A-Za-z0-9._%+@-]+$
+      example: summer-loyalty-card-0543
+    AddLoyaltyPoints:
+      type: object
+      description: Points to add.
+      required:
+      - points
+      properties:
+        points:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 999999999999.99
+          description: Amount of loyalty points.
+          example: 300
+        name:
+          type: string
+          description: Name / reason for the point addition.
+          example: Compensation
+        validityDuration:
+          type: string
+          description: 'The time format is either:
+
+            - `unlimited` or,
+
+            - an **integer** followed by one letter indicating the time unit.
+
+
+            Examples: `unlimited`, `30s`, `40m`, `1h`, `5D`, `7W`, `10M`, `15Y`.
+
+
+            Available units:
+
+
+            - `s`: seconds
+
+            - `m`: minutes
+
+            - `h`: hours
+
+            - `D`: days
+
+            - `W`: weeks
+
+            - `M`: months
+
+            - `Y`: years
+
+
+            You can round certain units up or down:
+
+            - `_D` for rounding down days only. Signifies the start of the day.
+
+            - `_U` for rounding up days, weeks, months and years. Signifies the end of the day, week, month or year.
+
+
+            If passed, `validUntil` should be omitted.
+
+            '
+          example: 5D
+        validUntil:
+          type: string
+          format: date-time
+          description: 'Date and time when points should expire. The value should be provided in RFC 3339 format.
+
+            If passed, `validityDuration` should be omitted.
+
+            '
+          example: '2021-07-20T22:00:00Z'
+        pendingDuration:
+          type: string
+          description: 'The amount of time before the points are considered valid.
+
+
+            The time format is either:
+
+            - `immediate` or,
+
+            - `on_action` or,
+
+            - an **integer** followed by one letter indicating the time unit.
+
+
+            Examples: `immediate`, `30s`, `40m`, `1h`, `5D`, `7W`, `10M`, `15Y`, `on_action`.
+
+
+            Available units:
+
+
+            - `s`: seconds
+
+            - `m`: minutes
+
+            - `h`: hours
+
+            - `D`: days
+
+            - `W`: weeks
+
+            - `M`: months
+
+            - `Y`: years
+
+
+            You can round certain units up or down:
+
+            - `_D` for rounding down days only. Signifies the start of the day.
+
+            - `_U` for rounding up days, weeks, months and years. Signifies the end of the day, week, month or year.
+
+            '
+          example: 12h
+        pendingUntil:
+          type: string
+          format: date-time
+          description: 'Date and time after the points are considered valid. The value should be provided in RFC 3339 format.
+
+            If passed, `pendingDuration` should be omitted.
+
+            '
+          example: '2021-07-20T22:00:00Z'
+        subledgerId:
+          type: string
+          description: ID of the subledger the points are added to. If there is no existing subledger with this ID, the subledger is created automatically.
+          example: sub-123
+        applicationId:
+          type: integer
+          description: ID of the Application that is connected to the loyalty program. It is displayed in your Talon.One deployment URL.
+          example: 322
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    LoyaltySubLedger:
+      type: object
+      description: Ledger of Balance in Loyalty Program for a Customer.
+      required:
+      - total
+      - totalActivePoints
+      - totalPendingPoints
+      - totalSpentPoints
+      - totalExpiredPoints
+      - totalNegativePoints
+      properties:
+        total:
+          type: number
+          deprecated: true
+          title: Current Balance (Deprecated)
+          description: '**DEPRECATED** Use `totalActivePoints` property instead. Total amount of currently active and available points in the customer''s balance.
+
+            '
+        totalActivePoints:
+          type: number
+          title: Current Balance
+          description: Total amount of currently active and available points in the customer's balance.
+        totalPendingPoints:
+          type: number
+          title: Total pending points
+          description: Total amount of pending points, which are not active yet but will become active in the future.
+        totalSpentPoints:
+          type: number
+          title: Total spent points
+          description: Total amount of points already spent by this customer.
+        totalExpiredPoints:
+          type: number
+          title: Total expired points
+          description: Total amount of points, that expired without ever being spent.
+        totalNegativePoints:
+          type: number
+          title: Total negative points
+          description: Total amount of negative points. This implies that `totalActivePoints` is `0`.
+        transactions:
+          description: List of all events that have happened such as additions, subtractions and expiries.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        expiringPoints:
+          description: List of all points that will expire.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        activePoints:
+          description: List of all currently active points.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        pendingPoints:
+          description: List of all points pending activation.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        expiredPoints:
+          description: List of expired points.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        currentTier:
+          $ref: '#/components/schemas/Tier'
+          description: Tier for which the ledger is eligible.
+    DeductLoyaltyPoints:
+      type: object
+      description: Points to deduct.
+      required:
+      - points
+      properties:
+        points:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 999999999999.99
+          description: Amount of loyalty points.
+          example: 300
+        name:
+          type: string
+          description: Name / reason for the point deduction.
+          example: Penalty
+        subledgerId:
+          type: string
+          description: ID of the subledger the points are deducted from.
+          example: sub-123
+        applicationId:
+          type: integer
+          description: ID of the Application that is connected to the loyalty program.
+          example: 322
+    LoyaltyProgram:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/BaseLoyaltyProgram'
+      - type: object
+        description: A Loyalty Program
+        required:
+        - id
+        - name
+        - title
+        - description
+        - accountID
+        - defaultValidity
+        - defaultPending
+        - subscribedApplications
+        - allowSubledger
+        - timezone
+        - cardBased
+        - sandbox
+        properties:
+          id:
+            type: integer
+            description: The ID of loyalty program.
+            example: 139
+          accountID:
+            type: integer
+            description: The ID of the Talon.One account that owns this program.
+            example: 1
+          name:
+            type: string
+            description: The internal name for the Loyalty Program. This is an immutable value.
+            example: my_program
+          tiers:
+            type: array
+            description: The tiers in this loyalty program.
+            items:
+              $ref: '#/components/schemas/LoyaltyTier'
+            example:
+            - name: Gold
+              minPoints: 300
+              id: 3
+              created: '2021-06-10T09:05:27.993483Z'
+              programID: 139
+            - name: Silver
+              minPoints: 200
+              id: 2
+              created: '2021-06-10T09:04:59.355258Z'
+              programID: 139
+            - name: Bronze
+              minPoints: 100
+              id: 1
+              created: '2021-06-10T09:04:39.355258Z'
+              programID: 139
+          timezone:
+            type: string
+            description: A string containing an IANA timezone descriptor.
+            example: Europe/Berlin
+            minLength: 1
+          cardBased:
+            type: boolean
+            description: 'Defines the type of loyalty program:
+
+              - `true`: the program is a card-based.
+
+              - `false`: the program is profile-based.
+
+              '
+            default: false
+            example: true
+          canUpdateTiers:
+            type: boolean
+            description: '`True` if the tier definitions can be updated.
+
+              '
+            default: false
+            example: true
+          canUpdateTierExpirationPolicy:
+            type: boolean
+            description: '`True` if the tier expiration policy can be updated.
+
+              '
+            example: true
+          canUpgradeToAdvancedTiers:
+            type: boolean
+            description: '`True` if the program can be upgraded to use the `tiersExpireIn` and `tiersDowngradePolicy` properties.
+
+              '
+            default: false
+            example: true
+          canUpdateSubledgers:
+            type: boolean
+            description: '`True` if the `allowSubledger` property can be updated in the loyalty program.
+
+              '
+            default: false
+            example: true
+    LoyaltyLedger:
+      type: object
+      description: Ledger of Balance in Loyalty Program for a Customer.
+      required:
+      - ledger
+      properties:
+        ledger:
+          $ref: '#/components/schemas/LoyaltySubLedger'
+          title: Customer's current loyalty program balance.
+          description: The balance of the main ledger in the loyalty program.
+        subLedgers:
+          type: object
+          description: A map containing a list of all loyalty subledger balances.
+          additionalProperties:
+            $ref: '#/components/schemas/LoyaltySubLedger'
+          example:
+            mysubledger:
+              total: 0
+              totalActivePoints: 286
+              totalPendingPoints: 50
+              totalSpentPoints: 150
+              totalExpiredPoints: 25
+              totalNegativePoints: 0
+  requestBodies:
+    ActivateLoyaltyPoints:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActivateLoyaltyPoints'
+          examples:
+            Full request:
+              summary: Full request
+              x-vertical: none
+              value:
+                transactionUUIDs:
+                - 8f1a8d7c-9c3e-4a5e-9f0d-2c5f7a3b1cde
+                sessionId: ac08cc3c43470426591ad75b2d685ec04_v2
+            UsingTransactionUUIDs:
+              summary: Activate points using transaction UUIDs
+              value:
+                transactionUUIDs:
+                - 8f1a8d7c-9c3e-4a5e-9f0d-2c5f7a3b1cde
+                - 12b3c456-78d9-4e0f-a1b2-3456789abcde
+            UsingSessionId:
+              summary: Activate points using sessionID
+              value:
+                sessionId: ac08cc3c43470426591ad75b2d685ec04_v2
+      description: body
+      required: true
+    AddLoyaltyPoints:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddLoyaltyPoints'
+      description: body
+      required: true
+    DeductLoyaltyPoints:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DeductLoyaltyPoints'
+      description: body
+      required: true
+  parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+  securitySchemes:
+    api_key_v1:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "To authenticate with the Integration API, generate an API key in the Campaign Manager\nand prefix it with `ApiKey-v1`.\n\nTo generate an API key:\n\n1. Sign in to the Campaign Manager and open the Application of your choice, or create one.\n1. Click **Settings** > **Integration API Keys**.\n1. Click **Create API Key** and give it a name and an expiration date, then click **Create API Key**.\n\n   **Tip**: Avoid choosing expiration dates that fall at the end of\n   the year or during other high-traffic periods.\n\n\nYou can now use the API key in the HTTP header, prefixing it with `ApiKey-v1`:\n\n```\nAuthorization: ApiKey-v1 dbc644d33aa74d582bd9479c59e16f970fe13bf3\n```\n\nOr use it inside [an SDK](https://docs.talon.one/docs/dev/sdks/overview), for example, with the JAVA SDK:\n\n```\niApi.getApiClient().setApiKeyPrefix(\"ApiKey-v1\");\niApi.getApiClient().setApiKey(\"dbc644d33aa74d582bd9479c59e16f970fe13bf3\");\n```\n"
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"
+x-refined-from:
+- talon-one-integration-api-openapi.yml
+- talon-one-management-api-openapi.yml

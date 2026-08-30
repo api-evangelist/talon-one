@@ -1,0 +1,1789 @@
+openapi: 3.2.0
+info:
+  title: Talon One Achievements API
+  version: ''
+  description: 'Operations tagged Achievements across 2 of this provider''s published API definitions: talon-one-integration-api-openapi.yml, talon-one-management-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://yourbaseurl.talon.one
+tags:
+- name: Achievements
+  description: 'Represents achievements that reward a customer profile for performing a number of specific actions or reaching a transactional milestone within a defined period.
+
+
+    For example, you can use achievements to award your customers when they purchase five cups of coffee in one week or when they purchase items worth $3000 in three months.
+
+    '
+paths:
+  /v1/customer_profiles/{integrationId}/achievements:
+    get:
+      operationId: getCustomerAchievements
+      summary: List customer's available achievements
+      description: 'Retrieve all the achievements available to a given customer and their progress in them.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Achievements
+      parameters:
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: campaignIds
+        in: query
+        required: false
+        description: 'Filter by one or more Campaign IDs, separated by a comma.
+
+
+          **Note:** If no campaigns are specified, data for all the campaigns in the Application is returned.
+
+          '
+        example:
+        - '11'
+        - '20'
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: achievementIds
+        in: query
+        required: false
+        description: 'Filter by one or more Achievement IDs, separated by a comma.
+
+
+          **Note:** If no achievements are specified, data for all the achievements in the Application is returned.
+
+          '
+        example:
+        - '11'
+        - '20'
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: achievementStatus
+        in: query
+        required: false
+        description: 'Filter by status of the achievement.
+
+
+          **Note:** If the achievement status is not specified, only data for all active achievements in the Application is returned.
+
+          '
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - active
+            - scheduled
+        example:
+        - active
+        - scheduled
+      - name: currentProgressStatus
+        in: query
+        required: false
+        description: 'Filter by customer progress status in the achievement.
+
+          '
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - inprogress
+            - completed
+            - not_started
+        example:
+        - inprogress
+        - completed
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AchievementStatusEntry'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/customer_profiles/{integrationId}/achievements/{achievementId}:
+    get:
+      operationId: getCustomerAchievementHistory
+      summary: List customer's achievement history
+      description: 'Retrieve all progress history of a given customer in the given achievement.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Achievements
+      parameters:
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - in: path
+        required: true
+        name: achievementId
+        description: 'The achievement identifier.
+
+          '
+        example: 321
+        schema:
+          type: integer
+      - name: progressStatus
+        in: query
+        required: false
+        description: 'Filter by customer progress status in the achievement.
+
+          '
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - inprogress
+            - completed
+            - expired
+        example:
+        - inprogress
+        - completed
+      - name: startDate
+        description: Timestamp that filters the results to only contain achievements created on or after the start date.
+        in: query
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        description: Timestamp that filters the results to only contain achievements created before or on the end date.
+        in: query
+        example: '2024-05-29T15:04:05+07:00'
+        schema:
+          type: string
+          format: date-time
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - totalResultSize
+                - data
+                properties:
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AchievementProgress'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/campaigns/{campaignId}/achievements:
+    post:
+      deprecated: true
+      operationId: createAchievement
+      summary: Create achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create a new achievement in a specific campaign.'
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAchievement'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Achievement'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '409':
+          description: Conflict. An achievement with this name or title already exists.
+      security:
+      - manager_auth: []
+      - management_key: []
+    get:
+      deprecated: true
+      operationId: listAchievements
+      summary: List achievements
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List all the achievements for a specific campaign.'
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - name: title
+        in: query
+        description: 'Filter by the display name for the achievement in the campaign manager.
+
+
+          **Note**: If no `title` is provided, all the achievements from the campaign are returned.
+
+          '
+        example: achievement1
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Achievement'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/campaigns/{campaignId}/achievements/{achievementId}:
+    get:
+      deprecated: true
+      operationId: getAchievement
+      summary: Get achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get the details of a specific achievement.'
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: achievementId
+        in: path
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievements) endpoint.
+        example: 45
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Achievement'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    put:
+      deprecated: true
+      operationId: updateAchievement
+      summary: Update achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update the details of a specific achievement.'
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: achievementId
+        in: path
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievements) endpoint.
+        example: 45
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAchievement'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Achievement'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    delete:
+      deprecated: true
+      operationId: deleteAchievement
+      summary: Delete achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete the specified achievement.'
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: achievementId
+        in: path
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievements) endpoint.
+        example: 45
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/campaigns/{campaignId}/achievements/{achievementId}/export:
+    get:
+      deprecated: true
+      operationId: exportAchievements
+      summary: Export achievement customer data
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing a list of all the customers who have participated in and are currently participating in the given achievement.
+
+
+        The CSV file contains the following columns:
+
+        - `profileIntegrationID`: The integration ID of the customer profile participating in the achievement.
+
+        - `title`: The display name of the achievement in the Campaign Manager.
+
+        - `target`: The required number of actions or the transactional milestone to complete the achievement.
+
+        - `progress`: The current progress of the customer in the achievement.
+
+        - `status`: The status of the achievement. Can be one of: [''inprogress'', ''completed'', ''expired''].
+
+        - `startDate`: The date on which the customer profile started the achievement in RFC3339.
+
+        - `endDate`: The date on which the achievement ends and resets for the customer profile in RFC3339.
+
+        - `completionDate`: The date on which the customer profile completed the achievement in RFC3339.
+
+        '
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - $ref: '#/components/parameters/campaignId'
+      - name: achievementId
+        in: path
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievements) endpoint.
+        example: 45
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'profileIntegrationID,title,target,progress,status,startDate,endDate,completionDate
+
+                    user1231,CoffeeFree10Orders,10.00,5,inprogress,2023-12-10T11:42:25+01:00,2024-01-10T11:42:25+01:00,
+
+                    user341,CoffeeFree10Orders,10.00,10,completed,2023-12-10T11:42:25+01:00,2024-01-10T11:42:25+01:00,2023-12-20T10:24:34+01:00
+
+                    '
+        '400':
+          description: Bad request
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/achievements:
+    get:
+      operationId: listAchievementsV2
+      summary: List achievements
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        List all achievements.
+
+        '
+      tags:
+      - Achievements
+      parameters:
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: title
+        in: query
+        description: Filter by the display name of the achievement.
+        example: achievement1
+        required: false
+        schema:
+          type: string
+      - name: applicationId
+        in: query
+        description: Filter by the ID of an Application connected to the achievement.
+        example: 42
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AchievementV2'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    post:
+      operationId: createAchievementV2
+      summary: Create achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Create a new account-level achievement.'
+      tags:
+      - Achievements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAchievementV2'
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementV2'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '409':
+          description: Conflict. An achievement with this name already exists.
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/achievements/{achievementId}:
+    get:
+      operationId: getAchievementV2
+      summary: Get achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Retrieve the details of a specific achievement.'
+      tags:
+      - Achievements
+      parameters:
+      - name: achievementId
+        in: path
+        required: true
+        description: 'The ID of the achievement.  You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievementsV2) endpoint.
+
+          '
+        example: 45
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementV2'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    put:
+      operationId: updateAchievementV2
+      summary: Update achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Update the details of a specific achievement.'
+      tags:
+      - Achievements
+      parameters:
+      - name: achievementId
+        in: path
+        required: true
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievementsV2) endpoint.
+        example: 45
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAchievementV2'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementV2'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    delete:
+      operationId: deleteAchievementV2
+      summary: Delete achievement
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Delete a specific achievement.'
+      tags:
+      - Achievements
+      parameters:
+      - name: achievementId
+        in: path
+        required: true
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievementsV2) endpoint.
+        example: 45
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/achievements/{achievementId}/export:
+    get:
+      operationId: exportAchievementV2
+      summary: Export achievement customer data
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing a list of all the customers who have participated in and are currently participating in the given achievement.
+
+
+        The CSV file contains the following columns:
+
+        - `profileIntegrationID`: The integration ID of the customer profile participating in the achievement.
+
+        - `title`: The display name of the achievement in the Campaign Manager.
+
+        - `target`: The required number of actions or the transactional milestone to complete the achievement.
+
+        - `progress`: The current progress of the customer in the achievement.
+
+        - `status`: The status of the achievement. Can be one of: [''inprogress'', ''completed'', ''expired''].
+
+        - `startDate`: The date on which the customer profile started the achievement in RFC3339.
+
+        - `endDate`: The date on which the achievement ends and resets for the customer profile in RFC3339.
+
+        - `completionDate`: The date on which the customer profile completed the achievement in RFC3339.
+
+        '
+      tags:
+      - Achievements
+      parameters:
+      - name: achievementId
+        in: path
+        description: The ID of the achievement. You can get this ID with the [List achievements](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievementsV2) endpoint.
+        example: 45
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'profileIntegrationID,title,target,progress,status,startDate,endDate,completionDate
+
+                    user1231,CoffeeFree10Orders,10.00,5,inprogress,2023-12-10T11:42:25+01:00,2024-01-10T11:42:25+01:00,
+
+                    user341,CoffeeFree10Orders,10.00,10,completed,2023-12-10T11:42:25+01:00,2024-01-10T11:42:25+01:00,2023-12-20T10:24:34+01:00
+
+                    '
+        '400':
+          description: Bad request
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/applications/{applicationId}/achievement_progress/{integrationId}:
+    get:
+      operationId: getCustomerProfileAchievementProgress
+      summary: List customer achievements
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        For the given customer profile, list all the achievements that match your filter criteria.
+
+        '
+      tags:
+      - Achievements
+      parameters:
+      - $ref: '#/components/parameters/applicationId'
+      - in: path
+        required: true
+        name: integrationId
+        description: 'The integration identifier for this customer profile. Must be:
+
+          - Unique within the deployment.
+
+          - Stable for the customer. Do not use an ID that the customer can update themselves. For example, you can use a database ID.
+
+
+          Once set, you cannot update this identifier.
+
+          '
+        example: customer1
+        schema:
+          type: string
+      - name: pageSize
+        in: query
+        required: false
+        description: The number of items in the response.
+        example: 50
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 50
+      - $ref: '#/components/parameters/skip'
+      - name: achievementId
+        in: query
+        description: The ID of the achievement. You can get this ID with the [List achievement](https://docs.talon.one/management-api#tag/Achievements/operation/listAchievements) endpoint.
+        example: 41
+        required: false
+        schema:
+          type: integer
+      - name: title
+        in: query
+        required: false
+        description: Filter results by the `title` of an achievement.
+        example: achievement1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - hasMore
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AchievementProgressWithDefinition'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+components:
+  schemas:
+    AchievementStatusEntry:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/CreateAchievement'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            description: The ID of the campaign the achievement belongs to.
+            example: 1
+          status:
+            type: string
+            enum:
+            - active
+            - scheduled
+            example: active
+            description: The status of the achievement.
+          currentProgress:
+            $ref: '#/components/schemas/AchievementProgress'
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    AchievementProgress:
+      type: object
+      description: The current progress of the customer in the achievement.
+      required:
+      - status
+      - progress
+      properties:
+        status:
+          type: string
+          enum:
+          - inprogress
+          - completed
+          - expired
+          - not_started
+          example: completed
+          description: The status of the achievement.
+        progress:
+          type: number
+          example: 10
+          description: The current progress of the customer in the achievement.
+        startDate:
+          format: date-time
+          description: Timestamp at which the customer started the achievement.
+          type: string
+          example: 2024-01-01T15:04:05Z07:00
+        completionDate:
+          format: date-time
+          description: Timestamp at which point the customer completed the achievement.
+          type: string
+          example: 2024-01-15T15:04:05Z07:00
+        endDate:
+          format: date-time
+          description: Timestamp at which point the achievement ends and resets for the customer.
+          type: string
+          example: 2024-02-01T15:04:05Z07:00
+    AchievementBase:
+      type: object
+      properties:
+        name:
+          type: string
+          pattern: ^[a-zA-Z]\w+$
+          example: Order50Discount
+          maxLength: 1000
+          minLength: 1
+          description: 'The internal name of the achievement used in API requests.
+
+
+            **Note**: The name should start with a letter. This cannot be changed after the achievement has been created.
+
+            '
+        title:
+          type: string
+          description: The display name for the achievement in the Campaign Manager.
+          example: 50% off on 50th purchase.
+        description:
+          type: string
+          format: string
+          description: A description of the achievement.
+          example: 50% off for every 50th purchase in a year.
+        target:
+          type: number
+          description: The required number of actions or the transactional milestone to complete the achievement.
+          example: 50
+        period:
+          type: string
+          description: 'The relative duration after which the achievement ends and resets for a particular customer profile.
+
+
+            **Note**: The `period` does not start when the achievement is created.
+
+
+            The period is a **positive real number** followed by one letter indicating the time unit.
+
+
+            Examples: `30s`, `40m`, `1h`, `5D`, `7W`, `10M`, `15Y`.
+
+
+            Available units:
+
+
+            - `s`: seconds
+
+            - `m`: minutes
+
+            - `h`: hours
+
+            - `D`: days
+
+            - `W`: weeks
+
+            - `M`: months
+
+            - `Y`: years
+
+
+            You can also round certain units down to the beginning of period and up to the end of period.:
+
+            - `_D` for rounding down days only. Signifies the start of the day.
+
+            Example: `30D_D`
+
+            - `_U` for rounding up days, weeks, months and years. Signifies the end of the day, week, month or year.
+
+            Example: `23W_U`
+
+
+            **Note**: You can either use the round down and round up option or set an absolute period.
+
+            '
+          example: 1Y
+        periodEndOverride:
+          $ref: '#/components/schemas/TimePoint'
+          deprecated: true
+        recurrencePolicy:
+          type: string
+          enum:
+          - no_recurrence
+          - on_expiration
+          - on_completion
+          example: no_recurrence
+          description: 'The policy that determines if and how the achievement recurs.
+
+            - `no_recurrence`: The achievement can be completed only once.
+
+            - `on_expiration`: The achievement resets after it expires and becomes available again.
+
+            - `on_completion`: When the customer progress status reaches `completed`, the achievement resets and becomes available again.
+
+            '
+        activationPolicy:
+          type: string
+          enum:
+          - user_action
+          - fixed_schedule
+          example: fixed_schedule
+          description: 'The policy that determines how the achievement starts, ends, or resets.
+
+            - `user_action`: The achievement ends or resets relative to when the customer started the achievement.
+
+            - `fixed_schedule`: The achievement starts, ends, or resets for all customers following a fixed schedule.
+
+            '
+        fixedStartDate:
+          type: string
+          format: date-time
+          example: 2024-01-15T15:04:05Z07:00
+          description: 'The achievement''s start date when `activationPolicy` is set to `fixed_schedule`.
+
+
+            **Note:** It must be an RFC3339 timestamp string.
+
+            '
+        endDate:
+          type: string
+          format: date-time
+          example: 2024-02-15T15:04:05Z07:00
+          description: 'The achievement''s end date. If defined, customers cannot participate in the achievement after this date.
+
+
+            **Note:** It must be an RFC3339 timestamp string.
+
+            '
+        allowRollbackAfterCompletion:
+          type: boolean
+          description: When `true`, customer progress can be rolled back in completed achievements.
+          example: false
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    CreateAchievement:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBase'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+    TimePoint:
+      type: object
+      required:
+      - hour
+      - minute
+      - second
+      description: 'The absolute duration after which the achievement ends and resets for a particular customer profile.
+
+
+        **Note**: The duration follows the time zone of the Application this achievement belongs to.
+
+        '
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: 'The achievement ends and resets in this month.
+
+
+            **Note**: Only applicable if the period is set to `Y`.
+
+            '
+          example: 11
+        dayOfMonth:
+          type: integer
+          minimum: 1
+          maximum: 31
+          description: 'The achievement ends and resets on this day of the month.
+
+
+            **Note**: Only applicable if the period is set to `Y` or `M`.
+
+            '
+          example: 23
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: 'The achievement ends and resets on this day of the week. `1` represents `Monday` and `7` represents `Sunday`.
+
+
+            **Note**: Only applicable if the period is set to `W`.
+
+            '
+        hour:
+          type: integer
+          description: The achievement ends and resets at this hour.
+          example: 23
+        minute:
+          type: integer
+          description: The achievement ends and resets at this minute.
+          example: 59
+        second:
+          type: integer
+          description: The achievement ends and resets at this second.
+          example: 59
+      example:
+        month: 11
+        dayOfMonth: 23
+        hour: 23
+        minute: 59
+        second: 59
+    AchievementAdditionalPropertiesV2:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user that created this achievement.
+          example: 1234
+        createdBy:
+          type: string
+          description: 'Name of the user that created the achievement.
+
+
+            **Note**: This is not available if the user has been deleted.
+
+            '
+          example: John Doe
+        periodEndOverride:
+          $ref: '#/components/schemas/TimePoint'
+          deprecated: true
+        hasProgress:
+          type: boolean
+          description: Indicates if a customer has made progress in the achievement.
+        status:
+          type: string
+          enum:
+          - active
+          - scheduled
+          - expired
+          example: active
+          description: "The status of the achievement.                                                                                              \n- `active`: The achievement is available to customers.\n- `scheduled`: The achievement has a `fixedStartDate` set in the future.\n- `expired`: The achievement's `endDate` is in the past.\n"
+    AchievementProgressWithDefinition:
+      allOf:
+      - $ref: '#/components/schemas/AchievementProgress'
+      - type: object
+        required:
+        - achievementId
+        - name
+        - title
+        - description
+        - achievementRecurrencePolicy
+        - achievementActivationPolicy
+        - campaignId
+        properties:
+          achievementId:
+            type: integer
+            example: 3
+            description: The internal ID of the achievement.
+          name:
+            type: string
+            pattern: ^[a-zA-Z]\w+$
+            example: FreeCoffee10Orders
+            maxLength: 1000
+            minLength: 1
+            description: 'The internal name of the achievement used in API requests.
+
+              '
+          title:
+            type: string
+            description: The display name of the achievement in the Campaign Manager.
+            example: 50% off on 50th purchase.
+          description:
+            type: string
+            format: string
+            description: The description of the achievement in the Campaign Manager.
+            example: 50% off for every 50th purchase in a year.
+          campaignId:
+            type: integer
+            description: The ID of the campaign the achievement belongs to.
+            example: 3
+          target:
+            type: number
+            example: 10
+            description: The required number of actions or the transactional milestone to complete the achievement.
+          achievementRecurrencePolicy:
+            type: string
+            enum:
+            - no_recurrence
+            - on_expiration
+            - on_completion
+            example: no_recurrence
+            description: 'The policy that determines if and how the achievement recurs.
+
+              - `no_recurrence`: The achievement can be completed only once.
+
+              - `on_expiration`: The achievement resets after it expires and becomes available again.
+
+              - `on_completion`: When the customer progress status reaches `completed`, the achievement resets and becomes available again.
+
+              '
+          achievementActivationPolicy:
+            type: string
+            enum:
+            - user_action
+            - fixed_schedule
+            example: fixed_schedule
+            description: 'The policy that determines how the achievement starts, ends, or resets.
+
+              - `user_action`: The achievement ends or resets relative to when the customer started the achievement.
+
+              - `fixed_schedule`: The achievement starts, ends, or resets for all customers following a fixed schedule.
+
+              '
+          achievementFixedStartDate:
+            type: string
+            format: date-time
+            example: 2024-01-15T15:04:05Z07:00
+            description: 'The achievement''s start date when `achievementActivationPolicy` is equal to `fixed_schedule`.
+
+
+              **Note:** It is an RFC3339 timestamp string.
+
+              '
+          achievementEndDate:
+            type: string
+            format: date-time
+            example: 2024-02-15T15:04:05Z07:00
+            description: 'The achievement''s end date. If defined, customers cannot participate in the achievement after this date.
+
+
+              **Note:** It is an RFC3339 timestamp string.
+
+              '
+          achievementAllowRollbackAfterCompletion:
+            type: boolean
+            description: When `true`, customer progress can be rolled back in completed achievements.
+            example: false
+    UpdateAchievementV2:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBaseV2'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+        - subscribedApplications
+    CreateAchievementV2:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBaseV2'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+        - timezone
+        - sandbox
+        properties:
+          sandbox:
+            type: boolean
+            description: Indicates if this achievement is a live or sandbox achievement. Achievements of a given type can only be connected to Applications of the same type.
+            title: Sandbox
+            example: true
+          timezone:
+            type: string
+            description: A string containing an IANA timezone descriptor.
+            minLength: 1
+            example: Europe/Berlin
+    AchievementV2:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AchievementBaseV2'
+      - $ref: '#/components/schemas/AchievementAdditionalPropertiesV2'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+        - recurrencePolicy
+        - activationPolicy
+        - sandbox
+        - subscribedApplications
+        - timezone
+        properties:
+          sandbox:
+            type: boolean
+            description: Indicates if this achievement is a live or sandbox achievement. Achievements of a given type can only be connected to Applications of the same type.
+            title: Sandbox
+            example: true
+          timezone:
+            type: string
+            description: A string containing an IANA timezone descriptor.
+            minLength: 1
+            example: Europe/Berlin
+    AchievementAdditionalProperties:
+      type: object
+      required:
+      - campaignId
+      - userId
+      properties:
+        campaignId:
+          type: integer
+          description: The ID of the campaign the achievement belongs to.
+          example: 1
+        userId:
+          type: integer
+          description: ID of the user that created this achievement.
+          example: 1234
+        createdBy:
+          type: string
+          description: 'Name of the user that created the achievement.
+
+
+            **Note**: This is not available if the user has been deleted.
+
+            '
+          example: John Doe
+        hasProgress:
+          type: boolean
+          description: Indicates if a customer has made progress in the achievement.
+        status:
+          type: string
+          enum:
+          - inprogress
+          - expired
+          - not_started
+          - completed
+          example: inprogress
+          description: The status of the achievement.
+    AchievementBaseV2:
+      type: object
+      properties:
+        name:
+          type: string
+          pattern: ^[a-zA-Z]\w+$
+          example: Order50Discount
+          maxLength: 1000
+          minLength: 1
+          description: 'The internal name of the achievement used in API requests.
+
+
+            **Note**: The name should start with a letter. This cannot be changed after the achievement has been created.
+
+            '
+        title:
+          type: string
+          description: The display name for the achievement in the Campaign Manager.
+          example: 50% off on 50th purchase.
+        description:
+          type: string
+          format: string
+          description: A description of the achievement.
+          example: 50% off for every 50th purchase in a year.
+        target:
+          type: number
+          description: The required number of actions or the transactional milestone to complete the achievement.
+          example: 50
+        period:
+          type: string
+          description: 'The relative duration after which the achievement ends and resets for a particular customer profile.
+
+
+            **Note**: The `period` does not start when the achievement is created.
+
+
+            The period is a **positive real number** followed by one letter indicating the time unit.
+
+
+            Examples: `30s`, `40m`, `1h`, `5D`, `7W`, `10M`, `15Y`.
+
+
+            Available units:
+
+
+            - `s`: seconds
+
+            - `m`: minutes
+
+            - `h`: hours
+
+            - `D`: days
+
+            - `W`: weeks
+
+            - `M`: months
+
+            - `Y`: years
+
+
+            You can also round certain units down to the beginning of period and up to the end of period.:
+
+            - `_D` for rounding down days only. Signifies the start of the day.
+
+            Example: `30D_D`
+
+            - `_U` for rounding up days, weeks, months and years. Signifies the end of the day, week, month or year.
+
+            Example: `23W_U`
+
+
+            **Note**: You can either use the round down and round up option or set an absolute period.
+
+            '
+          example: 1Y
+        recurrencePolicy:
+          type: string
+          enum:
+          - no_recurrence
+          - on_expiration
+          - on_completion
+          example: no_recurrence
+          description: 'The policy that determines if and how the achievement recurs.
+
+            - `no_recurrence`: The achievement can be completed only once.
+
+            - `on_expiration`: The achievement resets after it expires and becomes available again.
+
+            - `on_completion`: When the customer progress status reaches `completed`, the achievement resets and becomes available again.
+
+            '
+        activationPolicy:
+          type: string
+          enum:
+          - user_action
+          - fixed_schedule
+          example: fixed_schedule
+          description: 'The policy that determines how the achievement starts, ends, or resets.
+
+            - `user_action`: The achievement ends or resets relative to when the customer started the achievement.
+
+            - `fixed_schedule`: The achievement starts, ends, or resets for all customers following a fixed schedule.
+
+            '
+        fixedStartDate:
+          type: string
+          format: date-time
+          example: '2024-01-15T15:04:05+07:00'
+          description: 'The achievement''s start date when `activationPolicy` is set to `fixed_schedule`.
+
+
+            **Note:** It must be an RFC3339 timestamp string.
+
+            '
+        endDate:
+          type: string
+          format: date-time
+          example: '2024-01-15T15:04:05+07:00'
+          description: 'The achievement''s end date. If defined, customers cannot participate in the achievement after this date.
+
+
+            **Note:** It must be an RFC3339 timestamp string.
+
+            '
+        allowRollbackAfterCompletion:
+          type: boolean
+          description: When `true`, customer progress can be rolled back in completed achievements.
+          example: false
+        subscribedApplications:
+          type: array
+          description: A list containing the IDs of all applications that are subscribed to A list containing the IDs of all Applications that are connected to this achievement.
+          items:
+            type: integer
+          minItems: 0
+          example:
+          - 132
+          - 97
+    Achievement:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/CreateAchievement'
+      - $ref: '#/components/schemas/AchievementAdditionalProperties'
+      - type: object
+    UpdateAchievement:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBase'
+  parameters:
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+  securitySchemes:
+    api_key_v1:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "To authenticate with the Integration API, generate an API key in the Campaign Manager\nand prefix it with `ApiKey-v1`.\n\nTo generate an API key:\n\n1. Sign in to the Campaign Manager and open the Application of your choice, or create one.\n1. Click **Settings** > **Integration API Keys**.\n1. Click **Create API Key** and give it a name and an expiration date, then click **Create API Key**.\n\n   **Tip**: Avoid choosing expiration dates that fall at the end of\n   the year or during other high-traffic periods.\n\n\nYou can now use the API key in the HTTP header, prefixing it with `ApiKey-v1`:\n\n```\nAuthorization: ApiKey-v1 dbc644d33aa74d582bd9479c59e16f970fe13bf3\n```\n\nOr use it inside [an SDK](https://docs.talon.one/docs/dev/sdks/overview), for example, with the JAVA SDK:\n\n```\niApi.getApiClient().setApiKeyPrefix(\"ApiKey-v1\");\niApi.getApiClient().setApiKey(\"dbc644d33aa74d582bd9479c59e16f970fe13bf3\");\n```\n"
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"
+x-refined-from:
+- talon-one-integration-api-openapi.yml
+- talon-one-management-api-openapi.yml

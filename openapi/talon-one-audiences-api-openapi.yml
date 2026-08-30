@@ -1,0 +1,1199 @@
+openapi: 3.2.0
+info:
+  title: Talon One Audiences API
+  version: ''
+  description: 'Operations tagged Audiences across 2 of this provider''s published API definitions: talon-one-integration-api-openapi.yml, talon-one-management-api-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://yourbaseurl.talon.one
+tags:
+- name: Audiences
+  description: 'Represents lists of customer profiles that allow you to target specific groups of customers in your campaigns.
+
+    Audiences can be synced from customer data platforms or created directly in Talon.One.
+
+
+    See the [docs](https://docs.talon.one/docs/product/audiences/overview).
+
+    '
+paths:
+  /v2/audiences:
+    post:
+      operationId: createAudienceV2
+      summary: Create audience
+      description: 'Create an audience. The audience can be created directly from scratch or can
+
+        come from third party platforms.
+
+
+        > [!note] Audiences can also be created from scratch via the Campaign
+
+        Manager. See the [docs](https://docs.talon.one/docs/product/audiences/creating-audiences).
+
+
+        To create an audience from an existing audience from a [technology
+
+        partner](https://docs.talon.one/docs/dev/technology-partners/overview):
+
+
+        1. Set the `integration` property to `mparticle`, `segment` etc., depending
+
+        on a third-party platform.
+
+        1. Set `integrationId` to the ID of this audience in a third-party platform.
+
+
+        To create an audience from an existing audience in another platform:
+
+
+        1. Do not use the `integration` property.
+
+        1. Set `integrationId` to the ID of this audience in the 3rd-party platform.
+
+
+        To create an audience from scratch, only set the `name` property.
+
+
+        Once you create your first audience, audience-specific rule conditions are
+
+        enabled in the Rule Builder.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Audiences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAudience'
+            examples:
+              Full request:
+                summary: Full request
+                x-vertical: none
+                value:
+                  name: Travel audience
+                  sandbox: true
+                  description: Travel audience 18-27
+                  subscribedApplicationsIds:
+                  - 3
+                  - 13
+                  integration: mparticle
+                  integrationId: 382370BKDB946
+                  createdIn3rdParty: false
+                  lastUpdate: '2022-04-26T11:02:38Z'
+              eCommerce:
+                x-vertical: ecommerce
+                summary: 'Example: ecommerce'
+                description: Create an audience for high-value customers.
+                value:
+                  name: VIP Customers
+                  description: Customers with high lifetime value and frequent purchases
+                  sandbox: false
+                  createdIn3rdParty: false
+              QSR & dining:
+                x-vertical: qsr
+                summary: 'Example: QSR & dining'
+                description: 'Creating an audience for customers who frequently order breakfast items during morning hours.
+
+                  This audience can be targeted with breakfast promotions, early-bird offers, or morning loyalty bonuses.
+
+                  '
+                value:
+                  name: Breakfast Regulars
+                  description: Customers who order breakfast items 3+ times per week during weekday mornings
+                  sandbox: false
+                  createdIn3rdParty: false
+              Financial services:
+                x-vertical: finance
+                summary: 'Example: Financial services'
+                description: 'Create an audience for customers who recently opened an account to
+
+                  target them with welcome bonuses or first-transaction cashback rewards.
+
+                  '
+                value:
+                  name: New Account Holders
+                  description: Customers who opened an account within the last 30 days
+                  sandbox: false
+                  createdIn3rdParty: false
+              Travel & hospitality:
+                x-vertical: travel
+                summary: 'Example: Travel & hospitality'
+                description: 'Create an audience for luxury-oriented travelers so tour operators
+
+                  can automatically trigger personalized offers, such as complimentary
+
+                  spa vouchers, when they initiate a booking.
+
+                  '
+                value:
+                  name: Luxury Seekers
+                  description: Travelers who consistently book premium accommodations and high-end tour packages
+                  sandbox: false
+                  createdIn3rdParty: false
+        description: body
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audience'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '409':
+          description: Conflict. An Audience with this ID already exists for this integration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/audiences/{audienceId}:
+    delete:
+      operationId: deleteAudienceV2
+      summary: Delete audience
+      description: 'Delete an audience.
+
+
+        > [!warning] This endpoint also removes any associations recorded between a
+
+        customer profile and this audience.
+
+
+        > [!note] Audiences can also be deleted via the Campaign Manager. See the
+
+        [docs](https://docs.talon.one/docs/product/audiences/managing-audiences#deleting-an-audience).
+
+        '
+      tags:
+      - Audiences
+      security:
+      - api_key_v1: []
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    put:
+      operationId: updateAudienceV2
+      summary: Update audience name
+      description: 'Update the name of the given audience created by a third-party integration. Sending a request to this endpoint does **not** trigger the Rule Engine.
+
+
+        To update the audience''s members, use the [Update customer profile](#tag/Customer-profiles/operation/updateCustomerProfileV2) endpoint.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Audiences
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAudience'
+        description: body
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audience'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/audiences/{audienceId}/memberships:
+    delete:
+      operationId: deleteAudienceMembershipsV2
+      summary: Delete audience memberships
+      description: 'Remove all members from this audience.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Audiences
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/customer_audiences:
+    post:
+      operationId: updateCustomerProfileAudiences
+      summary: Update multiple customer profiles' audiences
+      description: 'Add customer profiles to or remove them from an audience.
+
+
+        The endpoint supports 1000 audience actions (`add` or `remove`) per request.
+
+
+        > [!note] You can also do this using the
+
+        > [Update audience](https://docs.talon.one/docs/product/rules/effects/using-effects#updating-an-audience)
+
+        > effect.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Audiences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerProfileAudienceRequest'
+        description: body
+        required: true
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v2/audience_customers/{audienceId}/attributes:
+    put:
+      operationId: updateAudienceCustomersAttributes
+      summary: Update profile attributes for all customers in audience
+      description: 'Update the specified profile attributes to the provided values for all customers in the specified audience.
+
+        '
+      security:
+      - api_key_v1: []
+      tags:
+      - Audiences
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/AttributeQuery'
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/audiences:
+    get:
+      operationId: getAudiences
+      summary: List audiences
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get all audiences created in the account. To create an audience, use [Create audience](https://docs.talon.one/integration-api#tag/Audiences/operation/createAudienceV2).
+
+        '
+      tags:
+      - Audiences
+      parameters:
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: withTotalResultSize
+        in: query
+        description: 'When this flag is set, the result includes the total number of results for this query. This might decrease performance on large data sets.
+
+
+          - When `true`: `totalResultSize` contains the total number of results for this query.
+
+          - When `false`: Only `hasMore` is returned, and it is set to `true` when there are more results than shown on the page.
+
+          '
+        example: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  totalResultSize:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Audience'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/audiences/analytics:
+    get:
+      operationId: getAudiencesAnalytics
+      summary: List audience analytics
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get a list of audience IDs and their member count.
+
+        '
+      tags:
+      - Audiences
+      parameters:
+      - $ref: '#/components/parameters/sort'
+      - name: audienceIds
+        in: query
+        required: true
+        description: The IDs of one or more audiences, separated by commas, by which to filter results. Do not provide more than 1000 audience IDs.
+        example: audience1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AudienceAnalytics'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/audiences/{audienceId}/memberships:
+    get:
+      operationId: getAudienceMemberships
+      summary: List audience members
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Get a paginated list of the customer profiles in a given audience.
+
+
+        A maximum of 1000 customer profiles per page is allowed.
+
+        '
+      tags:
+      - Audiences
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/pageSize'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
+      - name: profileQuery
+        in: query
+        description: The filter to select a profile.
+        example: profile1
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  hasMore:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CustomerProfile'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/audiences/{audienceId}/memberships/import:
+    post:
+      operationId: importAudiencesMemberships
+      summary: Import audience members
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Upload a CSV file containing the integration IDs of the members you want to
+
+        add to an audience.
+
+
+        The file should be sent as multipart data and should contain only the
+
+        following column (required):
+
+
+        - `profileintegrationid`: The integration ID of the customer profile.
+
+
+        The import **replaces** the previous list of audience members.
+
+
+        > [!note] We recommend limiting your file size to 500 MB.
+
+
+        ## Example
+
+
+        ```text
+
+        profileintegrationid
+
+        charles
+
+        alexa
+
+        ```
+
+        '
+      tags:
+      - Audiences
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upFile:
+                  description: The CSV file containing the data that is being imported.
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Import'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+  /v1/audiences/{audienceId}/memberships/export:
+    get:
+      operationId: exportAudiencesMemberships
+      summary: Export audience members
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Download a CSV file containing the integration IDs of the members of an
+
+        audience.
+
+
+        > [!tip] If the exported CSV file is too large to view, you can
+
+        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+
+
+        The file contains the following column:
+
+
+        - `profileintegrationid`: The integration ID of the customer profile.
+
+        '
+      tags:
+      - Audiences
+      parameters:
+      - name: audienceId
+        in: path
+        required: true
+        description: The ID of the audience.
+        example: 10
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: csv
+              examples:
+                response:
+                  value: 'profileintegrationid
+
+                    URNGV8294NV
+
+                    BZGGC2454PA
+
+                    '
+        '400':
+          description: Bad request
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Invalid API key
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+        '404':
+          description: Not found
+          content:
+            application/csv:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithStatus'
+      security:
+      - manager_auth: []
+      - management_key: []
+    servers:
+    - url: https://yourbaseurl.talon.one
+components:
+  schemas:
+    CustomerProfileAudienceRequestItem:
+      type: object
+      required:
+      - action
+      - profileIntegrationId
+      - audienceId
+      properties:
+        action:
+          type: string
+          enum:
+          - add
+          - delete
+          description: "Defines the action to perform:\n- `add`: Adds the customer profile to the audience.\n\n  **Note**: If the customer profile does not exist, it will be created. The profile will not be visible in any Application\n  until a session or profile update is received for that profile.\n- `delete`: Removes the customer profile from the audience.\n"
+          example: add
+        profileIntegrationId:
+          type: string
+          description: The ID of this customer profile in the third-party integration.
+          example: R195412
+          maxLength: 1000
+        audienceId:
+          type: integer
+          description: The ID of the audience. You get it via the `id` property when [creating an audience](#tag/Audiences/operation/createAudienceV2).
+          example: 748
+    NewInternalAudience:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The human-friendly display name for this audience.
+          example: Travel audience
+        sandbox:
+          type: boolean
+          description: Indicates if this is a live or sandbox Application.
+          example: true
+        description:
+          type: string
+          description: A description of the audience.
+          example: Travel audience 18-27
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications that are connected to this audience.
+          uniqueItems: true
+          items:
+            type: integer
+          example:
+          - 3
+          - 13
+    AttributeQuery:
+      type: object
+      description: Object representing a set of of attributes and their respective values.
+      example:
+        my_attribute_1: some value
+        my_attribute_2: some other value
+        my_attribute_3: some other value
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    CustomerProfileAudienceRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerProfileAudienceRequestItem'
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    Audience:
+      allOf:
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/NewAudience'
+    UpdateAudience:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The human-friendly display name for this audience.
+          example: Travel audience
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications that are connected to this audience.
+          items:
+            type: integer
+          uniqueItems: true
+          example:
+          - 3
+          - 13
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    NewAudience:
+      allOf:
+      - $ref: '#/components/schemas/NewInternalAudience'
+      - type: object
+        required:
+        - name
+        properties:
+          integration:
+            type: string
+            description: 'The Talon.One-supported [3rd-party platform](https://docs.talon.one/docs/dev/technology-partners/overview) that this audience was created in.
+
+
+              For example, `mParticle`, `Segment`, `Shopify`, `Braze`, or `Iterable`.
+
+
+              **Note:** If you do not integrate with any of these platforms, do not use this property.
+
+              '
+            example: mparticle
+          integrationId:
+            type: string
+            minLength: 1
+            maxLength: 1000
+            description: 'The ID of this audience in the third-party integration.
+
+
+              **Note:** To create an audience that doesn''t come from a 3rd party platform, do not use this property.
+
+              '
+            example: 382370BKDB946
+          createdIn3rdParty:
+            type: boolean
+            description: Determines if this audience is a 3rd party audience or not.
+            example: false
+          lastUpdate:
+            type: string
+            format: date-time
+            description: The last time that the audience memberships changed.
+            example: '2022-04-26T11:02:38Z'
+    IntegrationEntity:
+      type: object
+      required:
+      - integrationId
+      - created
+      properties:
+        integrationId:
+          type: string
+          format: string
+          example: URNGV8294NV
+          maxLength: 1000
+          description: The integration ID set by your integration layer.
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-02-07T08:15:22Z'
+    CustomerProfile:
+      allOf:
+      - $ref: '#/components/schemas/CustomerProfileEntity'
+      - $ref: '#/components/schemas/IntegrationEntity'
+      - $ref: '#/components/schemas/NewCustomerProfile'
+      - type: object
+        properties:
+          accountId:
+            type: integer
+            title: Profile belongs to Account
+            description: The ID of the Talon.One account that owns this profile.
+            example: 31
+          closedSessions:
+            type: integer
+            title: Closed sessions
+            description: The total number of closed sessions. Does not include closed sessions that have been cancelled or reopened. See the [docs](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).
+            example: 3
+          totalSales:
+            type: number
+            description: 'The total amount of money spent by the customer **before** discounts are applied.
+
+
+              The total sales amount excludes the following:
+
+              - Cancelled or reopened sessions.
+
+              - Returned items.
+
+              '
+            example: 299.99
+            title: Total Sales
+          loyaltyMemberships:
+            type: array
+            deprecated: true
+            description: '**DEPRECATED. Always returns `null`.** A list of loyalty programs joined by the customer.
+
+              '
+            items:
+              $ref: '#/components/schemas/LoyaltyMembership'
+            title: Loyalty programed joined
+            example: null
+          audienceMemberships:
+            type: array
+            description: The audiences the customer belongs to.
+            items:
+              $ref: '#/components/schemas/AudienceMembership'
+            title: Audience memberships
+          lastActivity:
+            type: string
+            format: date-time
+            title: Last activity
+            description: 'Timestamp of the most recent event received from this customer.
+
+              This field is updated on calls that trigger the Rule Engine and that are
+
+              not [dry requests](https://docs.talon.one/docs/dev/integration-api/dry-requests/#overlay).
+
+
+              For example, [reserving a coupon](https://docs.talon.one/integration-api#tag/Coupons/operation/createCouponReservation)
+
+              for a customer doesn''t impact this field.
+
+              '
+            example: '2020-02-08T14:15:20Z'
+          sandbox:
+            type: boolean
+            description: 'An indicator of whether the customer is part of a sandbox or live Application. See the [docs](https://docs.talon.one/docs/product/applications/overview#application-environments).
+
+              '
+            title: Sandbox
+            example: false
+        required:
+        - accountId
+        - closedSessions
+        - totalSales
+        - lastActivity
+        - attributes
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    AudienceAnalytics:
+      type: object
+      description: The audiences and their member count.
+      properties:
+        audienceId:
+          type: integer
+          description: The ID of the audience.
+          example: 1
+        membersCount:
+          type: integer
+          description: The member count of the audience.
+          example: 1234
+    CustomerProfileEntity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of the customer profile.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time the customer profile was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    NewCustomerProfile:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Arbitrary properties associated with this item.
+          example:
+            Language: english
+            ShippingCountry: DE
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    LoyaltyMembership:
+      type: object
+      required:
+      - loyaltyProgramId
+      properties:
+        joined:
+          type: string
+          format: date-time
+          title: Loyalty program joined at
+          description: The moment in which the loyalty program was joined.
+          example: '2012-03-20T14:15:22Z'
+        loyaltyProgramId:
+          type: integer
+          title: Loyalty program ID
+          description: The ID of the loyalty program belonging to this entity.
+          example: 323414846
+    AudienceMembership:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          title: Audience ID
+          description: The ID of the audience belonging to this entity.
+          example: 2
+        name:
+          type: string
+          title: Audience Name
+          description: The Name of the audience belonging to this entity.
+          example: Travel audience
+  requestBodies:
+    AttributeQuery:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AttributeQuery'
+      description: body
+      required: true
+  parameters:
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+  securitySchemes:
+    api_key_v1:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "To authenticate with the Integration API, generate an API key in the Campaign Manager\nand prefix it with `ApiKey-v1`.\n\nTo generate an API key:\n\n1. Sign in to the Campaign Manager and open the Application of your choice, or create one.\n1. Click **Settings** > **Integration API Keys**.\n1. Click **Create API Key** and give it a name and an expiration date, then click **Create API Key**.\n\n   **Tip**: Avoid choosing expiration dates that fall at the end of\n   the year or during other high-traffic periods.\n\n\nYou can now use the API key in the HTTP header, prefixing it with `ApiKey-v1`:\n\n```\nAuthorization: ApiKey-v1 dbc644d33aa74d582bd9479c59e16f970fe13bf3\n```\n\nOr use it inside [an SDK](https://docs.talon.one/docs/dev/sdks/overview), for example, with the JAVA SDK:\n\n```\niApi.getApiClient().setApiKeyPrefix(\"ApiKey-v1\");\niApi.getApiClient().setApiKey(\"dbc644d33aa74d582bd9479c59e16f970fe13bf3\");\n```\n"
+    manager_auth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'This authentication scheme relies on a bearer token that you can use to
+
+        access all the endpoints of the Management API.
+
+
+        To create the token:
+
+
+        1. Get a bearer token by calling the
+
+        [createSession](#tag/Sessions/operation/createSession) endpoint.
+
+        1. Use the `token` property of the response in the HTTP header of your
+
+        next queries: `Authorization: Bearer $TOKEN`.
+
+
+        A token is valid for 3 months. In accordance with best pratices, use
+
+        your generated token for all your API requests. Do **not** regenerate a token for each
+
+        request.
+
+
+        > [!note]
+
+        > We recommend that you use a [Management API key](https://docs.talon.one/management-api#section/Authentication/management_key)
+
+        > instead of a bearer token.
+
+        '
+    management_key:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: "The API key authentication gives you access to the endpoints selected by\nthe admin who created the key.\n\nUsing an API key is the recommended authentication method.\n\nThe key must be generated by an admin and given to the developer that\nrequires it:\n\n1. Sign in to the Campaign Manager and click **Account** > **Tools** >\n**Management API Keys**.\n1. Click **Create Key** and give it a name.\n1. Set an expiration date.\n   **Tip**: Avoid choosing expiration dates that fall at the end of the year or during other high-traffic periods.\n1. Choose the endpoints the key should give access to.\n1. Click **Create Key**.\n1. Share it with your developer.\n\nThe developer can now use the API key in the HTTP header, prefixing it\nwith `ManagementKey-v1`:\n\n```\nAuthorization: ManagementKey-v1 bd9479c59e16f9dbc644d33aa74d58270fe13bf3\n```\n"
+x-refined-from:
+- talon-one-integration-api-openapi.yml
+- talon-one-management-api-openapi.yml
