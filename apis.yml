@@ -260,6 +260,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Application
+  tags_raw:
   - Applications
   properties:
   - type: OpenAPI
@@ -554,6 +556,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Campaign Templates
+  tags_raw:
   - Campaign templates
   properties:
   - type: OpenAPI
@@ -690,6 +694,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Collection
+  tags_raw:
   - Collections
   properties:
   - type: OpenAPI
@@ -822,6 +828,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Customer Data
+  tags_raw:
   - Customer data
   properties:
   - type: OpenAPI
@@ -957,6 +965,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Customer Profiles
+  tags_raw:
   - Customer profiles
   properties:
   - type: OpenAPI
@@ -1009,6 +1019,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Customer Sessions
+  tags_raw:
   - Customer sessions
   properties:
   - type: OpenAPI
@@ -1105,6 +1117,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Event
+  tags_raw:
   - Events
   properties:
   - type: OpenAPI
@@ -1423,6 +1437,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Loyalty Cards
+  tags_raw:
   - Loyalty cards
   properties:
   - type: OpenAPI
@@ -1945,6 +1961,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
