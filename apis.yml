@@ -649,6 +649,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Catalog
+  tags_raw:
   - Catalogs
   properties:
   - type: OpenAPI
@@ -1709,6 +1711,8 @@ apis:
   humanURL: https://docs.talon.one/docs/dev/integration-api/overview
   baseURL: https://yourbaseurl.talon.one
   tags:
+  - Sessions
+  tags_raw:
   - Session
   properties:
   - type: OpenAPI
