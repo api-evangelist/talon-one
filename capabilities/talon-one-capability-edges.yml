@@ -1,0 +1,162 @@
+slug: talon-one
+provider: Talon.One
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Retail & Consumer Goods
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 14
+edges:
+- tag: Loyalty
+  spec_file: talon-one-loyalty-api-openapi.yml
+  capability_id: BC-420.40
+  capability_id_l1: BC-420
+  capability_name: Loyalty & Retention Management
+  confidence: 0.95
+  evidence: GET /v1/loyalty_programs  getLoyaltyPrograms  List loyalty programs; POST /v1/loyalty_programs/{loyaltyProgramId}/profile/{integrationId}/join  Join
+    customer profile to loyalty program; schemas Tier, LoyaltyBalanceWithTier
+  reason: Operations administer loyalty programmes, tiers, point ledgers, balances and enrolment of customer
+    profiles — unambiguously loyalty programme management.
+- tag: Loyalty cards
+  spec_file: talon-one-loyalty-cards-api-openapi.yml
+  capability_id: BC-420.40
+  capability_id_l1: BC-420
+  capability_name: Loyalty & Retention Management
+  confidence: 0.92
+  evidence: POST /v1/loyalty_programs/{loyaltyProgramId}/cards  generateLoyaltyCard  Generate loyalty
+    card; POST /v2/loyalty_programs/{loyaltyProgramId}/cards/{loyaltyCardId}/link_profile  Link customer
+    profile to card
+  reason: Issuance, import, linking to profiles, and point balances of loyalty cards — the card instrument
+    of a loyalty programme.
+- tag: Coupons
+  spec_file: talon-one-coupons-api-openapi.yml
+  capability_id: BC-440.30
+  capability_id_l1: BC-440
+  capability_name: Discount & Promotion Management
+  confidence: 0.85
+  evidence: POST /v1/applications/{applicationId}/campaigns/{campaignId}/coupons  createCoupons  Create
+    coupons; POST /v1/coupon_reservations/{couponValue}  Create coupon reservation
+  reason: Creation, update, deletion and reservation of coupon codes tied to promotion campaigns is squarely
+    promotional offer management under Discount & Promotion Management.
+- tag: Audiences
+  spec_file: talon-one-audiences-api-openapi.yml
+  capability_id: BC-420.20
+  capability_id_l1: BC-420
+  capability_name: Customer Segmentation Management
+  confidence: 0.8
+  evidence: POST /v2/audiences  createAudienceV2  Create audience; GET /v1/audiences/{audienceId}/memberships  List
+    audience members; GET /v1/audiences/analytics  List audience analytics
+  reason: Operations create audiences, manage membership of customer profiles in them and analyse them
+    — this is customer segmentation for targeting, i.e. Customer Segmentation Management.
+- tag: Customer profiles
+  spec_file: talon-one-customer-profiles-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.8
+  evidence: PUT /v2/customer_profiles/{integrationId}  updateCustomerProfileV2  Update customer profile;
+    DELETE /v1/customer_data/{integrationId}  deleteCustomerData  Delete customer's personal data
+  reason: Operations create, update, retrieve and delete the customer profile record used by the engine
+    — maintenance of customer master/profile data. Deletion of personal data also hints at privacy, but
+    the dominant surface is customer data management.
+- tag: Accounts and users
+  spec_file: talon-one-accounts-and-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.78
+  evidence: '''List SCIM users'', ''Create SCIM group'', ''Validate Okta API ownership''; schemas ScimUser,
+    ScimGroup, ActivateUserRequest'
+  reason: Operations administer platform user accounts and SCIM/Okta provisioning of users and groups
+    — identity and access management plumbing, not a marketing capability.
+- tag: Achievements
+  spec_file: talon-one-achievements-api-openapi.yml
+  capability_id: BC-420.40
+  capability_id_l1: BC-420
+  capability_name: Loyalty & Retention Management
+  confidence: 0.78
+  evidence: '''List customer''s available achievements'', ''List customer''s achievement history'', POST
+    /v1/applications/{applicationId}/campaigns/{campaignId}/achievements ''Create achievement''; schemas
+    AchievementProgress, CustomerProfile paths'
+  reason: Achievements are customer-facing gamified loyalty mechanics tracked per customer profile within
+    promotion campaigns, which realises loyalty programme management.
+- tag: Campaigns
+  spec_file: talon-one-campaigns-api-openapi.yml
+  capability_id: BC-440.30
+  capability_id_l1: BC-440
+  capability_name: Discount & Promotion Management
+  confidence: 0.78
+  evidence: GET /v1/integration/campaigns  List all running campaigns; GET /v1/applications/{applicationId}/campaigns/{campaignId}/analytics  Get
+    analytics of campaigns; schemas PromotionBlock, AwardDiscountCartTarget
+  reason: Campaigns in this promotion engine are discount/promotion campaigns with rulesets producing
+    discount effects, plus campaign analytics — Discount & Promotion Management. Some overlap with marketing
+    campaign management, hence not maximal confidence.
+- tag: Customer data
+  spec_file: talon-one-customer-data-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.78
+  evidence: GET /v1/customers/{customerId}  getCustomerProfile  Get customer profile; GET /v1/applications/{applicationId}/customers/{customerId}/analytics  Get
+    customer's analytics report
+  reason: Read and search over customer profiles, application customers and sessions — maintenance and
+    retrieval of the customer record. Customer Data Management is the best fit, though activity/analytics
+    reports edge toward customer analytics.
+- tag: Customer engagement platforms
+  spec_file: talon-one-customer-engagement-platforms-api-openapi.yml
+  capability_id: BC-420.40
+  capability_id_l1: BC-420
+  capability_name: Loyalty & Retention Management
+  confidence: 0.75
+  evidence: GET /customer_engagement/loyalty  cep/loyalty  Get loyalty ledger (CEP); POST /customer_engagement/add_loyalty_points  Add
+    loyalty points (CEP)
+  reason: These CEP-partner endpoints issue coupons/referrals and read or credit loyalty points for a
+    customer, i.e. execution of loyalty and incentive programmes. Some ambiguity because coupon issuance
+    also touches promotion management, hence not higher confidence.
+- tag: Roles
+  spec_file: talon-one-roles-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: GET /v2/roles listAllRolesV2 List roles; PUT /v2/roles/{roleId} Update role; schemas RoleV2Permissions,
+    RoleV2PermissionSet
+  reason: Operations manage roles and permission sets scoped to user accounts within the platform — role-based
+    access control, i.e. identity and access management, not a promotion business capability.
+- tag: Braze
+  spec_file: talon-one-braze-api-openapi.yml
+  capability_id: BC-440.30
+  capability_id_l1: BC-440
+  capability_name: Discount & Promotion Management
+  confidence: 0.7
+  evidence: POST /braze/coupon  Create coupon (Braze); POST /braze/referral  Create referral (Braze)
+  reason: Despite the partner-integration framing, the operations issue coupons, coupon reservations and
+    referrals — promotional offer issuance. Maps to Discount & Promotion Management; confidence moderated
+    because the tag is fundamentally a third-party integration surface.
+- tag: Giveaways
+  spec_file: talon-one-giveaways-api-openapi.yml
+  capability_id: BC-440.30
+  capability_id_l1: BC-440
+  capability_name: Discount & Promotion Management
+  confidence: 0.7
+  evidence: POST /v1/giveaways/pools/{poolId}/import  Import giveaway codes into a giveaway pool; GET
+    /v1/giveaways/pools/{poolId}/export  Export giveaway codes
+  reason: Managing pools of giveaway codes awarded by promotion campaigns is administration of promotional
+    offers/incentives. Only import/export operations are exposed, so confidence is moderate.
+- tag: Referrals
+  spec_file: talon-one-referrals-api-openapi.yml
+  capability_id: BC-420
+  capability_id_l1: BC-420
+  capability_name: Customer Relationship Management
+  confidence: 0.7
+  evidence: POST /v1/referrals  createReferral  Create referral code for an advocate; GET /v1/applications/{applicationId}/profile/{integrationId}/friends  List
+    friends referred by customer profile
+  reason: Manages advocate referral codes and the referred-friend relationships that drive customer acquisition
+    and advocacy — a customer relationship/incentive programme capability. Evidence does not clearly pick
+    between loyalty-programme and lifecycle/acquisition sub-capabilities, so only the L1 is asserted.
