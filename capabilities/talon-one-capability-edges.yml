@@ -11,7 +11,7 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 14
+edge_count: 16
 edges:
 - tag: Loyalty
   spec_file: talon-one-loyalty-api-openapi.yml
@@ -119,6 +119,19 @@ edges:
   reason: These CEP-partner endpoints issue coupons/referrals and read or credit loyalty points for a
     customer, i.e. execution of loyalty and incentive programmes. Some ambiguity because coupon issuance
     also touches promotion management, hence not higher confidence.
+- tag: Iterable
+  spec_file: talon-one-iterable-api-openapi.yml
+  capability_id: BC-420.40
+  capability_id_l1: BC-420
+  capability_name: Loyalty & Retention Management
+  confidence: 0.75
+  evidence: GET /iterable/coupon  iterable/createCoupon  Create coupon (Iterable); GET /iterable/loyalty  iterable/loyalty  Get
+    loyalty ledger (Iterable)
+  reason: Although presented as a partner-integration surface, the three operations actually issue coupons,
+    referral codes and read the loyalty ledger — i.e. execution of loyalty/incentive programmes for customers.
+    Mapped to Loyalty & Retention Management; some ambiguity because the tag is fundamentally a CDP/CEP
+    connector.
+  recovered_from: sweep-20260829T005356Z-edges.json
 - tag: Roles
   spec_file: talon-one-roles-api-openapi.yml
   capability_id: BC-620.20
@@ -160,3 +173,15 @@ edges:
   reason: Manages advocate referral codes and the referred-friend relationships that drive customer acquisition
     and advocacy — a customer relationship/incentive programme capability. Evidence does not clearly pick
     between loyalty-programme and lifecycle/acquisition sub-capabilities, so only the L1 is asserted.
+- tag: Segment
+  spec_file: talon-one-segment-api-openapi.yml
+  capability_id: BC-420
+  capability_id_l1: BC-420
+  capability_name: Customer Relationship Management
+  confidence: 0.7
+  evidence: segment/updateCustomerProfile  Upsert customer profile v1 (Segment); segment/createAudience  Create
+    audience (Segment)
+  reason: Operations ingest and maintain customer profiles and audience membership from a CDP — customer
+    data and segmentation work. L1 CRM asserted; the split between customer data management and segmentation
+    is ambiguous so no L2 given.
+  recovered_from: sweep-20260829T005356Z-edges.json
