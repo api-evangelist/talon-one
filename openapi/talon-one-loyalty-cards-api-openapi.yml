@@ -6,23 +6,21 @@ info:
 servers:
 - url: https://yourbaseurl.talon.one
 tags:
-- name: Loyalty cards
+- name: Loyalty Cards
   description: 'Represents loyalty cards.
 
 
-    [Loyalty cards](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview) allow your customers to collect and spend loyalty points within a card-based loyalty program.
-
-    '
+    Loyalty cards allow your customers to collect and spend loyalty points within a card-based loyalty program.'
 paths:
   /v2/loyalty_programs/{loyaltyProgramId}/cards/{loyaltyCardId}/link_profile:
     post:
       operationId: linkLoyaltyCardToProfile
       summary: Link customer profile to card
-      description: '[Loyalty cards](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview)
+      description: 'Loyalty cards
 
-        allow customers to collect and spend loyalty points within a [card-based loyalty
+        allow customers to collect and spend loyalty points within a card-based loyalty
 
-        program](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types).
+        program.
 
 
         They are useful to gamify loyalty programs and can be used with or without
@@ -37,18 +35,16 @@ paths:
 
         This affects how it can be used. See the
 
-        [docs](https://docs.talon.one/docs/product/loyalty-programs/card-based/managing-loyalty-cards#linking-customer-profiles-to-a-loyalty-card).
+        docs.
 
 
         > [!note] You can link as many customer profiles to a given loyalty card as the
 
-        > [**card user limit**](https://docs.talon.one/docs/product/loyalty-programs/card-based/creating-cb-programs)
+        > **card user limit**
 
-        > allows.
-
-        '
+        > allows.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       security:
       - api_key_v1: []
       parameters:
@@ -127,18 +123,16 @@ paths:
     post:
       operationId: unlinkLoyaltyCardFromProfile
       summary: Unlink customer profile from a loyalty card
-      description: 'Unlink a customer profile from a [registered](https://docs.talon.one/docs/product/loyalty-programs/card-based/managing-loyalty-cards#linking-customer-profiles-to-a-loyalty-card) loyalty card.
+      description: 'Unlink a customer profile from a registered loyalty card.
 
 
         To get the `integrationId` of a customer profile, you can use the
 
-        [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+        Update customer session
 
-        endpoint.
-
-        '
+        endpoint.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       security:
       - api_key_v1: []
       parameters:
@@ -215,13 +209,11 @@ paths:
       summary: Get card's point balances
       description: 'Retrieve loyalty balances for the given loyalty card in the specified loyalty program with filtering options applied.
 
-        If no filtering options are applied, all loyalty balances for the given loyalty card are returned.
-
-        '
+        If no filtering options are applied, all loyalty balances for the given loyalty card are returned.'
       security:
       - api_key_v1: []
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -327,13 +319,11 @@ paths:
       summary: List card's transactions
       description: 'Retrieve loyalty transaction logs for the given loyalty card in the specified loyalty program with filtering options applied.
 
-        If no filtering options are applied, the last 50 loyalty transactions for the given loyalty card are returned.
-
-        '
+        If no filtering options are applied, the last 50 loyalty transactions for the given loyalty card are returned.'
       security:
       - api_key_v1: []
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -562,13 +552,11 @@ paths:
 
         - `pending`: Points with a start date in the future.
 
-        - `expired`: Points with an expiration date in the past.
-
-        '
+        - `expired`: Points with an expiration date in the past.'
       security:
       - api_key_v1: []
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -752,9 +740,9 @@ paths:
     post:
       operationId: generateLoyaltyCard
       summary: Generate loyalty card
-      description: 'Generate a loyalty card in a specified [card-based loyalty
+      description: 'Generate a loyalty card in a specified card-based loyalty
 
-        program](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview).
+        program.
 
 
         To link the card to one or more customer profiles, use the
@@ -766,21 +754,19 @@ paths:
 
         > - The number of customer profiles linked to the loyalty card cannot exceed
 
-        >   the loyalty program''s `usersPerCardLimit`. To find the program''s limit, use
+        > the loyalty program''s `usersPerCardLimit`. To find the program''s limit, use
 
-        >   the [Get loyalty program](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyProgram)
+        > the Get loyalty program
 
-        >   endpoint.
+        > endpoint.
 
         > - If the loyalty program has a defined code format, it will be used for the
 
-        >   loyalty card identifier.
-
-        '
+        > loyalty card identifier.'
       security:
       - api_key_v1: []
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -825,11 +811,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        For the given card-based loyalty program, list the loyalty cards that match your filter criteria.
-
-        '
+        For the given card-based loyalty program, list the loyalty cards that match your filter criteria.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -964,11 +948,9 @@ paths:
 
         123-456-789AT,active,Alexa001;UserA,''{""my_attributes"": ""10_off""}"
 
-        ```
-
-        '
+        ```'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1023,9 +1005,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Create a batch of loyalty cards in a specified [card-based loyalty
+        Create a batch of loyalty cards in a specified card-based loyalty
 
-        program](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types).
+        program.
 
 
         Customers can use loyalty cards to collect and spend loyalty points.
@@ -1035,15 +1017,13 @@ paths:
 
         > - The specified card-based loyalty program must have a defined card code
 
-        >   format that is used to generate the loyalty card codes.
+        > format that is used to generate the loyalty card codes.
 
         > - Trying to create more than 20,000 loyalty cards in a single request
 
-        >   returns an error message with a `400` status code.
-
-        '
+        > returns an error message with a `400` status code.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1107,7 +1087,7 @@ paths:
 
         > [!tip] If the exported CSV file is too large to view, you can
 
-        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+        > split it into multiple files.
 
 
         The CSV file contains the following columns:
@@ -1130,11 +1110,9 @@ paths:
 
         - `expiredBalance`: The number of expired points.
 
-        - `spentBalance`: The number of spent points.
-
-        '
+        - `spentBalance`: The number of spent points.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1250,7 +1228,7 @@ paths:
 
         > [!tip] If the exported CSV file is too large to view, you can
 
-        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+        > split it into multiple files.
 
 
         The CSV file contains the following columns:
@@ -1272,11 +1250,9 @@ paths:
 
         - `batchid`: The ID of the batch the loyalty card is in.
 
-        - `attributes`: The custom attributes of this loyalty card.
-
-        '
+        - `attributes`: The custom attributes of this loyalty card.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1373,7 +1349,7 @@ paths:
 
         Delete the given loyalty card.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1438,7 +1414,7 @@ paths:
 
         Update the details of a specific loyalty card. You can set the card''s status to `active` or `inactive` through this endpoint. At least one of `status` or `attributes` must be provided.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1520,7 +1496,7 @@ paths:
 
         Get the given loyalty card.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1596,11 +1572,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Add points to the given loyalty card in the specified card-based loyalty program.
-
-        '
+        Add points to the given loyalty card in the specified card-based loyalty program.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1672,11 +1646,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Deduct points from the given loyalty card in the specified card-based loyalty program.
-
-        '
+        Deduct points from the given loyalty card in the specified card-based loyalty program.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1757,11 +1729,9 @@ paths:
 
         > [!tip] If the exported CSV file is too large to view, you can
 
-        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
-
-        '
+        > split it into multiple files.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -1880,25 +1850,23 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Retrieve the transaction logs for the given [loyalty card](https://docs.talon.one/docs/product/loyalty-programs/card-based/card-based-overview)
+        Retrieve the transaction logs for the given loyalty card
 
-        within the specified [card-based loyalty program](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types)
+        within the specified card-based loyalty program
 
         with filtering options applied.
 
 
         > [!note] For most use cases, especially real-time integrations, use the Integration API endpoint:
 
-        > [List card''s transactions](https://docs.talon.one/integration-api#tag/Loyalty-cards/operation/getLoyaltyCardTransactions).
+        > List card''s transactions.
 
 
         If no filtering options are applied, the last 50 loyalty transactions for
 
-        the given loyalty card are returned.
-
-        '
+        the given loyalty card are returned.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -2071,9 +2039,25 @@ paths:
     put:
       operationId: transferLoyaltyCard
       summary: Transfer card data
-      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nTransfer loyalty card data, such as linked customers, loyalty balances and\ntransactions, from a given loyalty card to a new, automatically created\nloyalty card.\n\n> [!important] **Note**\n> - The original card is automatically blocked once the new card is created,\n    and it cannot be activated again.\n> - The default status of the new card is _active_.\n"
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Transfer loyalty card data, such as linked customers, loyalty balances and
+
+        transactions, from a given loyalty card to a new, automatically created
+
+        loyalty card.
+
+
+        > [!important] **Note**
+
+        > - The original card is automatically blocked once the new card is created,
+
+        and it cannot be activated again.
+
+        > - The default status of the new card is _active_.'
       tags:
-      - Loyalty cards
+      - Loyalty Cards
       parameters:
       - name: loyaltyProgramId
         in: path
@@ -2147,113 +2131,118 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    LedgerInfo:
-      allOf:
-      - $ref: '#/components/schemas/LoyaltyProgramBalance'
-      - type: object
-        properties:
-          currentTier:
-            $ref: '#/components/schemas/Tier'
-            description: Tier for which the ledger is eligible.
-            example: bronze
-          pointsToNextTier:
-            type: number
-            description: Points required to move up a tier.
-            example: 20
-          nextTierName:
-            type: string
-            description: 'The name of the next higher tier level in the loyalty program.
+    LoyaltyCardIdentifier:
+      type: string
+      description: 'The identifier of the loyalty card, which must match the regular expression `^[A-Za-z0-9._%+@-]+$`.
 
-
-              **Note**:
-
-              - Returns `null` if the customer has reached the highest available tier.
-
-              - Returns the lowest level tier name if the customer is not currently assigned to any tier.
-
-              '
-            example: Silver
-    UpdateLoyaltyCard:
+        '
+      maxLength: 108
+      minLength: 4
+      pattern: ^[A-Za-z0-9._%+@-]+$
+      example: summer-loyalty-card-0543
+    LoyaltyBalance:
       type: object
-      required:
-      - status
+      description: Point balance of a ledger in the Loyalty Program.
+      properties:
+        activePoints:
+          type: number
+          title: Current Balance
+          description: Total amount of points awarded to this customer and available to spend.
+          example: 286
+        pendingPoints:
+          type: number
+          title: Total pending points
+          description: Total amount of points awarded to this customer but not available until their start date.
+          example: 50
+        spentPoints:
+          type: number
+          title: Total spent points
+          description: Total amount of points already spent by this customer.
+          example: 150
+        expiredPoints:
+          type: number
+          title: Total expired points
+          description: Total amount of points awarded but never redeemed. They cannot be used anymore.
+          example: 286
+        negativePoints:
+          type: number
+          title: Current negative balance
+          description: Total amount of negative points. This implies that `activePoints` is `0`.
+          example: 286
+    LoyaltyBalances:
+      type: object
+      description: List of loyalty balances for a ledger and its subledgers.
+      properties:
+        balance:
+          $ref: '#/components/schemas/LoyaltyBalance'
+          title: Loyalty points balance of a ledger
+        subledgerBalances:
+          type: object
+          description: Map of the loyalty balances of the subledgers of a ledger.
+          additionalProperties:
+            $ref: '#/components/schemas/LoyaltyBalance'
+          example:
+            mysubledger:
+              activePoints: 286
+              pendingPoints: 50
+              spentPoints: 150
+              expiredPoints: 25
+              negativePoints: 0
+    GenerateLoyaltyCard:
+      type: object
+      description: The parameters necessary to generate a loyalty card.
       properties:
         status:
           type: string
-          description: 'Status of the loyalty card. Can be `active` or `inactive`.
-
-            '
+          enum:
+          - active
+          - inactive
+          default: active
+          description: Status of the loyalty card.
           example: active
-        blockReason:
-          type: string
-          description: 'Reason for transferring and blocking the loyalty card.
-
-            '
-          example: Current card lost. Customer needs a new card.
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    LoyaltyCard:
+        customerProfileIds:
+          type: array
+          description: Integration IDs of the customer profiles linked to the card.
+          items:
+            type: string
+          example:
+          - R195412
+          - G244519
+        cardIdentifier:
+          $ref: '#/components/schemas/LoyaltyCardIdentifier'
+      example:
+        status: inactive
+        customerProfileIds:
+        - R195412
+        - G244519
+        cardIdentifier: summer-loyalty-card-0543
+        attributes:
+          preferredReward: discount
+          enrollmentSource: mobile
+    LoyaltyCardBalances:
       allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/LoyaltyProgramEntity'
-      - $ref: '#/components/schemas/UpdateLoyaltyCard'
+      - $ref: '#/components/schemas/LoyaltyBalances'
       - type: object
-        required:
-        - identifier
-        - usersPerCardLimit
+        description: List of customer profiles linked to the loyalty card.
         properties:
-          identifier:
-            $ref: '#/components/schemas/LoyaltyCardIdentifier'
-          usersPerCardLimit:
-            type: integer
-            minimum: 0
-            example: 111
-            description: 'The max amount of customer profiles that can be linked to the card. 0 means unlimited.
-
-              '
           profiles:
             type: array
-            description: Integration IDs of the customers profiles linked to the card.
+            description: Customer profiles linked to the loyalty card.
             items:
               $ref: '#/components/schemas/LoyaltyCardProfileRegistration'
-          ledger:
-            $ref: '#/components/schemas/LedgerInfo'
-            description: Displays point balances of the card in the main ledger of the loyalty program.
-          subledgers:
-            type: object
-            description: Displays point balances of the card in the subledgers of the loyalty program.
-            additionalProperties:
-              $ref: '#/components/schemas/LedgerInfo'
-          modified:
-            type: string
-            format: date-time
-            description: Timestamp of the most recent update of the loyalty card.
-            example: '2021-09-12T10:12:42Z'
-          oldCardIdentifier:
-            $ref: '#/components/schemas/LoyaltyCardIdentifier'
-            description: The identifier of the card from which the points were transferred.
-            example: summer-loyalty-card-0543
-          newCardIdentifier:
-            $ref: '#/components/schemas/LoyaltyCardIdentifier'
-            description: The identifier of the card to which the points were transferred.
-            example: autumn-loyalty-card-5822
-          batchId:
-            description: The ID of the batch in which the loyalty card was created.
-            type: string
-            example: wdefpov
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
     CardLedgerPointsEntryIntegrationAPI:
       type: object
       description: Loyalty card points with start and expiry dates.
@@ -2326,46 +2315,6 @@ components:
 
             '
           example: 30D
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
-    LoyaltyCardRegistration:
-      type: object
-      required:
-      - integrationId
-      properties:
-        integrationId:
-          type: string
-          title: Customer Profile ID
-          description: The integrationId of the customer profile.
-          example: R195412
-    LoyaltyProgramEntity:
-      type: object
-      required:
-      - programID
-      properties:
-        programID:
-          type: integer
-          description: The ID of the loyalty program that owns this entity.
-          example: 125
-        programName:
-          type: string
-          description: The integration name of the loyalty program that owns this entity.
-          example: Loyalty_program
-        programTitle:
-          type: string
-          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
-          example: Loyalty program
     Tier:
       type: object
       required:
@@ -2396,65 +2345,6 @@ components:
           - one_down
           - balance_based
           description: "The policy that defines how customer tiers are downgraded in the loyalty program after tier reevaluation.\n - `one_down`: If the customer doesn't have enough points to stay in the current tier, they are downgraded by one tier.\n - `balance_based`: The customer's tier is reevaluated based on the amount of active points they have at the moment.\n"
-    LoyaltyCardIdentifier:
-      type: string
-      description: 'The identifier of the loyalty card, which must match the regular expression `^[A-Za-z0-9._%+@-]+$`.
-
-        '
-      maxLength: 108
-      minLength: 4
-      pattern: ^[A-Za-z0-9._%+@-]+$
-      example: summer-loyalty-card-0543
-    LoyaltyBalances:
-      type: object
-      description: List of loyalty balances for a ledger and its subledgers.
-      properties:
-        balance:
-          $ref: '#/components/schemas/LoyaltyBalance'
-          title: Loyalty points balance of a ledger
-        subledgerBalances:
-          type: object
-          description: Map of the loyalty balances of the subledgers of a ledger.
-          additionalProperties:
-            $ref: '#/components/schemas/LoyaltyBalance'
-          example:
-            mysubledger:
-              activePoints: 286
-              pendingPoints: 50
-              spentPoints: 150
-              expiredPoints: 25
-              negativePoints: 0
-    GenerateLoyaltyCard:
-      type: object
-      description: The parameters necessary to generate a loyalty card.
-      properties:
-        status:
-          type: string
-          enum:
-          - active
-          - inactive
-          default: active
-          description: Status of the loyalty card.
-          example: active
-        customerProfileIds:
-          type: array
-          description: Integration IDs of the customer profiles linked to the card.
-          items:
-            type: string
-          example:
-          - R195412
-          - G244519
-        cardIdentifier:
-          $ref: '#/components/schemas/LoyaltyCardIdentifier'
-      example:
-        status: inactive
-        customerProfileIds:
-        - R195412
-        - G244519
-        cardIdentifier: summer-loyalty-card-0543
-        attributes:
-          preferredReward: discount
-          enrollmentSource: mobile
     CardLedgerTransactionLogEntryIntegrationAPI:
       type: object
       description: Log entry for a given loyalty card transaction.
@@ -2543,65 +2433,115 @@ components:
 
             '
           example: 30D
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    APIError:
+    UpdateLoyaltyCard:
       type: object
       required:
-      - source
-      - title
+      - status
       properties:
-        title:
+        status:
           type: string
-          description: Short description of the problem.
-        details:
+          description: 'Status of the loyalty card. Can be `active` or `inactive`.
+
+            '
+          example: active
+        blockReason:
           type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    LoyaltyCardBalances:
+          description: 'Reason for transferring and blocking the loyalty card.
+
+            '
+          example: Current card lost. Customer needs a new card.
+    LoyaltyProgramEntity:
+      type: object
+      required:
+      - programID
+      properties:
+        programID:
+          type: integer
+          description: The ID of the loyalty program that owns this entity.
+          example: 125
+        programName:
+          type: string
+          description: The integration name of the loyalty program that owns this entity.
+          example: Loyalty_program
+        programTitle:
+          type: string
+          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
+          example: Loyalty program
+    LedgerInfo:
       allOf:
-      - $ref: '#/components/schemas/LoyaltyBalances'
+      - $ref: '#/components/schemas/LoyaltyProgramBalance'
       - type: object
-        description: List of customer profiles linked to the loyalty card.
         properties:
+          currentTier:
+            $ref: '#/components/schemas/Tier'
+            description: Tier for which the ledger is eligible.
+            example: bronze
+          pointsToNextTier:
+            type: number
+            description: Points required to move up a tier.
+            example: 20
+          nextTierName:
+            type: string
+            description: 'The name of the next higher tier level in the loyalty program.
+
+
+              **Note**:
+
+              - Returns `null` if the customer has reached the highest available tier.
+
+              - Returns the lowest level tier name if the customer is not currently assigned to any tier.
+
+              '
+            example: Silver
+    LoyaltyCard:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/LoyaltyProgramEntity'
+      - $ref: '#/components/schemas/UpdateLoyaltyCard'
+      - type: object
+        required:
+        - identifier
+        - usersPerCardLimit
+        properties:
+          identifier:
+            $ref: '#/components/schemas/LoyaltyCardIdentifier'
+          usersPerCardLimit:
+            type: integer
+            minimum: 0
+            example: 111
+            description: 'The max amount of customer profiles that can be linked to the card. 0 means unlimited.
+
+              '
           profiles:
             type: array
-            description: Customer profiles linked to the loyalty card.
+            description: Integration IDs of the customers profiles linked to the card.
             items:
               $ref: '#/components/schemas/LoyaltyCardProfileRegistration'
-    LoyaltyCardProfileRegistration:
-      type: object
-      required:
-      - integrationId
-      - timestamp
-      properties:
-        integrationId:
-          type: string
-          maxLength: 1000
-          description: Integration ID of the customer profile linked to the card.
-          example: R195412
-        timestamp:
-          type: string
-          format: date-time
-          description: Timestamp the customer profile was linked to the card.
-          example: '2021-09-12T10:12:42Z'
+          ledger:
+            $ref: '#/components/schemas/LedgerInfo'
+            description: Displays point balances of the card in the main ledger of the loyalty program.
+          subledgers:
+            type: object
+            description: Displays point balances of the card in the subledgers of the loyalty program.
+            additionalProperties:
+              $ref: '#/components/schemas/LedgerInfo'
+          modified:
+            type: string
+            format: date-time
+            description: Timestamp of the most recent update of the loyalty card.
+            example: '2021-09-12T10:12:42Z'
+          oldCardIdentifier:
+            $ref: '#/components/schemas/LoyaltyCardIdentifier'
+            description: The identifier of the card from which the points were transferred.
+            example: summer-loyalty-card-0543
+          newCardIdentifier:
+            $ref: '#/components/schemas/LoyaltyCardIdentifier'
+            description: The identifier of the card to which the points were transferred.
+            example: autumn-loyalty-card-5822
+          batchId:
+            description: The ID of the batch in which the loyalty card was created.
+            type: string
+            example: wdefpov
     LoyaltyProgramBalance:
       type: object
       required:
@@ -2673,44 +2613,170 @@ components:
 
             '
           example: 100
-    LoyaltyBalance:
-      type: object
-      description: Point balance of a ledger in the Loyalty Program.
-      properties:
-        activePoints:
-          type: number
-          title: Current Balance
-          description: Total amount of points awarded to this customer and available to spend.
-          example: 286
-        pendingPoints:
-          type: number
-          title: Total pending points
-          description: Total amount of points awarded to this customer but not available until their start date.
-          example: 50
-        spentPoints:
-          type: number
-          title: Total spent points
-          description: Total amount of points already spent by this customer.
-          example: 150
-        expiredPoints:
-          type: number
-          title: Total expired points
-          description: Total amount of points awarded but never redeemed. They cannot be used anymore.
-          example: 286
-        negativePoints:
-          type: number
-          title: Current negative balance
-          description: Total amount of negative points. This implies that `activePoints` is `0`.
-          example: 286
-    AccountEntity:
+    APIError:
       type: object
       required:
-      - accountId
+      - source
+      - title
       properties:
-        accountId:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
           type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    LoyaltyCardProfileRegistration:
+      type: object
+      required:
+      - integrationId
+      - timestamp
+      properties:
+        integrationId:
+          type: string
+          maxLength: 1000
+          description: Integration ID of the customer profile linked to the card.
+          example: R195412
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp the customer profile was linked to the card.
+          example: '2021-09-12T10:12:42Z'
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    LoyaltyCardRegistration:
+      type: object
+      required:
+      - integrationId
+      properties:
+        integrationId:
+          type: string
+          title: Customer Profile ID
+          description: The integrationId of the customer profile.
+          example: R195412
+    CardLedgerTransactionLogEntry:
+      type: object
+      description: Log entry for a given loyalty card transaction.
+      required:
+      - transactionUUID
+      - created
+      - programId
+      - cardIdentifier
+      - type
+      - name
+      - startDate
+      - expiryDate
+      - subledgerId
+      - amount
+      - id
+      properties:
+        transactionUUID:
+          type: string
+          description: Unique identifier of the transaction in the UUID format.
+          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
+        created:
+          type: string
+          format: date-time
+          description: Date and time the loyalty card transaction occurred.
+          example: 2022-01-02T15:04:05Z07:00
+        programId:
+          type: integer
+          description: ID of the loyalty program.
+          example: 324
+        cardIdentifier:
+          $ref: '#/components/schemas/LoyaltyCardIdentifier'
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+        sessionId:
+          description: 'The **internal** ID of the session.
+
+            '
+          type: integer
+          example: 233
+        customerSessionId:
+          type: string
+          description: ID of the customer session where the transaction occurred.
+          maxLength: 255
+          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
+        type:
+          type: string
+          enum:
+          - addition
+          - subtraction
+          description: "Type of transaction. Possible values:\n  - `addition`: Signifies added points.\n  - `subtraction`: Signifies deducted points.\n"
+          maxLength: 255
+          example: addition
+        name:
+          type: string
+          description: Name or reason of the loyalty ledger transaction.
+          maxLength: 255
+          example: Reward 10% points of a purchase's current total
+        startDate:
+          type: string
+          description: "When points become active. Possible values:\n  - `immediate`: Points are immediately active.\n  - a timestamp value: Points become active at a given date and time.\n"
+          maxLength: 64
+          example: 2022-01-02T15:04:05Z07:00
+        expiryDate:
+          type: string
+          description: "Date when points expire. Possible values are:\n  - `unlimited`: Points have no expiration date.\n  - `timestamp value`: Points become active from the given date.\n"
+          example: 2022-08-02T15:04:05Z07:00
+        subledgerId:
+          type: string
+          description: ID of the subledger.
+          maxLength: 64
+          example: sub-123
+        amount:
+          type: number
+          description: Amount of loyalty points added or deducted in the transaction.
+          example: 10.25
+        id:
+          type: integer
+          description: ID of the loyalty ledger entry.
+          example: 123
+    UpdateLoyaltyCardRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          description: 'Status of the loyalty card. Can be `active` or `inactive`.
+
+            '
+          example: active
     UserEntity:
       type: object
       required:
@@ -2747,19 +2813,15 @@ components:
             example: active
           cardCodeSettings:
             $ref: '#/components/schemas/CodeGeneratorSettings'
-    TransferLoyaltyCard:
+    AccountEntity:
       type: object
       required:
-      - newCardIdentifier
+      - accountId
       properties:
-        newCardIdentifier:
-          $ref: '#/components/schemas/LoyaltyCardIdentifier'
-        blockReason:
-          type: string
-          description: 'Reason for transferring and blocking the loyalty card.
-
-            '
-          example: Current card lost. Customer needs a new card.
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
     CodeGeneratorSettings:
       type: object
       properties:
@@ -2820,6 +2882,78 @@ components:
       required:
       - couponPattern
       - validCharacters
+    LoyaltyCardBatchResponse:
+      type: object
+      required:
+      - numberOfCardsGenerated
+      - batchId
+      properties:
+        numberOfCardsGenerated:
+          type: integer
+          description: Number of loyalty cards in the batch.
+          example: 5000
+        batchId:
+          type: string
+          description: ID of the loyalty card batch.
+          example: hwernpjz
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    TransferLoyaltyCard:
+      type: object
+      required:
+      - newCardIdentifier
+      properties:
+        newCardIdentifier:
+          $ref: '#/components/schemas/LoyaltyCardIdentifier'
+        blockReason:
+          type: string
+          description: 'Reason for transferring and blocking the loyalty card.
+
+            '
+          example: Current card lost. Customer needs a new card.
+    DeductLoyaltyPoints:
+      type: object
+      description: Points to deduct.
+      required:
+      - points
+      properties:
+        points:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 999999999999.99
+          description: Amount of loyalty points.
+          example: 300
+        name:
+          type: string
+          description: Name / reason for the point deduction.
+          example: Penalty
+        subledgerId:
+          type: string
+          description: ID of the subledger the points are deducted from.
+          example: sub-123
+        applicationId:
+          type: integer
+          description: ID of the Application that is connected to the loyalty program.
+          example: 322
     AddLoyaltyPoints:
       type: object
       description: Points to add.
@@ -2946,156 +3080,6 @@ components:
           type: integer
           description: ID of the Application that is connected to the loyalty program. It is displayed in your Talon.One deployment URL.
           example: 322
-    UpdateLoyaltyCardRequest:
-      type: object
-      additionalProperties: false
-      properties:
-        status:
-          type: string
-          description: 'Status of the loyalty card. Can be `active` or `inactive`.
-
-            '
-          example: active
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
-    LoyaltyCardBatchResponse:
-      type: object
-      required:
-      - numberOfCardsGenerated
-      - batchId
-      properties:
-        numberOfCardsGenerated:
-          type: integer
-          description: Number of loyalty cards in the batch.
-          example: 5000
-        batchId:
-          type: string
-          description: ID of the loyalty card batch.
-          example: hwernpjz
-    DeductLoyaltyPoints:
-      type: object
-      description: Points to deduct.
-      required:
-      - points
-      properties:
-        points:
-          type: number
-          exclusiveMinimum: 0
-          maximum: 999999999999.99
-          description: Amount of loyalty points.
-          example: 300
-        name:
-          type: string
-          description: Name / reason for the point deduction.
-          example: Penalty
-        subledgerId:
-          type: string
-          description: ID of the subledger the points are deducted from.
-          example: sub-123
-        applicationId:
-          type: integer
-          description: ID of the Application that is connected to the loyalty program.
-          example: 322
-    CardLedgerTransactionLogEntry:
-      type: object
-      description: Log entry for a given loyalty card transaction.
-      required:
-      - transactionUUID
-      - created
-      - programId
-      - cardIdentifier
-      - type
-      - name
-      - startDate
-      - expiryDate
-      - subledgerId
-      - amount
-      - id
-      properties:
-        transactionUUID:
-          type: string
-          description: Unique identifier of the transaction in the UUID format.
-          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
-        created:
-          type: string
-          format: date-time
-          description: Date and time the loyalty card transaction occurred.
-          example: 2022-01-02T15:04:05Z07:00
-        programId:
-          type: integer
-          description: ID of the loyalty program.
-          example: 324
-        cardIdentifier:
-          $ref: '#/components/schemas/LoyaltyCardIdentifier'
-        applicationId:
-          type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
-        sessionId:
-          description: 'The **internal** ID of the session.
-
-            '
-          type: integer
-          example: 233
-        customerSessionId:
-          type: string
-          description: ID of the customer session where the transaction occurred.
-          maxLength: 255
-          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
-        type:
-          type: string
-          enum:
-          - addition
-          - subtraction
-          description: "Type of transaction. Possible values:\n  - `addition`: Signifies added points.\n  - `subtraction`: Signifies deducted points.\n"
-          maxLength: 255
-          example: addition
-        name:
-          type: string
-          description: Name or reason of the loyalty ledger transaction.
-          maxLength: 255
-          example: Reward 10% points of a purchase's current total
-        startDate:
-          type: string
-          description: "When points become active. Possible values:\n  - `immediate`: Points are immediately active.\n  - a timestamp value: Points become active at a given date and time.\n"
-          maxLength: 64
-          example: 2022-01-02T15:04:05Z07:00
-        expiryDate:
-          type: string
-          description: "Date when points expire. Possible values are:\n  - `unlimited`: Points have no expiration date.\n  - `timestamp value`: Points become active from the given date.\n"
-          example: 2022-08-02T15:04:05Z07:00
-        subledgerId:
-          type: string
-          description: ID of the subledger.
-          maxLength: 64
-          example: sub-123
-        amount:
-          type: number
-          description: Amount of loyalty points added or deducted in the transaction.
-          example: 10.25
-        id:
-          type: integer
-          description: ID of the loyalty ledger entry.
-          example: 123
   parameters:
     skip:
       name: skip

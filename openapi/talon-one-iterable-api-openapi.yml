@@ -2,14 +2,14 @@ openapi: 3.2.0
 info:
   version: ''
   title: Third-party Iterable API
-  description: "Use the Third-party API to exchange data between Talon.One and one of the supported [technology partners](https://docs.talon.one/docs/dev/technology-partners/overview).\n\nFor example, use the Braze-specific endpoints from your Braze campaigns to interact with Talon.One.\n\nIf the CDP or CEP you are using isn't listed here, use the generic\n[Customer Data Platforms](#tag/Customer-data-platforms) and [Customer Engagement Platform](#tag/Customer-engagement-platforms) endpoints.\n\n> [!note] \n> All endpoints of this API start with `https://integration.talon.one`.\n> You must specify the base URL of your deployment in the headers or parameters.\n\n> [!note] **Are you looking for a different API?**\n> - To implement use cases that aren't covered by the Third-party API, see the [Integration API](https://docs.talon.one/management-api).\n> - To interact with the Campaign Manager for back-office operations, see the [Management API](https://docs.talon.one/management-api).\n"
+  description: Use the Third-party API to exchange data between Talon.One and one of the supported technology partners.
 servers:
 - url: https://integration.talon.one
 security:
 - ApiKeyAuth: []
 tags:
 - name: Iterable
-  description: '[Iterable](https://iterable.com/) is a cross-channel marketing platform that powers unified customer experiences
+  description: 'Iterable is a cross-channel marketing platform that powers unified customer experiences
 
     and empowers you to create, optimize and measure every interaction across the entire customer journey.
 
@@ -18,12 +18,10 @@ tags:
 
     and deliver them to specific customer segments. To send requests to these endpoints, use the
 
-    [data feed feature](https://support.iterable.com/hc/en-us/articles/360044425931#enable-template-generation-using-data-feeds) in Iterable.
+    data feed feature in Iterable.
 
 
-    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/iterable).
-
-    '
+    For more information, see our integration examples in the developer docs.'
 paths:
   /iterable/coupon:
     get:
@@ -33,14 +31,12 @@ paths:
       operationId: iterable/createCoupon
       description: 'Create a coupon code in Talon.One. To use it in your Iterable deployment and generate
 
-        the request, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/iterable/creating-coupons-iterable).
+        the request, see the tutorial.
 
 
         > [!tip]
 
-        > You can edit the default coupon code format in the [campaign''s settings](https://docs.talon.one/docs/product/campaigns/coupons/coupon-page-overview#editing-coupon-format).
-
-        '
+        > You can edit the default coupon code format in the campaign''s settings.'
       parameters:
       - $ref: '#/components/parameters/deployment'
       - $ref: '#/components/parameters/applicationId'
@@ -78,9 +74,7 @@ paths:
       operationId: iterable/createReferral
       description: 'Create a referral code in Talon.One. To use it in your Iterable deployment and generate
 
-        the request, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/iterable/creating-referral-iterable).
-
-        '
+        the request, see the tutorial.'
       parameters:
       - $ref: '#/components/parameters/deployment'
       - $ref: '#/components/parameters/campaignId'
@@ -116,12 +110,10 @@ paths:
       operationId: iterable/loyalty
       description: 'Get the loyalty ledger information of the given customer profile from Talon.One. To use it in your Iterable deployment and generate
 
-        the request, see [the tutorial](https://docs.talon.one/docs/dev/technology-partners/iterable/getting-loyalty-iterable).
+        the request, see the tutorial.
 
 
-        This endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.
-
-        '
+        This endpoint only works with profile-based loyalty programs.'
       parameters:
       - $ref: '#/components/parameters/deployment'
       - $ref: '#/components/parameters/profileIntegrationId'
@@ -140,72 +132,25 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  responses:
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 404
-                Error: Not Found
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 401
-                Error: Missing Session Token
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    TooManyRequests:
-      description: Too many requests
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 429
-                Error: Too many requests
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 400
-                Error: No Deployment URL specified
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
   parameters:
-    deployment:
-      name: deployment
+    usageLimitCoupons:
+      name: usageLimit
       in: query
-      description: The base URL of your Talon.One deployment.
+      description: The number of times the coupon code can be redeemed. 0 means unlimited redemptions but any campaign usage limits will still apply. The default value is 1.
       schema:
-        type: string
-      required: true
-      example: mycompany.europe-west1.talon.one
-    iterableCampaignId:
-      name: iterableCampaignId
+        type: integer
+        format: int64
+        default: 1
+      example: 1
+    campaignId:
+      name: campaignId
       in: query
-      description: The ID of the campaign in Iterable.
+      description: The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL.
       schema:
-        type: string
+        type: integer
+        format: int64
       required: true
-      example: iterableCampaign
+      example: 5843
     startDate:
       description: The date when the code becomes usable.
       name: startDate
@@ -214,21 +159,18 @@ components:
         type: string
         format: date-time
       example: '2022-09-30T15:35:02Z'
-    friendProfileIntegrationId:
-      name: friendProfileIntegrationId
+    attributes:
+      name: attributes
       in: query
-      description: The profile ID of the referred customer.
+      description: "Optional parameter to set the value of custom attributes. They are defined in the Campaign Manager,\nsee [Managing attributes](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).\n\nPrefix each attribute name with `.` or `_`. \n\nCertain attributes can also be set to _mandatory_ in your Application [settings](https://docs.talon.one/docs/product/applications/using-attributes#making-attributes-mandatory).\nIf your Application uses mandatory attributes, you must use this parameter to set their value.\n\nThe type of the value must match the type of the attribute. If you provide an integer value, the attribute must also be of type Integer in Talon.One.\n\nIf the types do not match, and the attribute in Talon.One is of type String, put the value in quotes. For example, if you provide a Boolean value for a String attribute, use `\"true\"` and `\"false\"`. \n\nFull URI example: `https://<url>?applicationId=5&.myIntegerAttribute=1234&.myStringAttribute1=Text&.myStringAttribute2=\"1234\"&.myStringAttribute3=\"true\"`.\n"
       schema:
-        type: string
-      example: testFriendProfile
-    usageLimit:
-      name: usageLimit
-      in: query
-      description: Number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply.
-      schema:
-        type: integer
-        format: int64
-      example: 1
+        type: object
+        additionalProperties: true
+      style: form
+      explode: true
+      example:
+        .firstName: john
+        .country: DE
     discountLimit:
       name: discountLimit
       in: query
@@ -246,15 +188,60 @@ components:
         format: int64
       required: true
       example: 316
-    usageLimitCoupons:
+    advocateProfileIntegrationId:
+      name: advocateProfileIntegrationId
+      in: query
+      description: The integration ID of the advocate.
+      schema:
+        type: string
+      required: true
+      example: testAdvocateProfile
+    expiryDate:
+      description: The date when the code becomes unusable.
+      name: expiryDate
+      in: query
+      schema:
+        type: string
+        format: date-time
+      example: '2022-10-30T15:35:02Z'
+    usageLimit:
       name: usageLimit
       in: query
-      description: The number of times the coupon code can be redeemed. 0 means unlimited redemptions but any campaign usage limits will still apply. The default value is 1.
+      description: Number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply.
       schema:
         type: integer
         format: int64
-        default: 1
       example: 1
+    friendProfileIntegrationId:
+      name: friendProfileIntegrationId
+      in: query
+      description: The profile ID of the referred customer.
+      schema:
+        type: string
+      example: testFriendProfile
+    recipientIntegrationId:
+      name: recipientIntegrationId
+      in: query
+      description: The integration ID of the only customer that can use the generated coupon code. Leave blank to allow any user to use the coupon.
+      schema:
+        type: string
+      example: URN-GV8294NV
+    profileIntegrationId:
+      name: profileIntegrationId
+      in: query
+      description: The integration ID of the customer profile in Talon.One.
+      schema:
+        type: string
+      required: true
+      example: URN-GV8294NV
+    iterableCampaignId:
+      name: iterableCampaignId
+      in: query
+      description: The ID of the campaign in Iterable.
+      schema:
+        type: string
+      required: true
+      example: iterableCampaign
     loyaltyProgramId:
       name: loyaltyProgramId
       in: query
@@ -264,100 +251,46 @@ components:
         format: int64
       required: true
       example: 25
-    expiryDate:
-      description: The date when the code becomes unusable.
-      name: expiryDate
+    deployment:
+      name: deployment
       in: query
-      schema:
-        type: string
-        format: date-time
-      example: '2022-10-30T15:35:02Z'
-    recipientIntegrationId:
-      name: recipientIntegrationId
-      in: query
-      description: The integration ID of the only customer that can use the generated coupon code. Leave blank to allow any user to use the coupon.
-      schema:
-        type: string
-      example: URN-GV8294NV
-    campaignId:
-      name: campaignId
-      in: query
-      description: The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL.
-      schema:
-        type: integer
-        format: int64
-      required: true
-      example: 5843
-    attributes:
-      name: attributes
-      in: query
-      description: "Optional parameter to set the value of custom attributes. They are defined in the Campaign Manager,\nsee [Managing attributes](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).\n\nPrefix each attribute name with `.` or `_`. \n\nCertain attributes can also be set to _mandatory_ in your Application [settings](https://docs.talon.one/docs/product/applications/using-attributes#making-attributes-mandatory).\nIf your Application uses mandatory attributes, you must use this parameter to set their value.\n\nThe type of the value must match the type of the attribute. If you provide an integer value, the attribute must also be of type Integer in Talon.One.\n\nIf the types do not match, and the attribute in Talon.One is of type String, put the value in quotes. For example, if you provide a Boolean value for a String attribute, use `\"true\"` and `\"false\"`. \n\nFull URI example: `https://<url>?applicationId=5&.myIntegerAttribute=1234&.myStringAttribute1=Text&.myStringAttribute2=\"1234\"&.myStringAttribute3=\"true\"`.\n"
-      schema:
-        type: object
-        additionalProperties: true
-      style: form
-      explode: true
-      example:
-        .firstName: john
-        .country: DE
-    advocateProfileIntegrationId:
-      name: advocateProfileIntegrationId
-      in: query
-      description: The integration ID of the advocate.
+      description: The base URL of your Talon.One deployment.
       schema:
         type: string
       required: true
-      example: testAdvocateProfile
-    profileIntegrationId:
-      name: profileIntegrationId
-      in: query
-      description: The integration ID of the customer profile in Talon.One.
-      schema:
-        type: string
-      required: true
-      example: URN-GV8294NV
-  examples:
-    CouponResponse:
-      value:
-        ID: 20190408
-        ApplicationID: 398
-        CampaignID: 5671
-        Value: EW-1BC2
-        StartDate: '2021-09-30T15:35:02.371569+02:00'
-        ExpiryDate: '2024-10-03T15:35:02.371569+02:00'
-        RecipientIntegrationID: URN-GV8294NV
-        UsageLimit: 1
-        Attributes:
-          email: user@mailbox.com
-          country: DE
-    ReferralResponse:
-      value:
-        id: 1374
-        created: '2022-04-01T16:46:36.625152002Z'
-        startDate: '2021-09-30T15:35:02.371569+02:00'
-        expiryDate: '2021-10-03T15:35:02.371569+02:00'
-        usageLimit: 0
-        campaignId: 5672
-        advocateProfileIntegrationId: URN-GV8294NV
-        friendProfileIntegrationId: PKBR-G06449OELK
-        attributes:
-          welcome_message: Welcome!
-        code: P8BN-4T5V
-        usageCounter: 0
+      example: mycompany.europe-west1.talon.one
   schemas:
-    errorResponseWithStatus:
+    ledgerInfo:
       type: object
       properties:
-        StatusCode:
-          type: integer
-          description: The error code.
-          example: 400
-        Error:
-          type: string
-          example: Bad request
-        RequestUUID:
-          type: string
-          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
+        currentBalance:
+          type: number
+          example: 10.5
+        pendingBalance:
+          type: number
+          example: 5.1
+        expiredBalance:
+          type: number
+          example: 2
+        spentBalance:
+          type: number
+          example: 0
+        tentativeCurrentBalance:
+          type: number
+          example: 0
+        pointsToNextTier:
+          type: number
+          example: 10
+        currentTier:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 112345
+            name:
+              type: string
+              example: silver-tier
     ReferralResponse:
       type: object
       properties:
@@ -408,57 +341,6 @@ components:
         dryRun:
           type: boolean
           example: true
-    LoyaltyResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 302
-        title:
-          type: string
-          example: My loyalty program
-        name:
-          type: string
-          example: myloyaltyprogram
-        ledger:
-          allOf:
-          - $ref: '#/components/schemas/ledgerInfo'
-        subLedgers:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ledgerInfo'
-    ledgerInfo:
-      type: object
-      properties:
-        currentBalance:
-          type: number
-          example: 10.5
-        pendingBalance:
-          type: number
-          example: 5.1
-        expiredBalance:
-          type: number
-          example: 2
-        spentBalance:
-          type: number
-          example: 0
-        tentativeCurrentBalance:
-          type: number
-          example: 0
-        pointsToNextTier:
-          type: number
-          example: 10
-        currentTier:
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int64
-              example: 112345
-            name:
-              type: string
-              example: silver-tier
     CouponResponse:
       type: object
       required:
@@ -520,6 +402,116 @@ components:
           type: object
           example:
             language: english
+    LoyaltyResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 302
+        title:
+          type: string
+          example: My loyalty program
+        name:
+          type: string
+          example: myloyaltyprogram
+        ledger:
+          allOf:
+          - $ref: '#/components/schemas/ledgerInfo'
+        subLedgers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ledgerInfo'
+    errorResponseWithStatus:
+      type: object
+      properties:
+        StatusCode:
+          type: integer
+          description: The error code.
+          example: 400
+        Error:
+          type: string
+          example: Bad request
+        RequestUUID:
+          type: string
+          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
+  examples:
+    CouponResponse:
+      value:
+        ID: 20190408
+        ApplicationID: 398
+        CampaignID: 5671
+        Value: EW-1BC2
+        StartDate: '2021-09-30T15:35:02.371569+02:00'
+        ExpiryDate: '2024-10-03T15:35:02.371569+02:00'
+        RecipientIntegrationID: URN-GV8294NV
+        UsageLimit: 1
+        Attributes:
+          email: user@mailbox.com
+          country: DE
+    ReferralResponse:
+      value:
+        id: 1374
+        created: '2022-04-01T16:46:36.625152002Z'
+        startDate: '2021-09-30T15:35:02.371569+02:00'
+        expiryDate: '2021-10-03T15:35:02.371569+02:00'
+        usageLimit: 0
+        campaignId: 5672
+        advocateProfileIntegrationId: URN-GV8294NV
+        friendProfileIntegrationId: PKBR-G06449OELK
+        attributes:
+          welcome_message: Welcome!
+        code: P8BN-4T5V
+        usageCounter: 0
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 401
+                Error: Missing Session Token
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 404
+                Error: Not Found
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 400
+                Error: No Deployment URL specified
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    TooManyRequests:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 429
+                Error: Too many requests
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

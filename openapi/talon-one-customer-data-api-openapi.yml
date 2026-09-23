@@ -2,17 +2,17 @@ openapi: 3.2.0
 info:
   title: Management Customer data API
   version: ''
-  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+  description: 'The Management API allows you to programmatically do what the Campaign Manager
+
+    does.'
 servers:
 - url: https://yourbaseurl.talon.one
 security:
 - manager_auth: []
 - management_key: []
 tags:
-- name: Customer data
-  description: 'Represents the data of a customer, including sessions and events used for reporting and debugging in the Campaign Manager.
-
-    '
+- name: CUSTOMER DATA
+  description: Represents the data of a customer, including sessions and events used for reporting and debugging in the Campaign Manager.
 paths:
   /v1/applications/{applicationId}/customers:
     get:
@@ -23,7 +23,7 @@ paths:
 
         List all the customers of the specified application.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/applicationId'
       - name: integrationId
@@ -77,11 +77,9 @@ paths:
         Get a list of the application customers matching the provided criteria.
 
 
-        The match is successful if all the attributes of the request are found in a profile, even if the profile has more attributes that are not present on the request.
-
-        '
+        The match is successful if all the attributes of the request are found in a profile, even if the profile has more attributes that are not present on the request.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/applicationId'
       - $ref: '#/components/parameters/pageSize'
@@ -129,11 +127,9 @@ paths:
         Get a list of the customer profiles matching the provided criteria.
 
 
-        The match is successful if all the attributes of the request are found in a profile, even if the profile has more attributes that are not present on the request.
-
-        '
+        The match is successful if all the attributes of the request are found in a profile, even if the profile has more attributes that are not present on the request.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -181,13 +177,11 @@ paths:
 
         > - Request the customer profile to be part of the response content using
 
-        >   [Update Customer Session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2).
+        > Update Customer Session.
 
-        > - Send an empty update with the [Update Customer Profile](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/updateCustomerProfileV2) endpoint with `runRuleEngine=false`.
-
-        '
+        > - Send an empty update with the Update Customer Profile endpoint with `runRuleEngine=false`.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - name: customerId
         in: path
@@ -216,7 +210,7 @@ paths:
 
         List all customer profiles.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -252,11 +246,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Retrieve the customers of the specified application.
-
-        '
+        Retrieve the customers of the specified application.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/applicationId'
       - name: customerId
@@ -286,11 +278,9 @@ paths:
 
         Fetch summary reports for all application customers based on a time range. Instead of having the total number of results
 
-        in the response, this endpoint only mentions whether there are more results.
-
-        '
+        in the response, this endpoint only mentions whether there are more results.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -388,7 +378,7 @@ paths:
 
         Fetch the summary report of a given customer in the given application, in a time range.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -458,7 +448,7 @@ paths:
 
         Fetch analytics for a given customer in the given application.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -489,11 +479,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        List all the sessions of the specified Application.
-
-        '
+        List all the sessions of the specified Application.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -605,11 +593,9 @@ paths:
 
         profile, even if the profile has more attributes that are not present on the
 
-        request.
-
-        '
+        request.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/applicationId'
       - $ref: '#/components/parameters/pageSize'
@@ -655,11 +641,9 @@ paths:
 
         Get the details of the given session.
 
-        You can list the sessions with the [List Application sessions](https://docs.talon.one/management-api#tag/Customer-data/operation/getApplicationSessions) endpoint.
-
-        '
+        You can list the sessions with the List Application sessions endpoint.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/applicationId'
       - name: sessionId
@@ -685,11 +669,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Lists all events recorded for an application. Instead of having the total number of results in the response, this endpoint only mentions whether there are more results.
-
-        '
+        Lists all events recorded for an application. Instead of having the total number of results in the response, this endpoint only mentions whether there are more results.'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -810,11 +792,9 @@ paths:
         Get all of the distinct values of the Event `type` property for events recorded in the application.
 
 
-        See also: [Track an event](https://docs.talon.one/integration-api#tag/Events/operation/trackEventV2)
-
-        '
+        See also: Track an event'
       tags:
-      - Customer data
+      - CUSTOMER DATA
       parameters:
       - $ref: '#/components/parameters/pageSize'
       - $ref: '#/components/parameters/skip'
@@ -840,562 +820,6 @@ paths:
                       type: string
 components:
   schemas:
-    RemoveFromAudienceEffectProps:
-      type: object
-      title: removeFromAudience
-      description: This effect is triggered when a rule containing an [Update audience](https://docs.talon.one/docs/product/rules/effects/use-effects#update-an-audience) effect with **Remove customer from an audience** selected is validated. It indicates that a customer was removed from an audience and is returned when a customer session is opened, updated, or closed.
-      example:
-        audienceId: 10
-        audienceName: My audience
-        profileIntegrationId: URNGV8294NV
-        profileId: 150
-      properties:
-        audienceId:
-          type: integer
-          description: The internal ID of the audience.
-          example: 10
-        audienceName:
-          type: string
-          description: The name of the audience.
-          example: My audience
-        profileIntegrationId:
-          type: string
-          description: The ID of the customer profile in the third-party integration platform.
-          example: URNGV8294NV
-        profileId:
-          type: integer
-          description: The internal ID of the customer profile.
-          example: 150
-    RollbackReferralEffectProps:
-      type: object
-      title: rollbackReferral
-      description: 'This effect indicates that the redemption of the referral code has been rolled back. It triggers when a closed session that redeemed a referral is gets cancelled. The code becomes redeemable again.
-
-
-        For more information about session states, see [Managing states](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).'
-      example:
-        value: REF-ABC123
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          description: The referral code to be rolled back.
-    PriceDetail:
-      type: object
-      properties:
-        price:
-          type: number
-          format: float
-          description: The value of this price type.
-          example: 90
-        adjustmentContextId:
-          type: string
-          description: The context identifier of the selected price adjustment.
-          example: summer25
-        adjustmentReferenceId:
-          type: string
-          format: uuid
-          description: The reference identifier of the selected price adjustment for this SKU.
-          example: 68851723-e6fa-488f-ace9-112581e6c19b
-        adjustmentEffectiveFrom:
-          type: string
-          format: date-time
-          description: The date and time from which the price adjustment is effective.
-          example: '2025-05-25T00:00:00Z'
-        adjustmentEffectiveUntil:
-          type: string
-          format: date-time
-          description: The date and time until which the price adjustment is effective.
-          example: '2025-05-30T00:00:00Z'
-    IntegrationEntity:
-      type: object
-      required:
-      - integrationId
-      - created
-      properties:
-        integrationId:
-          type: string
-          format: string
-          example: URNGV8294NV
-          maxLength: 1000
-          description: The integration ID set by your integration layer.
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-02-07T08:15:22Z'
-    ApplicationCustomer:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/IntegrationEntity'
-      - $ref: '#/components/schemas/CustomerProfile'
-      - type: object
-        required:
-        - accountId
-        properties:
-          accountId:
-            type: integer
-            description: The ID of the Talon.One account that owns this profile.
-          advocateIntegrationId:
-            type: string
-            maxLength: 1000
-            description: The Integration ID of the Customer Profile that referred this Customer in the Application.
-    SetDiscountEffectProps:
-      type: object
-      title: setDiscount
-      description: 'This effect indicates that a discount should be set on the total shopping cart value of the current order with the given label and amount.
-
-
-        The discount should overwrite any existing discount with the same name. The most recent integration state update always returns the latest values for **all** effects, effectively overwriting any previous effects.
-
-
-        Enabling [partial discounts](https://docs.talon.one/docs/product/applications/manage-general-settings#partial-discounts) allows a rule that would fail because of insufficient budget to pass. The rule still fails when the budget reaches `0`. Use the `desiredValue` property to identify the original value of the discount.'
-      example:
-        name: 10% Off
-        value: 2.5
-        scope: sessionTotal
-        desiredValue: 2.5
-      required:
-      - name
-      - value
-      properties:
-        name:
-          type: string
-          description: The name or description of this discount.
-        value:
-          type: number
-          description: The monetary value of the effective discount.
-        scope:
-          type: string
-          description: 'What the discount applies to. Possible values:
-
-
-            - `cartItems`: Discount on the price of the items.
-
-            - `additionalCosts`: Discount on the [additional costs](https://docs.talon.one/docs/product/account/dev-tools/manage-additional-costs) of the items.
-
-            - `sessionTotal`: Discount on the total value of the customer session.
-
-
-            **Note:** [Cascading discounts](https://docs.talon.one/docs/product/applications/manage-general-settings#cascading-discounts) must be enabled for this property to be returned.'
-        desiredValue:
-          type: number
-          description: _(Partial discounts enabled only)_ The monetary value of the discount to be applied without considering budget limitations.
-    AcceptReferralEffectProps:
-      type: object
-      title: acceptReferral
-      description: 'This effect indicates that the referral code supplied is valid.
-
-
-        You should handle this effect by informing the user that the referral code is valid.
-
-
-        The code is automatically redeemed when you close the session.
-
-
-        Other effects will provide more information about the actual reward.'
-      example:
-        value: REF-ABC123
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          description: The referral code provided in the session.
-    RedeemReferralEffectProps:
-      type: object
-      deprecated: true
-      title: redeemReferral
-      description: 'This effect is **deprecated**. It has been replaced by the `acceptReferral` effect.
-
-        This effect indicates that the referral code is valid and has been redeemed.
-
-        '
-      example:
-        id: 12
-        value: REF-ABC123
-      required:
-      - id
-      - value
-      properties:
-        id:
-          type: integer
-          description: The id of the referral code that was redeemed.
-        value:
-          type: string
-          description: The referral code that was redeemed.
-    CustomerProfile:
-      allOf:
-      - $ref: '#/components/schemas/CustomerProfileEntity'
-      - $ref: '#/components/schemas/IntegrationEntity'
-      - $ref: '#/components/schemas/NewCustomerProfile'
-      - type: object
-        properties:
-          accountId:
-            type: integer
-            title: Profile belongs to Account
-            description: The ID of the Talon.One account that owns this profile.
-            example: 31
-          closedSessions:
-            type: integer
-            title: Closed sessions
-            description: The total number of closed sessions. Does not include closed sessions that have been cancelled or reopened. See the [docs](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).
-            example: 3
-          totalSales:
-            type: number
-            description: 'The total amount of money spent by the customer **before** discounts are applied.
-
-
-              The total sales amount excludes the following:
-
-              - Cancelled or reopened sessions.
-
-              - Returned items.
-
-              '
-            example: 299.99
-            title: Total Sales
-          loyaltyMemberships:
-            type: array
-            deprecated: true
-            description: '**DEPRECATED. Always returns `null`.** A list of loyalty programs joined by the customer.
-
-              '
-            items:
-              $ref: '#/components/schemas/LoyaltyMembership'
-            title: Loyalty programed joined
-            example: null
-          audienceMemberships:
-            type: array
-            description: The audiences the customer belongs to.
-            items:
-              $ref: '#/components/schemas/AudienceMembership'
-            title: Audience memberships
-          lastActivity:
-            type: string
-            format: date-time
-            title: Last activity
-            description: 'Timestamp of the most recent event received from this customer.
-
-              This field is updated on calls that trigger the Rule Engine and that are
-
-              not [dry requests](https://docs.talon.one/docs/dev/integration-api/dry-requests/#overlay).
-
-
-              For example, [reserving a coupon](https://docs.talon.one/integration-api#tag/Coupons/operation/createCouponReservation)
-
-              for a customer doesn''t impact this field.
-
-              '
-            example: '2020-02-08T14:15:20Z'
-          sandbox:
-            type: boolean
-            description: 'An indicator of whether the customer is part of a sandbox or live Application. See the [docs](https://docs.talon.one/docs/product/applications/overview#application-environments).
-
-              '
-            title: Sandbox
-            example: false
-        required:
-        - accountId
-        - closedSessions
-        - totalSales
-        - lastActivity
-        - attributes
-    AcceptCouponEffectProps:
-      type: object
-      title: acceptCoupon
-      description: 'This effect indicates that the coupon code supplied was valid.
-
-
-        You should handle this effect by clearing any messages from previous `rejectCoupon` effects and informing the user that the coupon is valid.
-
-
-        The code is automatically redeemed when you close the session.
-
-
-        Other effects, such as [setDiscount](https://docs.talon.one/docs/dev/integration-api/api-effects#setdiscount), provide more information about the actual rewards received.'
-      example:
-        value: COUP-XYZ789
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          description: The coupon code that was accepted.
-    SetDiscountPerItemEffectProps:
-      type: object
-      title: setDiscountPerItem
-      description: 'This effect schema is returned when you use the **Discount individual items**, **Discount individual items pro rata**, or **Discount individual item in bundles** effect in a rule.
-
-
-        It indicates that a discount per item should be applied on the specific item specified in the effect.
-
-
-        The properties it contains depends on:
-
-
-        - Whether you used a pro rata effect or not.
-
-        - Whether you used an effect with bundles or not.
-
-        - Whether the partial discount feature is enabled.'
-      example:
-        name: 'Discount on item #1'
-        value: 1.5
-        position: 1
-        subPosition: 1
-        desiredValue: 1.5
-        scope: price
-        totalDiscount: 1.5
-        desiredTotalDiscount: 1.5
-        bundleIndex: 1
-        bundleName: my_bundle
-        targetedItemPosition: 1
-        targetedItemSubPosition: 1
-        excludedFromPriceHistory: false
-      required:
-      - name
-      - value
-      - position
-      properties:
-        name:
-          type: string
-          description: The description of this discount. `#number` is equal to the `position` property.
-        value:
-          type: number
-          description: The monetary value of the effective discount applied to the item.
-        position:
-          type: number
-          description: The index of the item in the `cartItem` object on which this discount should be applied.
-        subPosition:
-          type: number
-          description: The index of the item unit in its line item.
-        desiredValue:
-          type: number
-          description: _(Partial discounts enabled only)_ The monetary value of the discount to be applied to the item without considering budget limitations.
-        scope:
-          type: string
-          description: 'What the discount applies to. Possible values:
-
-
-            - `price`: discount on the price of the item.
-
-            - `additionalCosts`: discount on the [additional cost](https://docs.talon.one/docs/product/account/dev-tools/manage-additional-costs) of the item.
-
-            - `itemTotal`: discount on the sum of price + additional cost of the item.'
-        totalDiscount:
-          type: number
-          description: _(Pro rata discounts only)_ The monetary value of the total effective discount
-        desiredTotalDiscount:
-          type: number
-          description: _(Pro rata discounts only)_ The monetary value of the total discount to be applied without considering budget limitations
-        bundleIndex:
-          type: integer
-          description: _(Discounts with bundles only)_ The position of the specific item bundle in the list of bundles created from the same bundle definition.
-        bundleName:
-          type: string
-          description: _(Discounts with bundles only)_ The name of the bundle definition.
-        targetedItemPosition:
-          type: number
-          description: _(Discounting individual item in bundles only)_ The index of the targeted bundle item on which the applied discount is based.
-        targetedItemSubPosition:
-          type: number
-          description: _(Discounting individual item in bundles only)_ The sub-position of the targeted bundle item on which the applied discount is based.
-        excludedFromPriceHistory:
-          type: boolean
-          description: When set to `true`, the applied discount is excluded from the item's price history.
-    CustomerAnalytics:
-      description: A summary report of customer activity for a given time range.
-      allOf:
-      - type: object
-        properties:
-          acceptedCoupons:
-            type: integer
-            description: Total accepted coupons for this customer.
-          createdCoupons:
-            type: integer
-            description: Total created coupons for this customer.
-          freeItems:
-            type: integer
-            description: Total free items given to this customer.
-          totalOrders:
-            type: integer
-            description: Total orders made by this customer.
-          totalDiscountedOrders:
-            type: integer
-            description: Total orders made by this customer that had a discount.
-          totalRevenue:
-            type: number
-            description: Total Revenue across all closed sessions.
-          totalDiscounts:
-            type: number
-            description: The sum of discounts that were given across all closed sessions.
-        required:
-        - acceptedCoupons
-        - createdCoupons
-        - freeItems
-        - totalOrders
-        - totalDiscountedOrders
-        - totalRevenue
-        - totalDiscounts
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    ApplicationSession:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/IntegrationEntity'
-      - $ref: '#/components/schemas/IntegrationStoreEntity'
-      - $ref: '#/components/schemas/ApplicationEntity'
-      - $ref: '#/components/schemas/ApplicationCustomerEntity'
-      - type: object
-        properties:
-          profileintegrationid:
-            type: string
-            maxLength: 1000
-            description: Integration ID of the customer for the session.
-            example: 382370BKDB946
-          coupon:
-            type: string
-            description: Any coupon code entered.
-            example: BKDB946
-          referral:
-            type: string
-            description: Any referral code entered.
-            example: BKDB946
-          state:
-            type: string
-            enum:
-            - open
-            - closed
-            - partially_returned
-            - cancelled
-            description: 'Indicates the current state of the session. Sessions can be created as `open` or `closed`. The state transitions are:
-
-
-              1. `open` -> `closed`
-
-              2. `open` -> `cancelled`
-
-              3. `closed` -> `cancelled` or `partially_returned`
-
-              4. `partially_returned` -> `cancelled`
-
-
-              For more information, see [Customer session states](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).
-
-              '
-            example: closed
-          cartItems:
-            type: array
-            description: Serialized JSON representation.
-            items:
-              $ref: '#/components/schemas/CartItem'
-          discounts:
-            type: object
-            description: '**API V1 only.** A map of labeled discount values, in the same currency as the session.
-
-
-              If you are using the V2 endpoints, refer to the `totalDiscounts` property instead.
-
-              '
-            additionalProperties:
-              type: number
-          totalDiscounts:
-            type: number
-            description: 'The total sum of the discounts applied to this session.
-
-
-              **Note:** If more than one session is returned, this value is displayed as `0`.
-
-              '
-            example: 100
-          total:
-            type: number
-            description: The total sum of the session before any discounts applied.
-            example: 200
-          attributes:
-            type: object
-            description: Arbitrary properties associated with this item.
-        required:
-        - coupon
-        - referral
-        - state
-        - cartItems
-        - discounts
-        - total
-        - totalDiscounts
-    StartAchievementProgressEffectProps:
-      type: object
-      title: startAchievementProgress
-      description: 'This effect indicates that the customer''s progress in an achievement was started during the current session. The progress value is set to 0. It is triggered when a rule using the [Start achievement progress](https://docs.talon.one/docs/product/rules/effects/use-effects#start-achievement-progress) effect is successfully validated.
-
-
-        This effect only marks the start of progress tracking. It can fire together with `increaseAchievementProgress` when progress starts and increases at the same time. In that case, both effects share the same `progressTrackerId`, `startDate`, and `endDate`.
-
-
-        For [on-completion achievements](https://docs.talon.one/docs/product/campaigns/achievements/achievements-overview#recurring-on-completion-achievements), each iteration also gets its own `startDate` and `endDate`.
-
-        '
-      example:
-        achievementId: 10
-        achievementName: FreeCoffee10Orders
-        progressTrackerId: 42
-        target: 10
-        startDate: '2026-04-16T15:25:37Z'
-        endDate: '2026-04-30T11:24:59Z'
-      required:
-      - achievementId
-      - achievementName
-      - progressTrackerId
-      - target
-      - startDate
-      properties:
-        achievementId:
-          type: integer
-          description: The ID of the achievement.
-          example: 10
-        achievementName:
-          type: string
-          description: The name of the achievement.
-          example: FreeCoffee10Orders
-        progressTrackerId:
-          type: integer
-          description: 'The ID of the customer''s progress tracker for this achievement.
-
-
-            For [on-completion achievements](https://docs.talon.one/docs/product/campaigns/achievements/achievements-overview#recurring-on-completion-achievements), this effect generates a unique ID for each iteration.'
-          example: 42
-        target:
-          type: number
-          description: The target value to complete the achievement.
-          example: 10
-        startDate:
-          type: string
-          format: date-time
-          description: Timestamp at which the customer's progress started.
-          example: '2026-04-16T15:25:37Z'
-        endDate:
-          type: string
-          format: date-time
-          description: 'Timestamp at which this progress period ends.
-
-
-            Only returned for achievements that have a fixed end date. [On-completion achievements](https://docs.talon.one/docs/product/campaigns/achievements/achievements-overview#recurring-on-completion-achievements) have no end date.'
-          example: '2026-04-30T11:24:59Z'
     DeductLoyaltyPointsEffectProps:
       type: object
       title: deductLoyaltyPoints
@@ -1453,410 +877,21 @@ components:
         cardIdentifier:
           $ref: '#/components/schemas/LoyaltyCardIdentifier'
           description: The identifier of the card from which these points were deducted.
-    EventV3Entity:
+    RollbackCouponEffectProps:
       type: object
-      properties:
-        integrationId:
-          type: string
-          description: 'The unique ID of the event. Only one event with this ID can be registered.
-
-            '
-          minLength: 1
-          example: 175KJPS947296
-    LoyaltyLedgerEntryExpiryDateChange:
-      type: object
-      description: The properties specific to effects for changing the expiry dates of loyalty ledger entries.
-      required:
-      - transactionUUID
-      - newExpiryDate
-      properties:
-        transactionUUID:
-          type: string
-          format: uuid
-          description: The identifier of the transaction affected by the extension or update.
-        previousExpiryDate:
-          type: string
-          format: date-time
-          description: Expiry date of the transactions before applying the extension or update.
-        newExpiryDate:
-          type: string
-          format: date-time
-          description: Expiry date of the transaction after applying the extension or update.
-    SetDiscountPerAdditionalCostEffectProps:
-      type: object
-      title: setDiscountPerAdditionalCost
-      description: 'This effect indicates that a discount that should be applied on a specific additional cost. It is triggered whenever a rule containing a **Discount additional cost** effect is validated.
+      title: rollbackCoupon
+      description: 'This effect indicates that a coupon code redemption has been rolled back. The coupon becomes redeemable again.
 
 
-        Enabling [partial rewards](https://docs.talon.one/docs/product/applications/manage-general-settings#partial-rewards) allows a rule that would fail because of insufficient budget to pass. The rule still fails when the budget reaches 0. Use the `desiredValue` property to identify the original amount of loyalty points.'
-      example:
-        name: Shipping discount
-        additionalCostId: 1
-        additionalCost: shipping
-        value: 4.99
-        desiredValue: 4.99
-      required:
-      - name
-      - value
-      - additionalCostId
-      - additionalCost
-      properties:
-        name:
-          type: string
-          description: The name of the discount.
-        additionalCostId:
-          type: integer
-          description: The identifier of the additional cost.
-        additionalCost:
-          type: string
-          description: The API name of the additional cost.
-        value:
-          type: number
-          description: The monetary value of the discount to apply.
-        desiredValue:
-          type: number
-          description: _(Partial discounts enabled only)_ The monetary value of the discount to be applied without considering budget limitations.
-    RejectCouponEffectProps:
-      type: object
-      title: rejectCoupon
-      description: 'This effect indicates that the coupon code supplied couldn''t be used.
-
-
-        You should handle this effect by informing their user the coupon code is invalid.'
+        The effect is triggered when you [cancel](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#manage-the-sessions-state) a session where a coupon was accepted. See an example of use in the [cancelling a session tutorial](https://docs.talon.one/docs/dev/tutorials/roll-back-effects).'
       example:
         value: COUP-XYZ789
-        rejectionReason: CouponRejectedCondition
-        conditionIndex: 2
-        effectIndex: 0
-        details: Coupon usage limit reached
-        campaignExclusionReason: CampaignGaveLowerDiscount
-      required:
-      - value
-      - rejectionReason
-      properties:
-        value:
-          type: string
-          description: The coupon code that was rejected.
-        rejectionReason:
-          type: string
-          description: 'The reason why the code was rejected.
-
-
-            - `CampaignLimitReached`: The campaign-wide coupon code redemption limit has been reached.
-
-            - `CouponExpired`: The coupon is expired.
-
-            - `CouponLimitReached`: The coupon redemption limit or a campaign budget was reached.
-
-            - `CouponNotFound`: The coupon code is incorrect.
-
-            - `CouponPartOfNotRunningCampaign`: The campaign the coupon belongs to is currently not active. The campaignId field contains the ID of that campaign.
-
-            - `CouponRecipientDoesNotMatch`: The given coupon value does not match the recipient or the coupon is linked to a `recipientIntegrationID` but there is no profile in the session.
-
-            - `CouponRejectedByCondition`: Other conditions failed in the rule or all conditions passed but the `Coupon code is valid` condition is not present.
-
-            - `CouponStartDateInFuture`: The coupon isn''t active yet.
-
-            - `EffectCouldNotBeApplied`: One of the effects in the campaign wasn''t applied because a limit for that effect was reached (most common use case will be `setDiscount` cannot be applied because a discount limit is reached).
-
-            - `ProfileLimitReached`: The profile-specific coupon redemption limit has been reached.
-
-            - `CouponPartOfNotTriggeredCampaign`: The campaign the coupon belongs to was not triggered during evaluation (an exclusive or stackable campaign). The `campaignId` field contains the ID of that campaign.
-
-            - `CouponReservationRequired`: The coupon''s `isReservationMandatory` property is `true`, but the profile does not have a reservation.
-
-            - `ProfileRequired`: The coupon''s `isReservationMandatory` property is `true` or a [campaign profile budget](https://docs.talon.one/docs/product/campaigns/settings/manage-campaign-budgets) was set, but no profile exists in the session.'
-        conditionIndex:
-          type: integer
-          description: The index of the condition that caused the rejection of the coupon.
-        effectIndex:
-          type: integer
-          description: The index of the effect that caused the rejection of the coupon.
-        details:
-          type: string
-          description: More details about the failure.
-        campaignExclusionReason:
-          type: string
-          example: CampaignGaveLowerDiscount
-          description: 'The reason why the campaign the coupon belongs to was excluded during [campaign evaluation](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation), when `rejectionReason` was `CouponPartOfNotTriggeredCampaign`.
-
-            Its possible values are:
-
-
-            - `CampaignGaveLowerDiscount`: The required campaign and coupon conditions were met, but another campaign in a [Highest discount value](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group offered a higher discount value.
-
-            - `CampaignIsNotFirst`: The campaign was not evaluated because another campaign in a [First campaign](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group was picked and evaluated first.
-
-            - `CampaignNotInEvaluationSet`: The campaign did not meet other evaluation requirements, for example, because the coupon is part of an archived campaign.'
-    ApplicationEntity:
-      type: object
-      required:
-      - applicationId
-      properties:
-        applicationId:
-          type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
-    Effect:
-      allOf:
-      - $ref: '#/components/schemas/EffectEntity'
-      - type: object
-        description: A generic effect that is fired by a triggered campaign. The props property will contain information specific to the specific effect type.
-        required:
-        - props
-        properties:
-          props:
-            oneOf:
-            - $ref: '#/components/schemas/AcceptCouponEffectProps'
-            - $ref: '#/components/schemas/AcceptReferralEffectProps'
-            - $ref: '#/components/schemas/RedeemReferralEffectProps'
-            - $ref: '#/components/schemas/RejectCouponEffectProps'
-            - $ref: '#/components/schemas/RejectReferralEffectProps'
-            - $ref: '#/components/schemas/CouponCreatedEffectProps'
-            - $ref: '#/components/schemas/ReferralCreatedEffectProps'
-            - $ref: '#/components/schemas/SetDiscountEffectProps'
-            - $ref: '#/components/schemas/SetDiscountPerItemEffectProps'
-            - $ref: '#/components/schemas/SetDiscountPerAdditionalCostEffectProps'
-            - $ref: '#/components/schemas/TriggerWebhookEffectProps'
-            - $ref: '#/components/schemas/AddLoyaltyPointsEffectProps'
-            - $ref: '#/components/schemas/DeductLoyaltyPointsEffectProps'
-            - $ref: '#/components/schemas/ChangeLoyaltyTierLevelEffectProps'
-            - $ref: '#/components/schemas/AddFreeItemEffectProps'
-            - $ref: '#/components/schemas/ShowNotificationEffectProps'
-            - $ref: '#/components/schemas/UpdateAttributeEffectProps'
-            - $ref: '#/components/schemas/RollbackCouponEffectProps'
-            - $ref: '#/components/schemas/RollbackReferralEffectProps'
-            - $ref: '#/components/schemas/RollbackDiscountEffectProps'
-            - $ref: '#/components/schemas/RollbackAddedLoyaltyPointsEffectProps'
-            - $ref: '#/components/schemas/RollbackDeductedLoyaltyPointsEffectProps'
-            - $ref: '#/components/schemas/ShowBundleMetadataEffectProps'
-            - $ref: '#/components/schemas/AwardGiveawayEffectProps'
-            - $ref: '#/components/schemas/WillAwardGiveawayEffectProps'
-            - $ref: '#/components/schemas/ErrorEffectProps'
-            - $ref: '#/components/schemas/CustomEffectProps'
-            - $ref: '#/components/schemas/SetDiscountPerAdditionalCostPerItemEffectProps'
-            - $ref: '#/components/schemas/ReserveCouponEffectProps'
-            - $ref: '#/components/schemas/AddToAudienceEffectProps'
-            - $ref: '#/components/schemas/RemoveFromAudienceEffectProps'
-            - $ref: '#/components/schemas/IncreaseAchievementProgressEffectProps'
-            - $ref: '#/components/schemas/RollbackIncreasedAchievementProgressEffectProps'
-            - $ref: '#/components/schemas/ExtendLoyaltyPointsExpiryDateEffectProps'
-            - $ref: '#/components/schemas/SetLoyaltyPointsExpiryDateEffectProps'
-            - $ref: '#/components/schemas/StartAchievementProgressEffectProps'
-    SetDiscountPerAdditionalCostPerItemEffectProps:
-      type: object
-      title: setDiscountPerAdditionalCostPerItem
-      description: 'This effect indicates that a discount of a specific additional cost within a specific item should be applied. It gets triggered whenever a rule containing a **Discount additional cost per item** effect is validated.
-
-
-        Use this effect when **all** items in the cart have an additional cost. If one of more items do not have an additional cost, the rule will fail.'
-      example:
-        name: 'Shipping discount on item #1'
-        additionalCostId: 1
-        value: 4.99
-        position: 1
-        subPosition: 1
-        additionalCost: shipping
-        desiredValue: 4.99
-      required:
-      - name
-      - value
-      - additionalCostId
-      - additionalCost
-      - position
-      properties:
-        name:
-          type: string
-          description: The description of this discount. `#number` is appended to the name. It is equal to the `position` property.
-        additionalCostId:
-          type: integer
-          description: The identifier of the additional cost to be discounted.
-        value:
-          type: number
-          description: The monetary value of the effective discount applied to the item's additional cost.
-        position:
-          type: number
-          description: The index of the item in the `cartItem` object containing the additional cost that this discount applies to.
-        subPosition:
-          type: number
-          description: The index of the item unit in its line item.
-        additionalCost:
-          type: string
-          description: The API name of the additional cost to be discounted.
-        desiredValue:
-          type: number
-          description: _[(Partial discounts enabled only)](https://docs.talon.one/docs/product/applications/manage-general-settings#partial-discounts)_. The monetary value of the discount to be applied to the additional cost without considering budget limitations.
-    CustomEffectProps:
-      type: object
-      title: customEffect
-      description: 'If you want to return data as an effect but no effect matches your use case, you can [create a custom effect](https://docs.talon.one/docs/dev/tutorials/create-custom-effects).
-
-
-        Custom effects can be used as both rule effects and failure effects.
-
-
-        The structure of a custom effect depends on your specifications but is always named `customEffect`.'
-      example:
-        effectId: 1
-        name: my_custom_effect
-        cartItemPosition: 1
-        cartItemSubPosition: 2
-        bundleIndex: 1
-        bundleName: my_bundle
-        payload:
-          key: value
-      required:
-      - effectId
-      - name
-      - payload
-      properties:
-        effectId:
-          type: integer
-          description: The ID of the custom effect that was triggered.
-          example: 1
-        name:
-          type: string
-          description: The type of the custom effect.
-          example: my_custom_effect
-        cartItemPosition:
-          type: number
-          description: The index of the item in the cart item list to which the custom effect is applied.
-          example: 1
-        cartItemSubPosition:
-          type: number
-          description: 'For cart items with quantity > 1, the sub position indicates to which item unit the custom effect is applied.
-
-            '
-          example: 2
-        bundleIndex:
-          type: integer
-          description: The position of the bundle in a list of item bundles created from the same bundle definition.
-          example: 1
-        bundleName:
-          type: string
-          description: The name of the bundle definition.
-          example: my_bundle
-        payload:
-          description: The JSON payload of the custom effect.
-          type: object
-          x-arbitraryJSON: true
-    AddFreeItemEffectProps:
-      type: object
-      title: addFreeItem
-      description: 'This effect indicates that a free item should be added to the shopping cart in the current session. In this example, add the SKU to the shopping cart and set its price to `0`.
-
-
-        The effect of a successful referral can mean a free item for someone else, such as the referrer.'
-      example:
-        sku: SKU1241028
-        name: Free Gift Item
-        desiredQuantity: 1
-      required:
-      - sku
-      - name
-      properties:
-        sku:
-          type: string
-          description: SKU of the item that needs to be added.
-          example: SKU1241028
-        name:
-          type: string
-          description: Description of the effect.
-        desiredQuantity:
-          type: integer
-          description: The original quantity in case a partial reward was applied.
-    ReferralCreatedEffectProps:
-      type: object
-      title: referralCreated
-      description: The `referralCreated` effect behaves similarly to [couponCreated](https://docs.talon.one/docs/dev/integration-api/api-effects#couponcreated). If the `friendProfileIntegrationId` parameter is empty, the referral code can be redeemed by anyone.
-      example:
-        value: REF-NEW456
       required:
       - value
       properties:
         value:
           type: string
-          description: The referral code provided in the session.
-    CustomerProfileEntity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of the customer profile.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time the customer profile was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    ReserveCouponEffectProps:
-      type: object
-      title: reserveCoupon
-      description: 'This effect indicates that the given coupon code was reserved for the given customer.
-
-
-        Talon.One provides soft and hard reservations. For more information, see [Reserve a coupon code](https://docs.talon.one/docs/product/rules/effects/use-effects#reserve-a-coupon-code).'
-      example:
-        couponValue: COUP-XYZ789
-        profileIntegrationId: customer_profile_id_1
-        isNewReservation: true
-      required:
-      - couponValue
-      - profileIntegrationId
-      - isNewReservation
-      properties:
-        couponValue:
-          type: string
-          description: The coupon code that was created.
-        profileIntegrationId:
-          type: string
-          description: The integration identifier of the customer for whom this coupon was reserved.
-        isNewReservation:
-          type: boolean
-          description: Indicates whether this is a new coupon reservation or not.
-    NewCustomerProfile:
-      type: object
-      properties:
-        attributes:
-          type: object
-          additionalProperties: true
-          description: Arbitrary properties associated with this item.
-          example:
-            Language: english
-            ShippingCountry: DE
-    WillAwardGiveawayEffectProps:
-      type: object
-      title: willAwardGiveaway
-      description: 'The equivalent of the `awardGiveaway` effect but returned when updating a session with any state other than `closed`. This ensures no giveaway codes are leaked when they are still not guaranteed to be awarded.
-
-
-        For more information about session states, see [Manage the session''s state](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#manage-the-sessions-state).'
-      example:
-        poolId: 2
-        poolName: My pool
-        recipientIntegrationId: URNGV8294NV
-      required:
-      - poolId
-      - poolName
-      - recipientIntegrationId
-      properties:
-        poolId:
-          type: integer
-          description: The internal ID of the giveaway pool.
-          example: 2
-        poolName:
-          type: string
-          description: The name of the giveaway pool.
-          example: My pool
-        recipientIntegrationId:
-          type: string
-          maxLength: 1000
-          description: The integration ID of the customer that receives the giveaway.
-          example: URNGV8294NV
+          description: The coupon code whose redemption has been rolled back.
     AddLoyaltyPointsEffectProps:
       type: object
       title: addLoyaltyPoints
@@ -1959,254 +994,6 @@ components:
         validityDuration:
           type: string
           description: The duration for which the points remain active, calculated relative to their start date.
-    ChangeLoyaltyTierLevelEffectProps:
-      type: object
-      title: changeLoyaltyTierLevel
-      description: 'This effect indicates that a customer''s loyalty tier has been upgraded.
-
-
-        This effect is generated only when the [Add loyalty points](https://docs.talon.one/docs/product/rules/effects/use-effects#add-loyalty-points) and the [Add loyalty points per cart item](https://docs.talon.one/docs/product/rules/effects/use-effects#add-loyalty-points-per-cart-item) effects are triggered for a particular customer, and, as a result, the customer''s loyalty tier is upgraded.'
-      example:
-        ruleTitle: Tier upgrade on purchase
-        programId: 5
-        subLedgerId: main
-        previousTierName: Silver
-        newTierName: Gold
-        expiryDate: '2025-12-31T23:59:59Z'
-      required:
-      - ruleTitle
-      - programId
-      - subLedgerId
-      - newTierName
-      properties:
-        ruleTitle:
-          type: string
-          description: The title of the rule that triggered the tier upgrade.
-        programId:
-          type: integer
-          description: The ID of the loyalty program where the points were added.
-        subLedgerId:
-          type: string
-          description: The ID of the subledger within the loyalty program where the points were added.
-        previousTierName:
-          type: string
-          description: The name of the tier from which the user was upgraded.
-        newTierName:
-          type: string
-          description: The name of the tier to which the user has been upgraded.
-        expiryDate:
-          type: string
-          format: date-time
-          description: The expiration date of the new tier.
-    RejectReferralEffectProps:
-      type: object
-      title: rejectReferral
-      description: This effect indicates that the provided referral code is invalid.
-      example:
-        value: REF-ABC123
-        rejectionReason: ReferralRejectedCondition
-        conditionIndex: 1
-        effectIndex: 0
-        details: Referral code already used
-        campaignExclusionReason: CampaignGaveLowerDiscount
-      required:
-      - value
-      - rejectionReason
-      properties:
-        value:
-          type: string
-          description: The referral code that was rejected
-        rejectionReason:
-          type: string
-          description: 'The reason why the code was rejected.
-
-
-            - `AdvocateNotFound`: The advocate was not found.
-
-            - `CampaignLimitReached`: The campaign-wide referral code redemption limit has been reached.
-
-            - `EffectCouldNotBeApplied`: One of the effects in the campaign wasn''t applied because a limit for that effect was reached (most common use case will be `setDiscount` can not be applied because a discount limit is reached).
-
-            - `ProfileLimitReached`: The profile-specific referral code redemption limit has been reached.
-
-            - `ReferralCustomerAlreadyReferred`: The friend is already referred.
-
-            - `ReferralExpired`: The transferred referral code is expired.
-
-            - `ReferralLimitReached`: The referral code redemption limit has been reached.
-
-            - `ReferralNotFound`: The transferred referral code is wrong.
-
-            - `ReferralPartOfNotRunningCampaign`: The campaign the referral code belongs to is currently not active. The campaign ID field shows the ID of that campaign.
-
-            - `ReferralRecipientDoesNotMatch`: The given referral code value does not match the recipient.
-
-            - `ReferralRecipientIdSameAsAdvocate`: The recipient (friend) has the same id as the advocate.
-
-            - `ReferralRejectedByCondition`: The referral code is valid and in an active campaign, but there were other conditions in that campaign''s rules that were not met.
-
-            - `ReferralStartDateInFuture`: The transferred referral code isn''t active yet.
-
-            - `ReferralPartOfNotTriggeredCampaign`: The campaign the referral code belongs to was not triggered during evaluation (an exclusive or stackable campaign). The campaign ID field shows the ID of that campaign.'
-        conditionIndex:
-          type: integer
-          description: The index of the condition that caused the rejection of the referral.
-        effectIndex:
-          type: integer
-          description: The index of the effect that caused the rejection of the referral.
-        details:
-          type: string
-          description: More details about the failure.
-        campaignExclusionReason:
-          type: string
-          example: CampaignGaveLowerDiscount
-          description: 'The reason why the campaign the referral belongs to was excluded during [campaign evaluation](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation), when `rejectionReason` was `CouponPartOfNotTriggeredCampaign`.
-
-            Its possible values are:
-
-
-            - `CampaignGaveLowerDiscount`: The required campaign and referral conditions were met, but another campaign in a [Highest discount value](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group offered a higher discount value.
-
-            - `CampaignIsNotFirst`: The campaign was not evaluated because another campaign in a [First campaign](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group was picked and evaluated first.
-
-            - `CampaignNotInEvaluationSet`: The campaign did not meet other evaluation requirements, for example, because the referral is part of an archived campaign.'
-    IntegrationStoreEntity:
-      type: object
-      properties:
-        storeIntegrationId:
-          type: string
-          minLength: 1
-          maxLength: 1000
-          description: The integration ID of the store. You choose this ID when you create a store.
-          example: STORE-001
-    RollbackAddedLoyaltyPointsEffectProps:
-      type: object
-      title: rollbackAddedLoyaltyPoints
-      description: 'This effect is triggered in the following cases:
-
-
-        - A session was cancelled in which loyalty points have been added.
-
-        - A session was partially returned and loyalty point were added by the returned items. See [returning items](https://docs.talon.one/docs/dev/tutorials/partially-return-a-session).
-
-
-        If you use the [Add loyalty points per item effect](https://docs.talon.one/docs/product/rules/effects/available-effects#reward-effects), use the `cartItemPosition` property to identify which items the loyalty points were rolled back for.
-
-
-        If you use **Add loyalty points per item** and if the session contains some cart items with _quantity > 1_, use the `cartItemSubPosition` property to identify the item unit in its line item.
-
-
-        If the loyalty program is [profile-based](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types), use the `recipientIntegrationId` property to identify the user for whom the loyalty points are rolled back. If the loyalty program is [card-based](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types), use the `cardIdentifier` property to identify the loyalty card where the points were originally added.'
-      example:
-        programId: 5
-        subLedgerId: main
-        value: 100
-        recipientIntegrationId: URNGV8294NV
-        transactionUUID: 8c2d3670-6ea5-4e9e-b5c6-e7e7b4a10111
-        cartItemPosition: 1
-        cartItemSubPosition: 1
-        cardIdentifier: loyalty-card-001
-      required:
-      - programId
-      - subLedgerId
-      - value
-      - recipientIntegrationId
-      - transactionUUID
-      properties:
-        programId:
-          type: integer
-          description: The ID of the loyalty program where these points were rolled back.
-        subLedgerId:
-          type: string
-          description: The ID of the subledger within the loyalty program where these points were rolled back.
-        value:
-          type: number
-          description: The amount of points that were rolled back.
-        recipientIntegrationId:
-          type: string
-          maxLength: 1000
-          description: The user for whom these points were rolled back.
-          example: URNGV8294NV
-        transactionUUID:
-          type: string
-          description: The identifier of this loyalty point transaction.
-        cartItemPosition:
-          type: number
-          description: (_Add points per cart item_ only.) The index of the item in the `cartItem` object for which these points were rolled back.
-        cartItemSubPosition:
-          type: number
-          description: (_Add points per cart item_ ) The index of the item unit in its line item.
-        cardIdentifier:
-          $ref: '#/components/schemas/LoyaltyCardIdentifier'
-          description: The identifier of the card on which these points were originally added.
-    RollbackIncreasedAchievementProgressEffectProps:
-      type: object
-      title: rollbackIncreasedAchievementProgress
-      description: 'This effect indicates that the customer''s progress in an achievement was rolled back.
-
-
-        The Rule Engine triggers this effect when you cancel or [reopen a customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/reopenCustomerSession) that previously validated the [Update customer progress](https://docs.talon.one/docs/product/rules/effects/use-effects#update-customer-progress) effect and triggered the [increaseAchievementProgress](https://docs.talon.one/docs/dev/integration-api/api-effects#increaseachievementprogress) API effect.
-
-
-        The effect is also triggered for completed achievements if the **Allow progress rollback for completed achievements** setting is enabled. You can enable this through the [Campaign Manager](https://docs.talon.one/docs/product/achievements/manage-achievements) or the [Management API](https://docs.talon.one/management-api#tag/Achievements/operation/createAchievement) by setting the `achievementAllowRollbackAfterCompletion` property to `true`. This setting only applies to one-time and recurring on expiration achievements.'
-      example:
-        achievementId: 10
-        achievementName: FreeCoffee10Orders
-        progressTrackerId: 42
-        decreaseProgressBy: 1
-        currentProgress: 6
-        target: 10
-      required:
-      - achievementId
-      - achievementName
-      - progressTrackerId
-      - decreaseProgressBy
-      - currentProgress
-      - target
-      properties:
-        achievementId:
-          type: integer
-          description: The internal ID of the achievement.
-          example: 10
-        achievementName:
-          type: string
-          description: The name of the achievement.
-          example: FreeCoffee10Orders
-        progressTrackerId:
-          type: integer
-          description: The internal ID of the achievement progress tracker.
-        decreaseProgressBy:
-          type: number
-          description: The value by which the customer's current progress in the achievement has decreased.
-        currentProgress:
-          type: number
-          description: The current progress of the customer in the achievement.
-        target:
-          type: number
-          description: The target value to complete the achievement.
-    TriggerWebhookEffectProps:
-      type: object
-      title: triggerWebhook
-      description: This effect is triggered when a rule containing a [webhook effect](https://docs.talon.one/docs/product/rules/effects/available-effects#webhooks) is validated. The details are shared with you for your information only. It usually doesn't require an action on your side.
-      example:
-        webhookId: 7
-        webhookName: My Webhook
-      required:
-      - webhookId
-      - webhookName
-      properties:
-        webhookId:
-          type: number
-          description: The internal ID of the webhook.
-        webhookName:
-          type: string
-          description: The name of the webhook.
-    ApplicationStoreEntity:
-      type: object
-      properties:
-        storeId:
-          type: integer
-          description: The ID of the store.
     LoyaltyCardIdentifier:
       type: string
       description: 'The identifier of the loyalty card, which must match the regular expression `^[A-Za-z0-9._%+@-]+$`.
@@ -2216,6 +1003,149 @@ components:
       minLength: 4
       pattern: ^[A-Za-z0-9._%+@-]+$
       example: summer-loyalty-card-0543
+    StartAchievementProgressEffectProps:
+      type: object
+      title: startAchievementProgress
+      description: 'This effect indicates that the customer''s progress in an achievement was started during the current session. The progress value is set to 0. It is triggered when a rule using the [Start achievement progress](https://docs.talon.one/docs/product/rules/effects/use-effects#start-achievement-progress) effect is successfully validated.
+
+
+        This effect only marks the start of progress tracking. It can fire together with `increaseAchievementProgress` when progress starts and increases at the same time. In that case, both effects share the same `progressTrackerId`, `startDate`, and `endDate`.
+
+
+        For [on-completion achievements](https://docs.talon.one/docs/product/campaigns/achievements/achievements-overview#recurring-on-completion-achievements), each iteration also gets its own `startDate` and `endDate`.
+
+        '
+      example:
+        achievementId: 10
+        achievementName: FreeCoffee10Orders
+        progressTrackerId: 42
+        target: 10
+        startDate: '2026-04-16T15:25:37Z'
+        endDate: '2026-04-30T11:24:59Z'
+      required:
+      - achievementId
+      - achievementName
+      - progressTrackerId
+      - target
+      - startDate
+      properties:
+        achievementId:
+          type: integer
+          description: The ID of the achievement.
+          example: 10
+        achievementName:
+          type: string
+          description: The name of the achievement.
+          example: FreeCoffee10Orders
+        progressTrackerId:
+          type: integer
+          description: 'The ID of the customer''s progress tracker for this achievement.
+
+
+            For [on-completion achievements](https://docs.talon.one/docs/product/campaigns/achievements/achievements-overview#recurring-on-completion-achievements), this effect generates a unique ID for each iteration.'
+          example: 42
+        target:
+          type: number
+          description: The target value to complete the achievement.
+          example: 10
+        startDate:
+          type: string
+          format: date-time
+          description: Timestamp at which the customer's progress started.
+          example: '2026-04-16T15:25:37Z'
+        endDate:
+          type: string
+          format: date-time
+          description: 'Timestamp at which this progress period ends.
+
+
+            Only returned for achievements that have a fixed end date. [On-completion achievements](https://docs.talon.one/docs/product/campaigns/achievements/achievements-overview#recurring-on-completion-achievements) have no end date.'
+          example: '2026-04-30T11:24:59Z'
+    AwardGiveawayEffectProps:
+      type: object
+      title: awardGiveaway
+      description: This effect indicates the awarded giveaway item and to which profile the item was awarded. Learn more about [giveaways](https://docs.talon.one/docs/product/giveaways/overview).
+      example:
+        poolId: 2
+        poolName: My pool
+        recipientIntegrationId: URNGV8294NV
+        giveawayId: 5
+        code: 57638t-67439hty
+      required:
+      - poolId
+      - poolName
+      - recipientIntegrationId
+      - giveawayId
+      - code
+      properties:
+        poolId:
+          type: integer
+          description: The internal ID of the giveaway pool.
+          example: 2
+        poolName:
+          type: string
+          description: The name of the giveaway pool.
+          example: My pool
+        recipientIntegrationId:
+          type: string
+          maxLength: 1000
+          description: The integration ID of the customer that receives the giveaway.
+          example: URNGV8294NV
+        giveawayId:
+          type: integer
+          description: The internal ID of the giveaway.
+          example: 5
+        code:
+          type: string
+          description: The giveaway code to be rewarded.
+          example: 57638t-67439hty
+    ErrorEffectProps:
+      type: object
+      title: error
+      description: This effect is triggered whenever an error occurs during rule evaluation. This effect only provides information about what the error is.
+      example:
+        message: An unexpected error occurred during rule evaluation.
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: The error message.
+    NewCustomerProfile:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Arbitrary properties associated with this item.
+          example:
+            Language: english
+            ShippingCountry: DE
+    ReserveCouponEffectProps:
+      type: object
+      title: reserveCoupon
+      description: 'This effect indicates that the given coupon code was reserved for the given customer.
+
+
+        Talon.One provides soft and hard reservations. For more information, see [Reserve a coupon code](https://docs.talon.one/docs/product/rules/effects/use-effects#reserve-a-coupon-code).'
+      example:
+        couponValue: COUP-XYZ789
+        profileIntegrationId: customer_profile_id_1
+        isNewReservation: true
+      required:
+      - couponValue
+      - profileIntegrationId
+      - isNewReservation
+      properties:
+        couponValue:
+          type: string
+          description: The coupon code that was created.
+        profileIntegrationId:
+          type: string
+          description: The integration identifier of the customer for whom this coupon was reserved.
+        isNewReservation:
+          type: boolean
+          description: Indicates whether this is a new coupon reservation or not.
     RollbackDiscountEffectProps:
       type: object
       title: rollbackDiscount
@@ -2261,22 +1191,6 @@ components:
             - For a discount per session, it can be one of `cartItems`, `additionalCosts` or `sessionTotal`
 
             - For a discount per item, it can be one of `price`, `additionalCosts` or `itemTotal`'
-    UpdateAttributeEffectProps:
-      type: object
-      title: updateAttribute
-      description: This effect indicates that a rule containing an [Update attribute value](https://docs.talon.one/docs/product/rules/effects/available-effects#update-effects) or [Update cart item attribute value](https://docs.talon.one/docs/product/rules/effects/available-effects#update-effects) was validated. You should update the value of the attribute in your system based on the content of the returned effect.
-      example:
-        path: Session.Attributes.loyaltyTier
-        value: Gold
-      required:
-      - path
-      - value
-      properties:
-        path:
-          type: string
-          description: The entity type and the attribute name.
-        value:
-          description: The new value of the attribute.
     IncreaseAchievementProgressEffectProps:
       type: object
       title: increaseAchievementProgress
@@ -2325,13 +1239,321 @@ components:
         isJustCompleted:
           type: boolean
           description: Indicates if the customer has completed the achievement in the current session.
-    ApplicationCustomerEntity:
+    TriggerWebhookEffectProps:
+      type: object
+      title: triggerWebhook
+      description: This effect is triggered when a rule containing a [webhook effect](https://docs.talon.one/docs/product/rules/effects/available-effects#webhooks) is validated. The details are shared with you for your information only. It usually doesn't require an action on your side.
+      example:
+        webhookId: 7
+        webhookName: My Webhook
+      required:
+      - webhookId
+      - webhookName
+      properties:
+        webhookId:
+          type: number
+          description: The internal ID of the webhook.
+        webhookName:
+          type: string
+          description: The name of the webhook.
+    EffectEntity:
+      type: object
+      description: Definition of all properties that are present on all effects, independent of their type.
+      required:
+      - campaignId
+      - rulesetId
+      - ruleIndex
+      - ruleName
+      - effectType
+      properties:
+        experimentId:
+          type: integer
+          description: The ID of the experiment that campaign belongs to.
+          example: 12
+        campaignId:
+          type: integer
+          description: The ID of the campaign that triggered this effect.
+          example: 244
+        rulesetId:
+          type: integer
+          description: The ID of the ruleset that was active in the campaign when this effect was triggered.
+          example: 73
+        ruleIndex:
+          type: integer
+          description: The position of the rule that triggered this effect within the ruleset.
+          example: 2
+        ruleName:
+          type: string
+          description: The name of the rule that triggered this effect.
+          example: Give 20% discount
+        effectType:
+          type: string
+          description: The type of effect that was triggered. See [API effects](https://docs.talon.one/docs/dev/integration-api/api-effects).
+          example: rejectCoupon
+        triggeredByCoupon:
+          type: integer
+          example: 4928
+          description: The ID of the coupon that was being evaluated when this effect was triggered.
+        triggeredForCatalogItem:
+          type: integer
+          example: 786
+          description: The ID of the catalog item that was being evaluated when this effect was triggered.
+        conditionIndex:
+          type: integer
+          example: 786
+          description: The index of the condition that was triggered.
+        evaluationGroupID:
+          type: integer
+          example: 3
+          description: The ID of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation).
+        evaluationGroupMode:
+          type: string
+          example: stackable
+          description: The evaluation mode of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation).
+        campaignRevisionId:
+          type: integer
+          example: 1
+          description: The revision ID of the campaign that was used when triggering the effect.
+        campaignRevisionVersionId:
+          type: integer
+          example: 5
+          description: The revision version ID of the campaign that was used when triggering the effect.
+        selectedPriceType:
+          type: string
+          example: member
+          description: The selected price type for the SKU targeted by this effect.
+        selectedPrice:
+          type: number
+          example: 100
+          description: The value of the selected price type to apply to the SKU targeted by this effect, before any discounts are applied.
+        adjustmentReferenceId:
+          type: string
+          format: uuid
+          example: 68851723-e6fa-488f-ace9-112581e6c19b
+          description: The reference identifier of the selected price adjustment for this SKU. This is only returned if the `selectedPrice` resulted from a price adjustment.
+    CustomerProfile:
+      allOf:
+      - $ref: '#/components/schemas/CustomerProfileEntity'
+      - $ref: '#/components/schemas/IntegrationEntity'
+      - $ref: '#/components/schemas/NewCustomerProfile'
+      - type: object
+        properties:
+          accountId:
+            type: integer
+            title: Profile belongs to Account
+            description: The ID of the Talon.One account that owns this profile.
+            example: 31
+          closedSessions:
+            type: integer
+            title: Closed sessions
+            description: The total number of closed sessions. Does not include closed sessions that have been cancelled or reopened. See the [docs](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).
+            example: 3
+          totalSales:
+            type: number
+            description: 'The total amount of money spent by the customer **before** discounts are applied.
+
+
+              The total sales amount excludes the following:
+
+              - Cancelled or reopened sessions.
+
+              - Returned items.
+
+              '
+            example: 299.99
+            title: Total Sales
+          loyaltyMemberships:
+            type: array
+            deprecated: true
+            description: '**DEPRECATED. Always returns `null`.** A list of loyalty programs joined by the customer.
+
+              '
+            items:
+              $ref: '#/components/schemas/LoyaltyMembership'
+            title: Loyalty programed joined
+            example: null
+          audienceMemberships:
+            type: array
+            description: The audiences the customer belongs to.
+            items:
+              $ref: '#/components/schemas/AudienceMembership'
+            title: Audience memberships
+          lastActivity:
+            type: string
+            format: date-time
+            title: Last activity
+            description: 'Timestamp of the most recent event received from this customer.
+
+              This field is updated on calls that trigger the Rule Engine and that are
+
+              not [dry requests](https://docs.talon.one/docs/dev/integration-api/dry-requests/#overlay).
+
+
+              For example, [reserving a coupon](https://docs.talon.one/integration-api#tag/Coupons/operation/createCouponReservation)
+
+              for a customer doesn''t impact this field.
+
+              '
+            example: '2020-02-08T14:15:20Z'
+          sandbox:
+            type: boolean
+            description: 'An indicator of whether the customer is part of a sandbox or live Application. See the [docs](https://docs.talon.one/docs/product/applications/overview#application-environments).
+
+              '
+            title: Sandbox
+            example: false
+        required:
+        - accountId
+        - closedSessions
+        - totalSales
+        - lastActivity
+        - attributes
+    AcceptCouponEffectProps:
+      type: object
+      title: acceptCoupon
+      description: 'This effect indicates that the coupon code supplied was valid.
+
+
+        You should handle this effect by clearing any messages from previous `rejectCoupon` effects and informing the user that the coupon is valid.
+
+
+        The code is automatically redeemed when you close the session.
+
+
+        Other effects, such as [setDiscount](https://docs.talon.one/docs/dev/integration-api/api-effects#setdiscount), provide more information about the actual rewards received.'
+      example:
+        value: COUP-XYZ789
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: The coupon code that was accepted.
+    RollbackIncreasedAchievementProgressEffectProps:
+      type: object
+      title: rollbackIncreasedAchievementProgress
+      description: 'This effect indicates that the customer''s progress in an achievement was rolled back.
+
+
+        The Rule Engine triggers this effect when you cancel or [reopen a customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/reopenCustomerSession) that previously validated the [Update customer progress](https://docs.talon.one/docs/product/rules/effects/use-effects#update-customer-progress) effect and triggered the [increaseAchievementProgress](https://docs.talon.one/docs/dev/integration-api/api-effects#increaseachievementprogress) API effect.
+
+
+        The effect is also triggered for completed achievements if the **Allow progress rollback for completed achievements** setting is enabled. You can enable this through the [Campaign Manager](https://docs.talon.one/docs/product/achievements/manage-achievements) or the [Management API](https://docs.talon.one/management-api#tag/Achievements/operation/createAchievement) by setting the `achievementAllowRollbackAfterCompletion` property to `true`. This setting only applies to one-time and recurring on expiration achievements.'
+      example:
+        achievementId: 10
+        achievementName: FreeCoffee10Orders
+        progressTrackerId: 42
+        decreaseProgressBy: 1
+        currentProgress: 6
+        target: 10
+      required:
+      - achievementId
+      - achievementName
+      - progressTrackerId
+      - decreaseProgressBy
+      - currentProgress
+      - target
+      properties:
+        achievementId:
+          type: integer
+          description: The internal ID of the achievement.
+          example: 10
+        achievementName:
+          type: string
+          description: The name of the achievement.
+          example: FreeCoffee10Orders
+        progressTrackerId:
+          type: integer
+          description: The internal ID of the achievement progress tracker.
+        decreaseProgressBy:
+          type: number
+          description: The value by which the customer's current progress in the achievement has decreased.
+        currentProgress:
+          type: number
+          description: The current progress of the customer in the achievement.
+        target:
+          type: number
+          description: The target value to complete the achievement.
+    AcceptReferralEffectProps:
+      type: object
+      title: acceptReferral
+      description: 'This effect indicates that the referral code supplied is valid.
+
+
+        You should handle this effect by informing the user that the referral code is valid.
+
+
+        The code is automatically redeemed when you close the session.
+
+
+        Other effects will provide more information about the actual reward.'
+      example:
+        value: REF-ABC123
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: The referral code provided in the session.
+    PriceDetail:
       type: object
       properties:
+        price:
+          type: number
+          format: float
+          description: The value of this price type.
+          example: 90
+        adjustmentContextId:
+          type: string
+          description: The context identifier of the selected price adjustment.
+          example: summer25
+        adjustmentReferenceId:
+          type: string
+          format: uuid
+          description: The reference identifier of the selected price adjustment for this SKU.
+          example: 68851723-e6fa-488f-ace9-112581e6c19b
+        adjustmentEffectiveFrom:
+          type: string
+          format: date-time
+          description: The date and time from which the price adjustment is effective.
+          example: '2025-05-25T00:00:00Z'
+        adjustmentEffectiveUntil:
+          type: string
+          format: date-time
+          description: The date and time until which the price adjustment is effective.
+          example: '2025-05-30T00:00:00Z'
+    AddToAudienceEffectProps:
+      type: object
+      title: addToAudience
+      description: This effect is triggered when a rule containing an [Update audience](https://docs.talon.one/docs/product/rules/effects/use-effects#update-an-audience) effect with **Add customer to an audience** selected is validated. It indicates that a customer was added to an audience and is returned when a customer session is opened, updated, or closed.
+      example:
+        audienceId: 10
+        audienceName: My audience
+        profileIntegrationId: URNGV8294NV
+        profileId: 150
+      properties:
+        audienceId:
+          type: integer
+          description: The internal ID of the audience.
+          example: 10
+        audienceName:
+          type: string
+          description: The name of the audience.
+          example: My audience
+        profileIntegrationId:
+          type: string
+          description: The ID of the customer profile in the third-party integration platform.
+          example: URNGV8294NV
         profileId:
           type: integer
-          description: The globally unique Talon.One ID of the customer that created this entity.
-          example: 138
+          description: The internal ID of the customer profile.
+          example: 150
+    ApplicationStoreEntity:
+      type: object
+      properties:
+        storeId:
+          type: integer
+          description: The ID of the store.
     CartItem:
       type: object
       required:
@@ -2487,6 +1709,444 @@ components:
               effectiveUntil: '2025-05-30T00:00:00Z'
             base:
               price: 100
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+    SetDiscountPerAdditionalCostEffectProps:
+      type: object
+      title: setDiscountPerAdditionalCost
+      description: 'This effect indicates that a discount that should be applied on a specific additional cost. It is triggered whenever a rule containing a **Discount additional cost** effect is validated.
+
+
+        Enabling [partial rewards](https://docs.talon.one/docs/product/applications/manage-general-settings#partial-rewards) allows a rule that would fail because of insufficient budget to pass. The rule still fails when the budget reaches 0. Use the `desiredValue` property to identify the original amount of loyalty points.'
+      example:
+        name: Shipping discount
+        additionalCostId: 1
+        additionalCost: shipping
+        value: 4.99
+        desiredValue: 4.99
+      required:
+      - name
+      - value
+      - additionalCostId
+      - additionalCost
+      properties:
+        name:
+          type: string
+          description: The name of the discount.
+        additionalCostId:
+          type: integer
+          description: The identifier of the additional cost.
+        additionalCost:
+          type: string
+          description: The API name of the additional cost.
+        value:
+          type: number
+          description: The monetary value of the discount to apply.
+        desiredValue:
+          type: number
+          description: _(Partial discounts enabled only)_ The monetary value of the discount to be applied without considering budget limitations.
+    RollbackReferralEffectProps:
+      type: object
+      title: rollbackReferral
+      description: 'This effect indicates that the redemption of the referral code has been rolled back. It triggers when a closed session that redeemed a referral is gets cancelled. The code becomes redeemable again.
+
+
+        For more information about session states, see [Managing states](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).'
+      example:
+        value: REF-ABC123
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: The referral code to be rolled back.
+    ShowNotificationEffectProps:
+      type: object
+      title: showNotification
+      description: 'You can use notifications to inform customers of certain events. There are four types of notification messages:
+
+
+        - `Info`
+
+        - `Offer`
+
+        - `Error`
+
+        - `Misc`
+
+
+        It is up to you to use the Rule Builder to decide why and when to show notifications. Notifications can be used as both rule effects and failure effects.
+
+
+        A common use case is to display the notification at the top of the cart view in your web app. You can use the notification type to vary the styling of the notification message.'
+      example:
+        notificationType: info
+        title: Discount applied
+        body: You have received a 10% discount on your order.
+      required:
+      - notificationType
+      - title
+      - body
+      properties:
+        notificationType:
+          type: string
+          description: The type of notification.
+        title:
+          type: string
+          description: The title of the notification.
+        body:
+          type: string
+          description: The body of the notification.
+    UpdateAttributeEffectProps:
+      type: object
+      title: updateAttribute
+      description: This effect indicates that a rule containing an [Update attribute value](https://docs.talon.one/docs/product/rules/effects/available-effects#update-effects) or [Update cart item attribute value](https://docs.talon.one/docs/product/rules/effects/available-effects#update-effects) was validated. You should update the value of the attribute in your system based on the content of the returned effect.
+      example:
+        path: Session.Attributes.loyaltyTier
+        value: Gold
+      required:
+      - path
+      - value
+      properties:
+        path:
+          type: string
+          description: The entity type and the attribute name.
+        value:
+          description: The new value of the attribute.
+    EventV3Entity:
+      type: object
+      properties:
+        integrationId:
+          type: string
+          description: 'The unique ID of the event. Only one event with this ID can be registered.
+
+            '
+          minLength: 1
+          example: 175KJPS947296
+    SetDiscountPerAdditionalCostPerItemEffectProps:
+      type: object
+      title: setDiscountPerAdditionalCostPerItem
+      description: 'This effect indicates that a discount of a specific additional cost within a specific item should be applied. It gets triggered whenever a rule containing a **Discount additional cost per item** effect is validated.
+
+
+        Use this effect when **all** items in the cart have an additional cost. If one of more items do not have an additional cost, the rule will fail.'
+      example:
+        name: 'Shipping discount on item #1'
+        additionalCostId: 1
+        value: 4.99
+        position: 1
+        subPosition: 1
+        additionalCost: shipping
+        desiredValue: 4.99
+      required:
+      - name
+      - value
+      - additionalCostId
+      - additionalCost
+      - position
+      properties:
+        name:
+          type: string
+          description: The description of this discount. `#number` is appended to the name. It is equal to the `position` property.
+        additionalCostId:
+          type: integer
+          description: The identifier of the additional cost to be discounted.
+        value:
+          type: number
+          description: The monetary value of the effective discount applied to the item's additional cost.
+        position:
+          type: number
+          description: The index of the item in the `cartItem` object containing the additional cost that this discount applies to.
+        subPosition:
+          type: number
+          description: The index of the item unit in its line item.
+        additionalCost:
+          type: string
+          description: The API name of the additional cost to be discounted.
+        desiredValue:
+          type: number
+          description: _[(Partial discounts enabled only)](https://docs.talon.one/docs/product/applications/manage-general-settings#partial-discounts)_. The monetary value of the discount to be applied to the additional cost without considering budget limitations.
+    RollbackAddedLoyaltyPointsEffectProps:
+      type: object
+      title: rollbackAddedLoyaltyPoints
+      description: 'This effect is triggered in the following cases:
+
+
+        - A session was cancelled in which loyalty points have been added.
+
+        - A session was partially returned and loyalty point were added by the returned items. See [returning items](https://docs.talon.one/docs/dev/tutorials/partially-return-a-session).
+
+
+        If you use the [Add loyalty points per item effect](https://docs.talon.one/docs/product/rules/effects/available-effects#reward-effects), use the `cartItemPosition` property to identify which items the loyalty points were rolled back for.
+
+
+        If you use **Add loyalty points per item** and if the session contains some cart items with _quantity > 1_, use the `cartItemSubPosition` property to identify the item unit in its line item.
+
+
+        If the loyalty program is [profile-based](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types), use the `recipientIntegrationId` property to identify the user for whom the loyalty points are rolled back. If the loyalty program is [card-based](https://docs.talon.one/docs/product/loyalty-programs/overview#loyalty-program-types), use the `cardIdentifier` property to identify the loyalty card where the points were originally added.'
+      example:
+        programId: 5
+        subLedgerId: main
+        value: 100
+        recipientIntegrationId: URNGV8294NV
+        transactionUUID: 8c2d3670-6ea5-4e9e-b5c6-e7e7b4a10111
+        cartItemPosition: 1
+        cartItemSubPosition: 1
+        cardIdentifier: loyalty-card-001
+      required:
+      - programId
+      - subLedgerId
+      - value
+      - recipientIntegrationId
+      - transactionUUID
+      properties:
+        programId:
+          type: integer
+          description: The ID of the loyalty program where these points were rolled back.
+        subLedgerId:
+          type: string
+          description: The ID of the subledger within the loyalty program where these points were rolled back.
+        value:
+          type: number
+          description: The amount of points that were rolled back.
+        recipientIntegrationId:
+          type: string
+          maxLength: 1000
+          description: The user for whom these points were rolled back.
+          example: URNGV8294NV
+        transactionUUID:
+          type: string
+          description: The identifier of this loyalty point transaction.
+        cartItemPosition:
+          type: number
+          description: (_Add points per cart item_ only.) The index of the item in the `cartItem` object for which these points were rolled back.
+        cartItemSubPosition:
+          type: number
+          description: (_Add points per cart item_ ) The index of the item unit in its line item.
+        cardIdentifier:
+          $ref: '#/components/schemas/LoyaltyCardIdentifier'
+          description: The identifier of the card on which these points were originally added.
+    ReferralCreatedEffectProps:
+      type: object
+      title: referralCreated
+      description: The `referralCreated` effect behaves similarly to [couponCreated](https://docs.talon.one/docs/dev/integration-api/api-effects#couponcreated). If the `friendProfileIntegrationId` parameter is empty, the referral code can be redeemed by anyone.
+      example:
+        value: REF-NEW456
+      required:
+      - value
+      properties:
+        value:
+          type: string
+          description: The referral code provided in the session.
+    AddFreeItemEffectProps:
+      type: object
+      title: addFreeItem
+      description: 'This effect indicates that a free item should be added to the shopping cart in the current session. In this example, add the SKU to the shopping cart and set its price to `0`.
+
+
+        The effect of a successful referral can mean a free item for someone else, such as the referrer.'
+      example:
+        sku: SKU1241028
+        name: Free Gift Item
+        desiredQuantity: 1
+      required:
+      - sku
+      - name
+      properties:
+        sku:
+          type: string
+          description: SKU of the item that needs to be added.
+          example: SKU1241028
+        name:
+          type: string
+          description: Description of the effect.
+        desiredQuantity:
+          type: integer
+          description: The original quantity in case a partial reward was applied.
+    RuleFailureReason:
+      type: object
+      description: Details about why a rule failed.
+      required:
+      - campaignID
+      - campaignName
+      - rulesetID
+      - ruleIndex
+      - ruleName
+      properties:
+        campaignID:
+          type: integer
+          description: The ID of the campaign that contains the rule that failed.
+        campaignName:
+          type: string
+          description: The name of the campaign that contains the rule that failed.
+        rulesetID:
+          type: integer
+          description: The ID of the ruleset that contains the rule that failed.
+        couponID:
+          type: integer
+          description: The ID of the coupon that was being evaluated at the time of the rule failure.
+          example: 4928
+        couponValue:
+          type: string
+          description: The code of the coupon that was being evaluated at the time of the rule failure.
+        referralID:
+          type: integer
+          description: The ID of the referral that was being evaluated at the time of the rule failure.
+        referralValue:
+          type: string
+          description: The code of the referral that was being evaluated at the time of the rule failure.
+        ruleIndex:
+          type: integer
+          description: The index of the rule that failed within the ruleset.
+        ruleName:
+          type: string
+          description: The name of the rule that failed within the ruleset.
+        conditionIndex:
+          type: integer
+          description: The index of the condition that failed.
+        effectIndex:
+          type: integer
+          description: The index of the effect that failed.
+        details:
+          type: string
+          description: More details about the failure.
+        evaluationGroupID:
+          type: integer
+          example: 3
+          description: The ID of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation).
+        evaluationGroupMode:
+          type: string
+          example: stackable
+          description: The evaluation mode of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-
+    RemoveFromAudienceEffectProps:
+      type: object
+      title: removeFromAudience
+      description: This effect is triggered when a rule containing an [Update audience](https://docs.talon.one/docs/product/rules/effects/use-effects#update-an-audience) effect with **Remove customer from an audience** selected is validated. It indicates that a customer was removed from an audience and is returned when a customer session is opened, updated, or closed.
+      example:
+        audienceId: 10
+        audienceName: My audience
+        profileIntegrationId: URNGV8294NV
+        profileId: 150
+      properties:
+        audienceId:
+          type: integer
+          description: The internal ID of the audience.
+          example: 10
+        audienceName:
+          type: string
+          description: The name of the audience.
+          example: My audience
+        profileIntegrationId:
+          type: string
+          description: The ID of the customer profile in the third-party integration platform.
+          example: URNGV8294NV
+        profileId:
+          type: integer
+          description: The internal ID of the customer profile.
+          example: 150
+    CustomerProfileSearchQuery:
+      type: object
+      properties:
+        attributes:
+          type: object
+          description: Properties to match against a customer profile. All provided attributes will be exactly matched against profile attributes.
+        integrationIDs:
+          type: array
+          items:
+            type: string
+        profileIDs:
+          type: array
+          items:
+            type: integer
+    AdditionalCost:
+      type: object
+      required:
+      - price
+      properties:
+        price:
+          title: Price of additional cost
+          type: number
+          example: 4.5
+    RejectCouponEffectProps:
+      type: object
+      title: rejectCoupon
+      description: 'This effect indicates that the coupon code supplied couldn''t be used.
+
+
+        You should handle this effect by informing their user the coupon code is invalid.'
+      example:
+        value: COUP-XYZ789
+        rejectionReason: CouponRejectedCondition
+        conditionIndex: 2
+        effectIndex: 0
+        details: Coupon usage limit reached
+        campaignExclusionReason: CampaignGaveLowerDiscount
+      required:
+      - value
+      - rejectionReason
+      properties:
+        value:
+          type: string
+          description: The coupon code that was rejected.
+        rejectionReason:
+          type: string
+          description: 'The reason why the code was rejected.
+
+
+            - `CampaignLimitReached`: The campaign-wide coupon code redemption limit has been reached.
+
+            - `CouponExpired`: The coupon is expired.
+
+            - `CouponLimitReached`: The coupon redemption limit or a campaign budget was reached.
+
+            - `CouponNotFound`: The coupon code is incorrect.
+
+            - `CouponPartOfNotRunningCampaign`: The campaign the coupon belongs to is currently not active. The campaignId field contains the ID of that campaign.
+
+            - `CouponRecipientDoesNotMatch`: The given coupon value does not match the recipient or the coupon is linked to a `recipientIntegrationID` but there is no profile in the session.
+
+            - `CouponRejectedByCondition`: Other conditions failed in the rule or all conditions passed but the `Coupon code is valid` condition is not present.
+
+            - `CouponStartDateInFuture`: The coupon isn''t active yet.
+
+            - `EffectCouldNotBeApplied`: One of the effects in the campaign wasn''t applied because a limit for that effect was reached (most common use case will be `setDiscount` cannot be applied because a discount limit is reached).
+
+            - `ProfileLimitReached`: The profile-specific coupon redemption limit has been reached.
+
+            - `CouponPartOfNotTriggeredCampaign`: The campaign the coupon belongs to was not triggered during evaluation (an exclusive or stackable campaign). The `campaignId` field contains the ID of that campaign.
+
+            - `CouponReservationRequired`: The coupon''s `isReservationMandatory` property is `true`, but the profile does not have a reservation.
+
+            - `ProfileRequired`: The coupon''s `isReservationMandatory` property is `true` or a [campaign profile budget](https://docs.talon.one/docs/product/campaigns/settings/manage-campaign-budgets) was set, but no profile exists in the session.'
+        conditionIndex:
+          type: integer
+          description: The index of the condition that caused the rejection of the coupon.
+        effectIndex:
+          type: integer
+          description: The index of the effect that caused the rejection of the coupon.
+        details:
+          type: string
+          description: More details about the failure.
+        campaignExclusionReason:
+          type: string
+          example: CampaignGaveLowerDiscount
+          description: 'The reason why the campaign the coupon belongs to was excluded during [campaign evaluation](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation), when `rejectionReason` was `CouponPartOfNotTriggeredCampaign`.
+
+            Its possible values are:
+
+
+            - `CampaignGaveLowerDiscount`: The required campaign and coupon conditions were met, but another campaign in a [Highest discount value](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group offered a higher discount value.
+
+            - `CampaignIsNotFirst`: The campaign was not evaluated because another campaign in a [First campaign](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group was picked and evaluated first.
+
+            - `CampaignNotInEvaluationSet`: The campaign did not meet other evaluation requirements, for example, because the coupon is part of an archived campaign.'
     CustomerActivityReport:
       description: A summary report of customer activity for a given time range.
       allOf:
@@ -2540,22 +2200,21 @@ components:
           campaignName:
             type: string
             description: The name of the campaign this customer belongs to.
-    AwardGiveawayEffectProps:
+    WillAwardGiveawayEffectProps:
       type: object
-      title: awardGiveaway
-      description: This effect indicates the awarded giveaway item and to which profile the item was awarded. Learn more about [giveaways](https://docs.talon.one/docs/product/giveaways/overview).
+      title: willAwardGiveaway
+      description: 'The equivalent of the `awardGiveaway` effect but returned when updating a session with any state other than `closed`. This ensures no giveaway codes are leaked when they are still not guaranteed to be awarded.
+
+
+        For more information about session states, see [Manage the session''s state](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#manage-the-sessions-state).'
       example:
         poolId: 2
         poolName: My pool
         recipientIntegrationId: URNGV8294NV
-        giveawayId: 5
-        code: 57638t-67439hty
       required:
       - poolId
       - poolName
       - recipientIntegrationId
-      - giveawayId
-      - code
       properties:
         poolId:
           type: integer
@@ -2570,14 +2229,182 @@ components:
           maxLength: 1000
           description: The integration ID of the customer that receives the giveaway.
           example: URNGV8294NV
-        giveawayId:
+    ApplicationCustomerEntity:
+      type: object
+      properties:
+        profileId:
           type: integer
-          description: The internal ID of the giveaway.
-          example: 5
-        code:
+          description: The globally unique Talon.One ID of the customer that created this entity.
+          example: 138
+    CustomerProfileEntity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of the customer profile.
+          example: 6
+        created:
           type: string
-          description: The giveaway code to be rewarded.
-          example: 57638t-67439hty
+          format: date-time
+          description: The time the customer profile was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    IntegrationEntity:
+      type: object
+      required:
+      - integrationId
+      - created
+      properties:
+        integrationId:
+          type: string
+          format: string
+          example: URNGV8294NV
+          maxLength: 1000
+          description: The integration ID set by your integration layer.
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-02-07T08:15:22Z'
+    RejectReferralEffectProps:
+      type: object
+      title: rejectReferral
+      description: This effect indicates that the provided referral code is invalid.
+      example:
+        value: REF-ABC123
+        rejectionReason: ReferralRejectedCondition
+        conditionIndex: 1
+        effectIndex: 0
+        details: Referral code already used
+        campaignExclusionReason: CampaignGaveLowerDiscount
+      required:
+      - value
+      - rejectionReason
+      properties:
+        value:
+          type: string
+          description: The referral code that was rejected
+        rejectionReason:
+          type: string
+          description: 'The reason why the code was rejected.
+
+
+            - `AdvocateNotFound`: The advocate was not found.
+
+            - `CampaignLimitReached`: The campaign-wide referral code redemption limit has been reached.
+
+            - `EffectCouldNotBeApplied`: One of the effects in the campaign wasn''t applied because a limit for that effect was reached (most common use case will be `setDiscount` can not be applied because a discount limit is reached).
+
+            - `ProfileLimitReached`: The profile-specific referral code redemption limit has been reached.
+
+            - `ReferralCustomerAlreadyReferred`: The friend is already referred.
+
+            - `ReferralExpired`: The transferred referral code is expired.
+
+            - `ReferralLimitReached`: The referral code redemption limit has been reached.
+
+            - `ReferralNotFound`: The transferred referral code is wrong.
+
+            - `ReferralPartOfNotRunningCampaign`: The campaign the referral code belongs to is currently not active. The campaign ID field shows the ID of that campaign.
+
+            - `ReferralRecipientDoesNotMatch`: The given referral code value does not match the recipient.
+
+            - `ReferralRecipientIdSameAsAdvocate`: The recipient (friend) has the same id as the advocate.
+
+            - `ReferralRejectedByCondition`: The referral code is valid and in an active campaign, but there were other conditions in that campaign''s rules that were not met.
+
+            - `ReferralStartDateInFuture`: The transferred referral code isn''t active yet.
+
+            - `ReferralPartOfNotTriggeredCampaign`: The campaign the referral code belongs to was not triggered during evaluation (an exclusive or stackable campaign). The campaign ID field shows the ID of that campaign.'
+        conditionIndex:
+          type: integer
+          description: The index of the condition that caused the rejection of the referral.
+        effectIndex:
+          type: integer
+          description: The index of the effect that caused the rejection of the referral.
+        details:
+          type: string
+          description: More details about the failure.
+        campaignExclusionReason:
+          type: string
+          example: CampaignGaveLowerDiscount
+          description: 'The reason why the campaign the referral belongs to was excluded during [campaign evaluation](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation), when `rejectionReason` was `CouponPartOfNotTriggeredCampaign`.
+
+            Its possible values are:
+
+
+            - `CampaignGaveLowerDiscount`: The required campaign and referral conditions were met, but another campaign in a [Highest discount value](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group offered a higher discount value.
+
+            - `CampaignIsNotFirst`: The campaign was not evaluated because another campaign in a [First campaign](https://docs.talon.one/docs/product/applications/manage-campaign-evaluation#set-campaign-evaluation-mode) group was picked and evaluated first.
+
+            - `CampaignNotInEvaluationSet`: The campaign did not meet other evaluation requirements, for example, because the referral is part of an archived campaign.'
+    Product:
+      type: object
+      description: The specific properties of the product this item belongs to, if available.
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The product the item belongs to.
+          example: sample_product
+    ApplicationCustomer:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/IntegrationEntity'
+      - $ref: '#/components/schemas/CustomerProfile'
+      - type: object
+        required:
+        - accountId
+        properties:
+          accountId:
+            type: integer
+            description: The ID of the Talon.One account that owns this profile.
+          advocateIntegrationId:
+            type: string
+            maxLength: 1000
+            description: The Integration ID of the Customer Profile that referred this Customer in the Application.
+    ChangeLoyaltyTierLevelEffectProps:
+      type: object
+      title: changeLoyaltyTierLevel
+      description: 'This effect indicates that a customer''s loyalty tier has been upgraded.
+
+
+        This effect is generated only when the [Add loyalty points](https://docs.talon.one/docs/product/rules/effects/use-effects#add-loyalty-points) and the [Add loyalty points per cart item](https://docs.talon.one/docs/product/rules/effects/use-effects#add-loyalty-points-per-cart-item) effects are triggered for a particular customer, and, as a result, the customer''s loyalty tier is upgraded.'
+      example:
+        ruleTitle: Tier upgrade on purchase
+        programId: 5
+        subLedgerId: main
+        previousTierName: Silver
+        newTierName: Gold
+        expiryDate: '2025-12-31T23:59:59Z'
+      required:
+      - ruleTitle
+      - programId
+      - subLedgerId
+      - newTierName
+      properties:
+        ruleTitle:
+          type: string
+          description: The title of the rule that triggered the tier upgrade.
+        programId:
+          type: integer
+          description: The ID of the loyalty program where the points were added.
+        subLedgerId:
+          type: string
+          description: The ID of the subledger within the loyalty program where the points were added.
+        previousTierName:
+          type: string
+          description: The name of the tier from which the user was upgraded.
+        newTierName:
+          type: string
+          description: The name of the tier to which the user has been upgraded.
+        expiryDate:
+          type: string
+          format: date-time
+          description: The expiration date of the new tier.
     SetLoyaltyPointsExpiryDateEffectProps:
       type: object
       title: setLoyaltyPointsExpiryDate
@@ -2610,38 +2437,127 @@ components:
           description: List of transactions affected by the expiry date update.
           items:
             $ref: '#/components/schemas/LoyaltyLedgerEntryExpiryDateChange'
-    AdditionalCost:
+    RedeemReferralEffectProps:
       type: object
-      required:
-      - price
-      properties:
-        price:
-          title: Price of additional cost
-          type: number
-          example: 4.5
-    CouponCreatedEffectProps:
-      type: object
-      title: couponCreated
-      description: 'This effect indicates that a coupon was created.
+      deprecated: true
+      title: redeemReferral
+      description: 'This effect is **deprecated**. It has been replaced by the `acceptReferral` effect.
 
+        This effect indicates that the referral code is valid and has been redeemed.
 
-        For referrals and retention marketing, a common use case is to generate a coupon that can only be redeemed by one specific customer.
-
-
-        Handle this effect by notifying the recipient about their new coupon code.'
+        '
       example:
-        value: COUP-NEW123
-        profileId: customer_profile_id_1
+        id: 12
+        value: REF-ABC123
       required:
+      - id
       - value
-      - profileId
       properties:
+        id:
+          type: integer
+          description: The id of the referral code that was redeemed.
         value:
           type: string
-          description: The coupon code that was created.
-        profileId:
+          description: The referral code that was redeemed.
+    IntegrationStoreEntity:
+      type: object
+      properties:
+        storeIntegrationId:
           type: string
-          description: The integration identifier of the customer for whom this coupon was created.
+          minLength: 1
+          maxLength: 1000
+          description: The integration ID of the store. You choose this ID when you create a store.
+          example: STORE-001
+    CustomerAnalytics:
+      description: A summary report of customer activity for a given time range.
+      allOf:
+      - type: object
+        properties:
+          acceptedCoupons:
+            type: integer
+            description: Total accepted coupons for this customer.
+          createdCoupons:
+            type: integer
+            description: Total created coupons for this customer.
+          freeItems:
+            type: integer
+            description: Total free items given to this customer.
+          totalOrders:
+            type: integer
+            description: Total orders made by this customer.
+          totalDiscountedOrders:
+            type: integer
+            description: Total orders made by this customer that had a discount.
+          totalRevenue:
+            type: number
+            description: Total Revenue across all closed sessions.
+          totalDiscounts:
+            type: number
+            description: The sum of discounts that were given across all closed sessions.
+        required:
+        - acceptedCoupons
+        - createdCoupons
+        - freeItems
+        - totalOrders
+        - totalDiscountedOrders
+        - totalRevenue
+        - totalDiscounts
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    SetDiscountEffectProps:
+      type: object
+      title: setDiscount
+      description: 'This effect indicates that a discount should be set on the total shopping cart value of the current order with the given label and amount.
+
+
+        The discount should overwrite any existing discount with the same name. The most recent integration state update always returns the latest values for **all** effects, effectively overwriting any previous effects.
+
+
+        Enabling [partial discounts](https://docs.talon.one/docs/product/applications/manage-general-settings#partial-discounts) allows a rule that would fail because of insufficient budget to pass. The rule still fails when the budget reaches `0`. Use the `desiredValue` property to identify the original value of the discount.'
+      example:
+        name: 10% Off
+        value: 2.5
+        scope: sessionTotal
+        desiredValue: 2.5
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          description: The name or description of this discount.
+        value:
+          type: number
+          description: The monetary value of the effective discount.
+        scope:
+          type: string
+          description: 'What the discount applies to. Possible values:
+
+
+            - `cartItems`: Discount on the price of the items.
+
+            - `additionalCosts`: Discount on the [additional costs](https://docs.talon.one/docs/product/account/dev-tools/manage-additional-costs) of the items.
+
+            - `sessionTotal`: Discount on the total value of the customer session.
+
+
+            **Note:** [Cascading discounts](https://docs.talon.one/docs/product/applications/manage-general-settings#cascading-discounts) must be enabled for this property to be returned.'
+        desiredValue:
+          type: number
+          description: _(Partial discounts enabled only)_ The monetary value of the discount to be applied without considering budget limitations.
     LoyaltyMembership:
       type: object
       required:
@@ -2658,82 +2574,6 @@ components:
           title: Loyalty program ID
           description: The ID of the loyalty program belonging to this entity.
           example: 323414846
-    ShowBundleMetadataEffectProps:
-      type: object
-      deprecated: true
-      title: showBundleMetadata
-      description: 'This effect is **deprecated**.
-
-
-        The `ShowBundleMetadata` effect contains information that allows you to associate
-
-        the discounts from a rule in a bundle campaign with specific cart items.
-
-        This way you can distinguish from "normal" discounts that were not the result of a product bundle.'
-      example:
-        description: Buy 2 get 1 free bundle
-        bundleAttributes:
-        - category
-        - brand
-        itemsIndices:
-        - 0
-        - 1
-        - 2
-      required:
-      - description
-      - bundleAttributes
-      - itemsIndices
-      properties:
-        description:
-          type: string
-          description: Description of the product bundle.
-        bundleAttributes:
-          type: array
-          items:
-            type: string
-          description: The cart item attributes that determined which items are being bundled together.
-        itemsIndices:
-          type: array
-          items:
-            type: number
-          description: The indices in the cart items array of the bundled items.
-    ShowNotificationEffectProps:
-      type: object
-      title: showNotification
-      description: 'You can use notifications to inform customers of certain events. There are four types of notification messages:
-
-
-        - `Info`
-
-        - `Offer`
-
-        - `Error`
-
-        - `Misc`
-
-
-        It is up to you to use the Rule Builder to decide why and when to show notifications. Notifications can be used as both rule effects and failure effects.
-
-
-        A common use case is to display the notification at the top of the cart view in your web app. You can use the notification type to vary the styling of the notification message.'
-      example:
-        notificationType: info
-        title: Discount applied
-        body: You have received a 10% discount on your order.
-      required:
-      - notificationType
-      - title
-      - body
-      properties:
-        notificationType:
-          type: string
-          description: The type of notification.
-        title:
-          type: string
-          description: The title of the notification.
-        body:
-          type: string
-          description: The body of the notification.
     RollbackDeductedLoyaltyPointsEffectProps:
       type: object
       title: rollbackDeductedLoyaltyPoints
@@ -2798,6 +2638,328 @@ components:
         cardIdentifier:
           $ref: '#/components/schemas/LoyaltyCardIdentifier'
           description: The identifier of the card from which these points were originally deducted.
+    CouponCreatedEffectProps:
+      type: object
+      title: couponCreated
+      description: 'This effect indicates that a coupon was created.
+
+
+        For referrals and retention marketing, a common use case is to generate a coupon that can only be redeemed by one specific customer.
+
+
+        Handle this effect by notifying the recipient about their new coupon code.'
+      example:
+        value: COUP-NEW123
+        profileId: customer_profile_id_1
+      required:
+      - value
+      - profileId
+      properties:
+        value:
+          type: string
+          description: The coupon code that was created.
+        profileId:
+          type: string
+          description: The integration identifier of the customer for whom this coupon was created.
+    CustomEffectProps:
+      type: object
+      title: customEffect
+      description: 'If you want to return data as an effect but no effect matches your use case, you can [create a custom effect](https://docs.talon.one/docs/dev/tutorials/create-custom-effects).
+
+
+        Custom effects can be used as both rule effects and failure effects.
+
+
+        The structure of a custom effect depends on your specifications but is always named `customEffect`.'
+      example:
+        effectId: 1
+        name: my_custom_effect
+        cartItemPosition: 1
+        cartItemSubPosition: 2
+        bundleIndex: 1
+        bundleName: my_bundle
+        payload:
+          key: value
+      required:
+      - effectId
+      - name
+      - payload
+      properties:
+        effectId:
+          type: integer
+          description: The ID of the custom effect that was triggered.
+          example: 1
+        name:
+          type: string
+          description: The type of the custom effect.
+          example: my_custom_effect
+        cartItemPosition:
+          type: number
+          description: The index of the item in the cart item list to which the custom effect is applied.
+          example: 1
+        cartItemSubPosition:
+          type: number
+          description: 'For cart items with quantity > 1, the sub position indicates to which item unit the custom effect is applied.
+
+            '
+          example: 2
+        bundleIndex:
+          type: integer
+          description: The position of the bundle in a list of item bundles created from the same bundle definition.
+          example: 1
+        bundleName:
+          type: string
+          description: The name of the bundle definition.
+          example: my_bundle
+        payload:
+          description: The JSON payload of the custom effect.
+          type: object
+          x-arbitraryJSON: true
+    ApplicationEvent:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/ApplicationCustomerEntity'
+      - $ref: '#/components/schemas/ApplicationStoreEntity'
+      - $ref: '#/components/schemas/IntegrationStoreEntity'
+      - $ref: '#/components/schemas/EventV3Entity'
+      - type: object
+        required:
+        - type
+        - attributes
+        - effects
+        properties:
+          sessionId:
+            type: integer
+            description: The globally unique Talon.One ID of the session that contains this event.
+          type:
+            type: string
+            description: The name of the event. Must be a [custom event](https://docs.talon.one/docs/dev/concepts/entities/events#custom-events), not a built-in event.
+          attributes:
+            type: object
+            description: Additional JSON serialized data associated with the event.
+          effects:
+            type: array
+            description: An array containing the effects that were applied as a result of this event.
+            items:
+              $ref: '#/components/schemas/Effect'
+          ruleFailureReasons:
+            type: array
+            description: An array containing the rule failure reasons which happened during this event.
+            items:
+              $ref: '#/components/schemas/RuleFailureReason'
+    SetDiscountPerItemEffectProps:
+      type: object
+      title: setDiscountPerItem
+      description: 'This effect schema is returned when you use the **Discount individual items**, **Discount individual items pro rata**, or **Discount individual item in bundles** effect in a rule.
+
+
+        It indicates that a discount per item should be applied on the specific item specified in the effect.
+
+
+        The properties it contains depends on:
+
+
+        - Whether you used a pro rata effect or not.
+
+        - Whether you used an effect with bundles or not.
+
+        - Whether the partial discount feature is enabled.'
+      example:
+        name: 'Discount on item #1'
+        value: 1.5
+        position: 1
+        subPosition: 1
+        desiredValue: 1.5
+        scope: price
+        totalDiscount: 1.5
+        desiredTotalDiscount: 1.5
+        bundleIndex: 1
+        bundleName: my_bundle
+        targetedItemPosition: 1
+        targetedItemSubPosition: 1
+        excludedFromPriceHistory: false
+      required:
+      - name
+      - value
+      - position
+      properties:
+        name:
+          type: string
+          description: The description of this discount. `#number` is equal to the `position` property.
+        value:
+          type: number
+          description: The monetary value of the effective discount applied to the item.
+        position:
+          type: number
+          description: The index of the item in the `cartItem` object on which this discount should be applied.
+        subPosition:
+          type: number
+          description: The index of the item unit in its line item.
+        desiredValue:
+          type: number
+          description: _(Partial discounts enabled only)_ The monetary value of the discount to be applied to the item without considering budget limitations.
+        scope:
+          type: string
+          description: 'What the discount applies to. Possible values:
+
+
+            - `price`: discount on the price of the item.
+
+            - `additionalCosts`: discount on the [additional cost](https://docs.talon.one/docs/product/account/dev-tools/manage-additional-costs) of the item.
+
+            - `itemTotal`: discount on the sum of price + additional cost of the item.'
+        totalDiscount:
+          type: number
+          description: _(Pro rata discounts only)_ The monetary value of the total effective discount
+        desiredTotalDiscount:
+          type: number
+          description: _(Pro rata discounts only)_ The monetary value of the total discount to be applied without considering budget limitations
+        bundleIndex:
+          type: integer
+          description: _(Discounts with bundles only)_ The position of the specific item bundle in the list of bundles created from the same bundle definition.
+        bundleName:
+          type: string
+          description: _(Discounts with bundles only)_ The name of the bundle definition.
+        targetedItemPosition:
+          type: number
+          description: _(Discounting individual item in bundles only)_ The index of the targeted bundle item on which the applied discount is based.
+        targetedItemSubPosition:
+          type: number
+          description: _(Discounting individual item in bundles only)_ The sub-position of the targeted bundle item on which the applied discount is based.
+        excludedFromPriceHistory:
+          type: boolean
+          description: When set to `true`, the applied discount is excluded from the item's price history.
+    ApplicationSession:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/IntegrationEntity'
+      - $ref: '#/components/schemas/IntegrationStoreEntity'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/ApplicationCustomerEntity'
+      - type: object
+        properties:
+          profileintegrationid:
+            type: string
+            maxLength: 1000
+            description: Integration ID of the customer for the session.
+            example: 382370BKDB946
+          coupon:
+            type: string
+            description: Any coupon code entered.
+            example: BKDB946
+          referral:
+            type: string
+            description: Any referral code entered.
+            example: BKDB946
+          state:
+            type: string
+            enum:
+            - open
+            - closed
+            - partially_returned
+            - cancelled
+            description: 'Indicates the current state of the session. Sessions can be created as `open` or `closed`. The state transitions are:
+
+
+              1. `open` -> `closed`
+
+              2. `open` -> `cancelled`
+
+              3. `closed` -> `cancelled` or `partially_returned`
+
+              4. `partially_returned` -> `cancelled`
+
+
+              For more information, see [Customer session states](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions).
+
+              '
+            example: closed
+          cartItems:
+            type: array
+            description: Serialized JSON representation.
+            items:
+              $ref: '#/components/schemas/CartItem'
+          discounts:
+            type: object
+            description: '**API V1 only.** A map of labeled discount values, in the same currency as the session.
+
+
+              If you are using the V2 endpoints, refer to the `totalDiscounts` property instead.
+
+              '
+            additionalProperties:
+              type: number
+          totalDiscounts:
+            type: number
+            description: 'The total sum of the discounts applied to this session.
+
+
+              **Note:** If more than one session is returned, this value is displayed as `0`.
+
+              '
+            example: 100
+          total:
+            type: number
+            description: The total sum of the session before any discounts applied.
+            example: 200
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this item.
+        required:
+        - coupon
+        - referral
+        - state
+        - cartItems
+        - discounts
+        - total
+        - totalDiscounts
+    Effect:
+      allOf:
+      - $ref: '#/components/schemas/EffectEntity'
+      - type: object
+        description: A generic effect that is fired by a triggered campaign. The props property will contain information specific to the specific effect type.
+        required:
+        - props
+        properties:
+          props:
+            oneOf:
+            - $ref: '#/components/schemas/AcceptCouponEffectProps'
+            - $ref: '#/components/schemas/AcceptReferralEffectProps'
+            - $ref: '#/components/schemas/RedeemReferralEffectProps'
+            - $ref: '#/components/schemas/RejectCouponEffectProps'
+            - $ref: '#/components/schemas/RejectReferralEffectProps'
+            - $ref: '#/components/schemas/CouponCreatedEffectProps'
+            - $ref: '#/components/schemas/ReferralCreatedEffectProps'
+            - $ref: '#/components/schemas/SetDiscountEffectProps'
+            - $ref: '#/components/schemas/SetDiscountPerItemEffectProps'
+            - $ref: '#/components/schemas/SetDiscountPerAdditionalCostEffectProps'
+            - $ref: '#/components/schemas/TriggerWebhookEffectProps'
+            - $ref: '#/components/schemas/AddLoyaltyPointsEffectProps'
+            - $ref: '#/components/schemas/DeductLoyaltyPointsEffectProps'
+            - $ref: '#/components/schemas/ChangeLoyaltyTierLevelEffectProps'
+            - $ref: '#/components/schemas/AddFreeItemEffectProps'
+            - $ref: '#/components/schemas/ShowNotificationEffectProps'
+            - $ref: '#/components/schemas/UpdateAttributeEffectProps'
+            - $ref: '#/components/schemas/RollbackCouponEffectProps'
+            - $ref: '#/components/schemas/RollbackReferralEffectProps'
+            - $ref: '#/components/schemas/RollbackDiscountEffectProps'
+            - $ref: '#/components/schemas/RollbackAddedLoyaltyPointsEffectProps'
+            - $ref: '#/components/schemas/RollbackDeductedLoyaltyPointsEffectProps'
+            - $ref: '#/components/schemas/ShowBundleMetadataEffectProps'
+            - $ref: '#/components/schemas/AwardGiveawayEffectProps'
+            - $ref: '#/components/schemas/WillAwardGiveawayEffectProps'
+            - $ref: '#/components/schemas/ErrorEffectProps'
+            - $ref: '#/components/schemas/CustomEffectProps'
+            - $ref: '#/components/schemas/SetDiscountPerAdditionalCostPerItemEffectProps'
+            - $ref: '#/components/schemas/ReserveCouponEffectProps'
+            - $ref: '#/components/schemas/AddToAudienceEffectProps'
+            - $ref: '#/components/schemas/RemoveFromAudienceEffectProps'
+            - $ref: '#/components/schemas/IncreaseAchievementProgressEffectProps'
+            - $ref: '#/components/schemas/RollbackIncreasedAchievementProgressEffectProps'
+            - $ref: '#/components/schemas/ExtendLoyaltyPointsExpiryDateEffectProps'
+            - $ref: '#/components/schemas/SetLoyaltyPointsExpiryDateEffectProps'
+            - $ref: '#/components/schemas/StartAchievementProgressEffectProps'
     ExtendLoyaltyPointsExpiryDateEffectProps:
       type: object
       title: extendLoyaltyPointsExpiryDate
@@ -2867,43 +3029,6 @@ components:
           description: List of transactions affected by the expiry date update.
           items:
             $ref: '#/components/schemas/LoyaltyLedgerEntryExpiryDateChange'
-    RollbackCouponEffectProps:
-      type: object
-      title: rollbackCoupon
-      description: 'This effect indicates that a coupon code redemption has been rolled back. The coupon becomes redeemable again.
-
-
-        The effect is triggered when you [cancel](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#manage-the-sessions-state) a session where a coupon was accepted. See an example of use in the [cancelling a session tutorial](https://docs.talon.one/docs/dev/tutorials/roll-back-effects).'
-      example:
-        value: COUP-XYZ789
-      required:
-      - value
-      properties:
-        value:
-          type: string
-          description: The coupon code whose redemption has been rolled back.
-    ErrorEffectProps:
-      type: object
-      title: error
-      description: This effect is triggered whenever an error occurs during rule evaluation. This effect only provides information about what the error is.
-      example:
-        message: An unexpected error occurred during rule evaluation.
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: The error message.
-    Product:
-      type: object
-      description: The specific properties of the product this item belongs to, if available.
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: The product the item belongs to.
-          example: sample_product
     AudienceMembership:
       type: object
       required:
@@ -2920,226 +3045,65 @@ components:
           title: Audience Name
           description: The Name of the audience belonging to this entity.
           example: Travel audience
-    AddToAudienceEffectProps:
+    ShowBundleMetadataEffectProps:
       type: object
-      title: addToAudience
-      description: This effect is triggered when a rule containing an [Update audience](https://docs.talon.one/docs/product/rules/effects/use-effects#update-an-audience) effect with **Add customer to an audience** selected is validated. It indicates that a customer was added to an audience and is returned when a customer session is opened, updated, or closed.
+      deprecated: true
+      title: showBundleMetadata
+      description: 'This effect is **deprecated**.
+
+
+        The `ShowBundleMetadata` effect contains information that allows you to associate
+
+        the discounts from a rule in a bundle campaign with specific cart items.
+
+        This way you can distinguish from "normal" discounts that were not the result of a product bundle.'
       example:
-        audienceId: 10
-        audienceName: My audience
-        profileIntegrationId: URNGV8294NV
-        profileId: 150
-      properties:
-        audienceId:
-          type: integer
-          description: The internal ID of the audience.
-          example: 10
-        audienceName:
-          type: string
-          description: The name of the audience.
-          example: My audience
-        profileIntegrationId:
-          type: string
-          description: The ID of the customer profile in the third-party integration platform.
-          example: URNGV8294NV
-        profileId:
-          type: integer
-          description: The internal ID of the customer profile.
-          example: 150
-    EffectEntity:
-      type: object
-      description: Definition of all properties that are present on all effects, independent of their type.
+        description: Buy 2 get 1 free bundle
+        bundleAttributes:
+        - category
+        - brand
+        itemsIndices:
+        - 0
+        - 1
+        - 2
       required:
-      - campaignId
-      - rulesetId
-      - ruleIndex
-      - ruleName
-      - effectType
+      - description
+      - bundleAttributes
+      - itemsIndices
       properties:
-        experimentId:
-          type: integer
-          description: The ID of the experiment that campaign belongs to.
-          example: 12
-        campaignId:
-          type: integer
-          description: The ID of the campaign that triggered this effect.
-          example: 244
-        rulesetId:
-          type: integer
-          description: The ID of the ruleset that was active in the campaign when this effect was triggered.
-          example: 73
-        ruleIndex:
-          type: integer
-          description: The position of the rule that triggered this effect within the ruleset.
-          example: 2
-        ruleName:
+        description:
           type: string
-          description: The name of the rule that triggered this effect.
-          example: Give 20% discount
-        effectType:
-          type: string
-          description: The type of effect that was triggered. See [API effects](https://docs.talon.one/docs/dev/integration-api/api-effects).
-          example: rejectCoupon
-        triggeredByCoupon:
-          type: integer
-          example: 4928
-          description: The ID of the coupon that was being evaluated when this effect was triggered.
-        triggeredForCatalogItem:
-          type: integer
-          example: 786
-          description: The ID of the catalog item that was being evaluated when this effect was triggered.
-        conditionIndex:
-          type: integer
-          example: 786
-          description: The index of the condition that was triggered.
-        evaluationGroupID:
-          type: integer
-          example: 3
-          description: The ID of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation).
-        evaluationGroupMode:
-          type: string
-          example: stackable
-          description: The evaluation mode of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation).
-        campaignRevisionId:
-          type: integer
-          example: 1
-          description: The revision ID of the campaign that was used when triggering the effect.
-        campaignRevisionVersionId:
-          type: integer
-          example: 5
-          description: The revision version ID of the campaign that was used when triggering the effect.
-        selectedPriceType:
-          type: string
-          example: member
-          description: The selected price type for the SKU targeted by this effect.
-        selectedPrice:
-          type: number
-          example: 100
-          description: The value of the selected price type to apply to the SKU targeted by this effect, before any discounts are applied.
-        adjustmentReferenceId:
+          description: Description of the product bundle.
+        bundleAttributes:
+          type: array
+          items:
+            type: string
+          description: The cart item attributes that determined which items are being bundled together.
+        itemsIndices:
+          type: array
+          items:
+            type: number
+          description: The indices in the cart items array of the bundled items.
+    LoyaltyLedgerEntryExpiryDateChange:
+      type: object
+      description: The properties specific to effects for changing the expiry dates of loyalty ledger entries.
+      required:
+      - transactionUUID
+      - newExpiryDate
+      properties:
+        transactionUUID:
           type: string
           format: uuid
-          example: 68851723-e6fa-488f-ace9-112581e6c19b
-          description: The reference identifier of the selected price adjustment for this SKU. This is only returned if the `selectedPrice` resulted from a price adjustment.
-    ApplicationEvent:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/ApplicationEntity'
-      - $ref: '#/components/schemas/ApplicationCustomerEntity'
-      - $ref: '#/components/schemas/ApplicationStoreEntity'
-      - $ref: '#/components/schemas/IntegrationStoreEntity'
-      - $ref: '#/components/schemas/EventV3Entity'
-      - type: object
-        required:
-        - type
-        - attributes
-        - effects
-        properties:
-          sessionId:
-            type: integer
-            description: The globally unique Talon.One ID of the session that contains this event.
-          type:
-            type: string
-            description: The name of the event. Must be a [custom event](https://docs.talon.one/docs/dev/concepts/entities/events#custom-events), not a built-in event.
-          attributes:
-            type: object
-            description: Additional JSON serialized data associated with the event.
-          effects:
-            type: array
-            description: An array containing the effects that were applied as a result of this event.
-            items:
-              $ref: '#/components/schemas/Effect'
-          ruleFailureReasons:
-            type: array
-            description: An array containing the rule failure reasons which happened during this event.
-            items:
-              $ref: '#/components/schemas/RuleFailureReason'
-    RuleFailureReason:
-      type: object
-      description: Details about why a rule failed.
-      required:
-      - campaignID
-      - campaignName
-      - rulesetID
-      - ruleIndex
-      - ruleName
-      properties:
-        campaignID:
-          type: integer
-          description: The ID of the campaign that contains the rule that failed.
-        campaignName:
+          description: The identifier of the transaction affected by the extension or update.
+        previousExpiryDate:
           type: string
-          description: The name of the campaign that contains the rule that failed.
-        rulesetID:
-          type: integer
-          description: The ID of the ruleset that contains the rule that failed.
-        couponID:
-          type: integer
-          description: The ID of the coupon that was being evaluated at the time of the rule failure.
-          example: 4928
-        couponValue:
+          format: date-time
+          description: Expiry date of the transactions before applying the extension or update.
+        newExpiryDate:
           type: string
-          description: The code of the coupon that was being evaluated at the time of the rule failure.
-        referralID:
-          type: integer
-          description: The ID of the referral that was being evaluated at the time of the rule failure.
-        referralValue:
-          type: string
-          description: The code of the referral that was being evaluated at the time of the rule failure.
-        ruleIndex:
-          type: integer
-          description: The index of the rule that failed within the ruleset.
-        ruleName:
-          type: string
-          description: The name of the rule that failed within the ruleset.
-        conditionIndex:
-          type: integer
-          description: The index of the condition that failed.
-        effectIndex:
-          type: integer
-          description: The index of the effect that failed.
-        details:
-          type: string
-          description: More details about the failure.
-        evaluationGroupID:
-          type: integer
-          example: 3
-          description: The ID of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-evaluation).
-        evaluationGroupMode:
-          type: string
-          example: stackable
-          description: The evaluation mode of the evaluation group. For more information, see [Managing campaign evaluation](https://docs.talon.one/docs/product/applications/managing-campaign-
-    CustomerProfileSearchQuery:
-      type: object
-      properties:
-        attributes:
-          type: object
-          description: Properties to match against a customer profile. All provided attributes will be exactly matched against profile attributes.
-        integrationIDs:
-          type: array
-          items:
-            type: string
-        profileIDs:
-          type: array
-          items:
-            type: integer
-  requestBodies:
-    CustomerProfileSearchQuery:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CustomerProfileSearchQuery'
-      description: body
-      required: true
+          format: date-time
+          description: Expiry date of the transaction after applying the extension or update.
   parameters:
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
     pageSize:
       name: pageSize
       in: query
@@ -3159,6 +3123,14 @@ components:
       example: 100
       schema:
         type: integer
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
     sort:
       name: sort
       in: query
@@ -3172,6 +3144,14 @@ components:
       example: name
       schema:
         type: string
+  requestBodies:
+    CustomerProfileSearchQuery:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CustomerProfileSearchQuery'
+      description: body
+      required: true
   securitySchemes:
     manager_auth:
       type: apiKey

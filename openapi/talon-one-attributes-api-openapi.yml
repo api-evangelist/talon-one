@@ -2,7 +2,9 @@ openapi: 3.2.0
 info:
   title: Management Attributes API
   version: ''
-  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+  description: 'The Management API allows you to programmatically do what the Campaign Manager
+
+    does.'
 servers:
 - url: https://yourbaseurl.talon.one
 security:
@@ -15,9 +17,7 @@ tags:
     them to create highly customized rules.
 
 
-    See the [docs](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).
-
-    '
+    See the docs.'
 paths:
   /v1/attributes:
     post:
@@ -28,7 +28,7 @@ paths:
 
         Create a _custom attribute_ in this account.
 
-        [Custom attributes](https://docs.talon.one/docs/dev/concepts/attributes) allow you
+        Custom attributes allow you
 
         to add data to Talon.One domain entities like campaigns, coupons,
 
@@ -45,9 +45,7 @@ paths:
         and add a rule to your campaign that only allows certain ZIP codes.
 
 
-        These attributes are shared across all Applications in your account and are never required.
-
-        '
+        These attributes are shared across all Applications in your account and are never required.'
       tags:
       - Attributes
       requestBody:
@@ -65,9 +63,7 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Return all the custom attributes for the account.
-
-        '
+        Return all the custom attributes for the account.'
       tags:
       - Attributes
       parameters:
@@ -145,9 +141,7 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Retrieve the specified custom attribute.
-
-        '
+        Retrieve the specified custom attribute.'
       tags:
       - Attributes
       parameters:
@@ -178,9 +172,7 @@ paths:
 
         To change the `type` or `name` property of a custom attribute, create a new attribute and
 
-        update any relevant integrations and rules to use the new attribute.
-
-        '
+        update any relevant integrations and rules to use the new attribute.'
       tags:
       - Attributes
       parameters:
@@ -207,9 +199,9 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Upload a CSV file containing a list of [picklist
+        Upload a CSV file containing a list of picklist
 
-        values](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes#picklist-values)
+        values
 
         for the specified attribute.
 
@@ -244,9 +236,7 @@ paths:
 
         CS-DG-02082021-UP-50G-07
 
-        ```
-
-        '
+        ```'
       tags:
       - Attributes
       parameters:
@@ -295,29 +285,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponseWithStatus'
 components:
   schemas:
-    Attribute:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/NewAttribute'
-      - type: object
-        properties:
-          eventTypeId:
-            type: integer
-            example: 22
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
     APIError:
       type: object
       required:
@@ -332,6 +299,19 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
     ErrorResponse:
       type: object
       required:
@@ -345,15 +325,6 @@ components:
           description: An array of individual problems encountered during the request.
           items:
             $ref: '#/components/schemas/APIError'
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
     Entity:
       type: object
       required:
@@ -378,6 +349,54 @@ components:
           type: integer
           description: The ID of the user associated with this entity.
           example: 388
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
     NewAttribute:
       allOf:
       - type: object
@@ -496,59 +515,17 @@ components:
               enum:
               - application
               - catalog
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    Import:
+    Attribute:
       allOf:
       - $ref: '#/components/schemas/Entity'
       - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/NewAttribute'
       - type: object
-        required:
-        - amount
-        - entity
         properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
+          eventTypeId:
             type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
+            example: 22
   parameters:
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
-
-
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
-
-        '
-      example: name
-      schema:
-        type: string
     pageSize:
       name: pageSize
       in: query
@@ -568,6 +545,19 @@ components:
       example: 100
       schema:
         type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
   requestBodies:
     NewAttribute:
       content:

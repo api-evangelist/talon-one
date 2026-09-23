@@ -2,11 +2,9 @@ openapi: 3.2.0
 info:
   version: 1.0.0
   title: Shopify Integration Session API
-  description: 'Use this API to integrate with Shopify. For more information, see the [Shopify](https://docs.talon.one/docs/dev/technology-partners/shopify/integrating-with-shopify)
+  description: 'Use this API to integrate with Shopify. For more information, see the Shopify
 
-    section in the developer docs.
-
-    '
+    section in the developer docs.'
 servers:
 - url: https://shopify-integration.europe-west1.talon.one
 tags:
@@ -16,7 +14,10 @@ paths:
   /api/v1/session:
     post:
       summary: Create or update customer session
-      description: "Creates or updates a session in Talon.One and submits Shopify cart items. \n\nThe response schema is identical to the [Update customer session](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2) endpoint of the Integration API.\n"
+      description: 'Creates or updates a session in Talon.One and submits Shopify cart items.
+
+
+        The response schema is identical to the Update customer session endpoint of the Integration API.'
       operationId: upsertSession
       tags:
       - Session

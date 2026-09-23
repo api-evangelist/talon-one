@@ -2,9 +2,9 @@ openapi: 3.2.0
 info:
   title: Notification schemas Loyalty card notifications API
   version: ''
-  description: 'Use [Application notifications](/docs/product/applications/application-notifications/overview)
+  description: 'Use Application notifications
 
-    and [loyalty notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)
+    and loyalty notifications
 
     to notify the system of your choice of certain changes that happened in Talon.One.
 
@@ -15,15 +15,13 @@ info:
 
     > - The notification schemas may be extended with additional properties in future releases.
 
-    > To maintain forward compatibility, ensure your implementation ignores unknown properties.
-
-    '
+    > To maintain forward compatibility, ensure your implementation ignores unknown properties.'
 servers:
 - url: https://yourbaseurl.talon.one
 security: []
 tags:
 - name: Loyalty card notifications
-  description: Represents the [notifications](/docs/product/loyalty-programs/loyalty-notifications/overview) about changes to loyalty points in card-based loyalty programs.
+  description: Represents the notifications about changes to loyalty points in card-based loyalty programs.
 paths: {}
 webhooks:
   expiringCardPointsNotification:
@@ -125,6 +123,93 @@ webhooks:
         required: true
 components:
   schemas:
+    AddedDeductedPointsBalancesAction:
+      type: object
+      properties:
+        Amount:
+          type: number
+          description: The amount of added or deducted loyalty points.
+          example: 10.99
+        Reason:
+          type: string
+          description: The reason for the points addition or deduction.
+          example: Compensation
+        Operation:
+          type: string
+          description: The action (addition or subtraction) made with loyalty points.
+          enum:
+          - addition
+          - subtraction
+        StartDate:
+          type: string
+          format: date-time
+          description: The start date for loyalty points.
+          example: '2023-01-24T14:15:22Z'
+        ExpiryDate:
+          type: string
+          format: date-time
+          description: The expiration date for loyalty points.
+          example: '2024-01-24T14:15:22Z'
+        TransactionUUID:
+          type: string
+          format: uuid
+          description: The identifier of the transaction in the loyalty ledger.
+    ExpiringCardPointsData:
+      type: object
+      properties:
+        ExpiryDate:
+          type: string
+          format: date
+          description: The expiration date of loyalty points.
+        LoyaltyProgramID:
+          type: integer
+          description: The ID of the loyalty program.
+          minimum: 1
+          example: 5
+        AmountOfExpiringPoints:
+          type: number
+          description: The amount of loyalty points that will be expired soon.
+          example: 10.99
+        SubledgerID:
+          type: string
+          description: The ID of the subledger within the loyalty program where these points were added.
+          example: sub-123
+        CardIdentifier:
+          type: string
+          description: 'The identifier of the loyalty card, `which must match the regular expression `^[A-Za-z0-9._%+@-]+$`.
+
+            '
+          example: summer-loyalty-card-0543
+        UsersPerCardLimit:
+          type: integer
+          description: 'The maximum number of customer profiles with which a card can be shared. This can be set to `0` for no limit.
+
+            '
+          minimum: 0
+          example: 5
+        Profiles:
+          type: array
+          description: The integration IDs of the customer profiles linked to the card.
+          items:
+            type: string
+            example: URNGV8294NV
+    ExpiringCardPointsNotification:
+      type: object
+      properties:
+        TotalResultSize:
+          type: integer
+          example: 1
+        Data:
+          type: array
+          description: The array of expiring points.
+          maxLength: 1000
+          items:
+            $ref: '#/components/schemas/ExpiringCardPointsData'
+        NotificationType:
+          type: string
+          description: The type of notification.
+          enum:
+          - LoyaltyCardPointsExpiring
     CardAddedDeductedPointsNotification:
       type: object
       properties:
@@ -219,93 +304,6 @@ components:
           type: string
           format: uuid
           description: The identifier of the transaction in the loyalty ledger.
-    AddedDeductedPointsBalancesAction:
-      type: object
-      properties:
-        Amount:
-          type: number
-          description: The amount of added or deducted loyalty points.
-          example: 10.99
-        Reason:
-          type: string
-          description: The reason for the points addition or deduction.
-          example: Compensation
-        Operation:
-          type: string
-          description: The action (addition or subtraction) made with loyalty points.
-          enum:
-          - addition
-          - subtraction
-        StartDate:
-          type: string
-          format: date-time
-          description: The start date for loyalty points.
-          example: '2023-01-24T14:15:22Z'
-        ExpiryDate:
-          type: string
-          format: date-time
-          description: The expiration date for loyalty points.
-          example: '2024-01-24T14:15:22Z'
-        TransactionUUID:
-          type: string
-          format: uuid
-          description: The identifier of the transaction in the loyalty ledger.
-    ExpiringCardPointsData:
-      type: object
-      properties:
-        ExpiryDate:
-          type: string
-          format: date
-          description: The expiration date of loyalty points.
-        LoyaltyProgramID:
-          type: integer
-          description: The ID of the loyalty program.
-          minimum: 1
-          example: 5
-        AmountOfExpiringPoints:
-          type: number
-          description: The amount of loyalty points that will be expired soon.
-          example: 10.99
-        SubledgerID:
-          type: string
-          description: The ID of the subledger within the loyalty program where these points were added.
-          example: sub-123
-        CardIdentifier:
-          type: string
-          description: 'The identifier of the loyalty card, `which must match the regular expression `^[A-Za-z0-9._%+@-]+$`.
-
-            '
-          example: summer-loyalty-card-0543
-        UsersPerCardLimit:
-          type: integer
-          description: 'The maximum number of customer profiles with which a card can be shared. This can be set to `0` for no limit.
-
-            '
-          minimum: 0
-          example: 5
-        Profiles:
-          type: array
-          description: The integration IDs of the customer profiles linked to the card.
-          items:
-            type: string
-            example: URNGV8294NV
-    ExpiringCardPointsNotification:
-      type: object
-      properties:
-        TotalResultSize:
-          type: integer
-          example: 1
-        Data:
-          type: array
-          description: The array of expiring points.
-          maxLength: 1000
-          items:
-            $ref: '#/components/schemas/ExpiringCardPointsData'
-        NotificationType:
-          type: string
-          description: The type of notification.
-          enum:
-          - LoyaltyCardPointsExpiring
     CardAddedDeductedPointsBalancesNotification:
       type: object
       properties:

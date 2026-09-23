@@ -2,9 +2,9 @@ openapi: 3.2.0
 info:
   title: Notification schemas Campaign notifications API
   version: ''
-  description: 'Use [Application notifications](/docs/product/applications/application-notifications/overview)
+  description: 'Use Application notifications
 
-    and [loyalty notifications](/docs/product/loyalty-programs/loyalty-notifications/overview)
+    and loyalty notifications
 
     to notify the system of your choice of certain changes that happened in Talon.One.
 
@@ -15,15 +15,13 @@ info:
 
     > - The notification schemas may be extended with additional properties in future releases.
 
-    > To maintain forward compatibility, ensure your implementation ignores unknown properties.
-
-    '
+    > To maintain forward compatibility, ensure your implementation ignores unknown properties.'
 servers:
 - url: https://yourbaseurl.talon.one
 security: []
 tags:
 - name: Campaign notifications
-  description: 'Represents the [notifications](/docs/product/applications/application-notifications/overview)
+  description: 'Represents the notifications
 
     about campaign-related changes.
 
@@ -32,21 +30,19 @@ tags:
 
     > - `CampaignNotification` signifies one of the following events:
 
-    >   - [Campaign created](#tag/Campaign-notifications/operation/campaignCreatedNotification)
+    > - Campaign created
 
-    >   - [Campaign state changed](#tag/Campaign-notifications/operation/campaignStateChangedNotification)
+    > - Campaign state changed
 
-    >   - [Campaign rules changed](#tag/Campaign-notifications/operation/campaignRulesetChangedNotification)
+    > - Campaign rules changed
 
-    >   - [Campaign edited](#tag/Campaign-notifications/operation/campaignEditedNotification)
+    > - Campaign edited
 
-    >   - [Campaign collection edited](#tag/Campaign-notifications/operation/campaignCollectionEditedNotification)
+    > - Campaign collection edited
 
-    >   - [Campaign deleted](#tag/Campaign-notifications/operation/campaignDeletedNotification)
+    > - Campaign deleted
 
-    > - `CampaignEvaluationTreeChanged` signifies [Campaign evaluation tree changed](#tag/Campaign-notifications/operation/campaignEvaluationTreeChangedNotification).
-
-    '
+    > - `CampaignEvaluationTreeChanged` signifies Campaign evaluation tree changed.'
 paths: {}
 webhooks:
   campaignCreatedNotification:
@@ -1275,262 +1271,33 @@ webhooks:
         required: true
 components:
   schemas:
-    CampaignCollectionEditedNotification:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationBase'
-      - type: object
-        properties:
-          Data:
-            type: array
-            items:
-              $ref: '#/components/schemas/CampaignCollectionEditedNotificationItem'
-            description: A list of campaign notification data.
-    CampaignEvaluationPosition:
-      type: object
-      description: The campaign position within the evaluation tree.
-      properties:
-        groupId:
-          type: integer
-          example: 2
-          description: The ID of the campaign evaluation group the campaign belongs to.
-        groupName:
-          type: string
-          description: The name of the campaign evaluation group the campaign belongs to.
-          example: Summer campaigns
-        position:
-          type: integer
-          description: The position of the campaign node in its parent group.
-          example: 2
-    CampaignEditedNotificationItem:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationItemBase'
-      - type: object
-        description: A notification regarding a campaign which was edited.
-        properties:
-          campaign:
-            $ref: '#/components/schemas/Campaign'
-            type: object
-            description: The campaign whose state changed.
-          oldCampaign:
-            $ref: '#/components/schemas/Campaign'
-            type: object
-            description: The campaign before the change.
-          ruleset:
-            $ref: '#/components/schemas/Ruleset'
-            type: object
-            description: The current ruleset.
-          placeholders:
-            type: array
-            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
-            items:
-              $ref: '#/components/schemas/PlaceholderDetails'
-    AccountEntity:
+    CampaignBudget:
       type: object
       properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    CampaignSetBranchNode:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
+        action:
           type: string
-          description: Indicates the node type.
-          enum:
-          - SET
-          example: SET
-        name:
-          type: string
-          description: Name of the set.
-          example: name
-        operator:
-          type: string
-          description: An indicator of how the set operates on its elements.
-          enum:
-          - ALL
-          - FIRST
-          example: ALL
-        elements:
-          type: array
-          description: Child elements of this set.
-          items:
-            $ref: '#/components/schemas/CampaignSetNode'
-        groupId:
-          type: integer
-          description: The ID of the campaign set.
-        locked:
-          type: boolean
-          description: An indicator of whether the campaign set is locked for modification.
-        description:
-          type: string
-          description: A description of the campaign set.
-        evaluationMode:
-          type: string
-          enum:
-          - stackable
-          - listOrder
-          - lowestDiscount
-          - highestDiscount
-          description: The mode by which campaigns in the campaign evaluation group are evaluated.
-        evaluationScope:
-          type: string
-          enum:
-          - cartItem
-          - session
-          description: The evaluation scope of the campaign evaluation group.
-    Entity:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    UserEntity:
-      type: object
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    CampaignEvaluationTreeChangedMessage:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationBase'
-      - type: object
-        properties:
-          Data:
-            type: array
-            description: The array of changes.
-            items:
-              $ref: '#/components/schemas/ApplicationNotification'
-    Binding:
-      type: object
-      properties:
-        name:
-          type: string
-          description: A descriptive name for the value to be bound.
-          example: Discount percentage
-        type:
-          type: string
-          description: 'The kind of binding. Possible values are:
+          description: 'The limitable action to which this limit applies. For example:
 
-            - `bundle`
+            - `setDiscount`
 
-            - `cartItemFilter`
+            - `setDiscountEffect`
 
-            - `subledgerBalance`
+            - `redeemCoupon`
 
-            - `templateParameter`
+            - `createCoupon`
 
             '
-          example: templateParameter
-        expression:
-          type: array
-          description: 'A Talang expression that is evaluated, and its result is bound to the name of
-
-            the binding. The first element must be one of the functions or operators supported
-
-            by Talang, followed by its arguments. The arguments can be strings, numbers, or
-
-            nested expressions. For example:
-
-            - `["list", "10014", "10015"]` calls the `list` function to build a list of strings.
-
-            - `["+", 2, 0]` uses the `+` operator to add two numbers.
-
-            '
-          example:
-          - identity
-          - 10
-          items: {}
-        valueType:
-          type: string
-          description: 'The data type of the value. One of the following:
-
-            - `string`
-
-            - `number`
-
-            - `boolean`
-
-            '
-          example: number
-        minValue:
+          example: createCoupon
+        limit:
           type: number
-          description: The minimum value allowed for this placeholder.
-          example: 0
-        maxValue:
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        counter:
           type: number
-          description: The maximum value allowed for this placeholder.
-          example: 19.9
-        attributeId:
-          type: integer
-          title: Attribute ID
-          description: Identifier of the attribute attached to the placeholder.
-          example: 100
-        description:
-          type: string
-          description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
-          example: The percentage discount applied to the cart total.
-    UpdateCollection:
-      type: object
-      properties:
-        description:
-          type: string
-          description: A short description of the purpose of this collection.
-          example: My collection of SKUs
-        subscribedApplicationsIds:
-          type: array
-          description: A list of the IDs of the Applications where this collection is enabled.
-          example:
-          - 1
-          - 2
-          - 3
-          items:
-            type: integer
-    NewRuleset:
-      type: object
-      properties:
-        rules:
-          type: array
-          description: Set of rules to apply.
-          items:
-            $ref: '#/components/schemas/Rule'
-        strikethroughRules:
-          type: array
-          description: Set of rules to apply for strikethrough.
-          items:
-            $ref: '#/components/schemas/Rule'
-        bindings:
-          type: array
-          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
-          items:
-            $ref: '#/components/schemas/Binding'
-          example: []
-        rbVersion:
-          type: string
-          description: The version of the rulebuilder used to create this ruleset.
-          example: v2
-        activate:
-          type: boolean
-          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
-          example: true
-    ApplicationNotification:
-      type: object
-      properties:
-        event:
-          description: 'Event type. It can be one of the following: [''campaign_evaluation_tree_changed'']
-
-            '
-          type: string
-      oneOf:
-      - $ref: '#/components/schemas/CampaignEvaluationTreeChangedNotification'
+          minimum: 0
+          example: 42
+          description: The number of occurrences of the limited action in the context of the campaign.
     BaseCampaign:
       type: object
       properties:
@@ -1659,203 +1426,23 @@ components:
         couponAttributes:
           type: object
           description: Arbitrary properties associated with coupons in this campaign.
-    CampaignEditedNotification:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationBase'
-      - type: object
-        properties:
-          Data:
-            type: array
-            items:
-              $ref: '#/components/schemas/CampaignEditedNotificationItem'
-            description: A list of campaign notification data.
-    ApplicationEntity:
+    UserEntity:
       type: object
       properties:
-        applicationId:
+        userId:
           type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
-    CampaignStateChangedNotificationItem:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationItemBase'
-      - type: object
-        description: A notification regarding a campaign whose state changed.
-        properties:
-          campaign:
-            $ref: '#/components/schemas/Campaign'
-            type: object
-            description: The campaign whose state changed.
-          oldState:
-            type: string
-            description: 'The campaign''s old state. Can be one of the following: [''running'', ''disabled'', ''scheduled'', ''expired'', ''archived'']
+          description: The ID of the user associated with this entity.
+          example: 388
+    ApplicationNotification:
+      type: object
+      properties:
+        event:
+          description: 'Event type. It can be one of the following: [''campaign_evaluation_tree_changed'']
 
-              '
-            example: disabled
-          newState:
-            type: string
-            description: 'The campaign''s new state. Can be one of the following: [''running'', ''disabled'', ''scheduled'', ''expired'', ''archived'']
-
-              '
-            example: running
-          ruleset:
-            $ref: '#/components/schemas/Ruleset'
-            type: object
-            description: The current ruleset.
-          placeholders:
-            type: array
-            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
-            items:
-              $ref: '#/components/schemas/PlaceholderDetails'
-    MutableEntity:
-      type: object
-      properties:
-        modified:
+            '
           type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
-    PlaceholderDetails:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the placeholder.
-          example: my property
-        type:
-          type: string
-          description: The type of the value assigned to the placeholder.
-          example: list string
-        value:
-          type: array
-          description: The current value of the placeholder.
-          example:
-          - 1
-          - sku_value
-          items: {}
-    CampaignCollectionEditedNotificationItem:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationItemBase'
-      - type: object
-        description: A notification regarding a collection that was edited.
-        properties:
-          campaign:
-            $ref: '#/components/schemas/Campaign'
-            type: object
-            description: The current campaign.
-          ruleset:
-            $ref: '#/components/schemas/Ruleset'
-            type: object
-            description: The current ruleset.
-          placeholders:
-            type: array
-            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
-            items:
-              $ref: '#/components/schemas/PlaceholderDetails'
-          collection:
-            $ref: '#/components/schemas/CollectionWithoutPayload'
-            type: object
-            description: The collection that was edited.
-    Rule:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: A unique identifier for the rule.
-          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
-        parentId:
-          type: string
-          format: uuid
-          description: The ID of the rule that was copied to create this rule.
-          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
-        title:
-          type: string
-          description: A short description of the rule.
-          example: Give discount via coupon
-        description:
-          type: string
-          description: A longer, more detailed description of the rule.
-          example: Creates a discount when a coupon is valid
-        bindings:
-          type: array
-          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
-          items:
-            $ref: '#/components/schemas/Binding'
-        condition:
-          type: array
-          description: A Talang expression that will be evaluated in the context of the given event.
-          minItems: 1
-          example:
-          - and
-          - - couponValid
-          items: {}
-        effects:
-          type: array
-          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
-          items:
-            type: array
-            items: {}
-          example:
-          - catch
-          - - noop
-          - - setDiscount
-            - 10% off
-            - - '*'
-              - - .
-                - Session
-                - Total
-              - - /
-                - 10
-                - 100
-    CampaignDeletedNotificationItem:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationItemBase'
-      - type: object
-        description: A notification regarding a campaign that was deleted.
-        properties:
-          campaign:
-            $ref: '#/components/schemas/Campaign'
-            type: object
-            description: The campaign whose state changed.
-          deletedAt:
-            type: string
-            format: date-time
-            example: '2022-11-10T23:00:00Z'
-            description: Time when the campaign was deleted.
-    CampaignNotificationBase:
-      type: object
-      properties:
-        NotificationType:
-          type: string
-          description: The type of the notification
-          example: CampaignNotification
-          enum:
-          - CampaignNotification
-        TotalResultSize:
-          type: integer
-          description: The total size of the result set.
-    NewCollection:
-      allOf:
-      - $ref: '#/components/schemas/UpdateCollection'
-      - type: object
-        properties:
-          name:
-            type: string
-            minLength: 1
-            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
-            description: The name of this collection.
-            example: My collection
-    CampaignRulesetChangedNotification:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationBase'
-      - type: object
-        properties:
-          Data:
-            type: array
-            items:
-              $ref: '#/components/schemas/CampaignRulesetChangedNotificationItem'
-            description: A list of campaign notification data.
+      oneOf:
+      - $ref: '#/components/schemas/CampaignEvaluationTreeChangedNotification'
     CodeGeneratorSettings:
       type: object
       properties:
@@ -1913,6 +1500,126 @@ components:
           pattern: ^[A-Za-z0-9._%+@#-]+$
           example: SUMMER-####-####
       additionalProperties: false
+    AccountEntity:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    CampaignDeletedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign that was deleted.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          deletedAt:
+            type: string
+            format: date-time
+            example: '2022-11-10T23:00:00Z'
+            description: Time when the campaign was deleted.
+    CampaignVersions:
+      type: object
+      properties:
+        revisionFrontendState:
+          type: string
+          description: The campaign revision state displayed in the Campaign Manager.
+          enum:
+          - revised
+          - pending
+          example: revised
+        activeRevisionId:
+          type: integer
+          description: 'ID of the revision that was last activated on this campaign.
+
+            '
+          example: 6
+        activeRevisionVersionId:
+          type: integer
+          description: 'ID of the revision version that is active on the campaign.
+
+            '
+          example: 6
+        version:
+          type: integer
+          description: 'Incrementing number representing how many revisions have been activated on this campaign, starts from 0 for a new campaign.
+
+            '
+          example: 6
+        currentRevisionId:
+          type: integer
+          description: 'ID of the revision currently being modified for the campaign.
+
+            '
+          example: 6
+        currentRevisionVersionId:
+          type: integer
+          description: 'ID of the latest version applied on the current revision.
+
+            '
+          example: 6
+        stageRevision:
+          type: boolean
+          description: 'Flag for determining whether we use current revision when sending requests with staging API key.
+
+            '
+          example: false
+          default: false
+    CampaignCreatedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign that was created.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+          evaluationPosition:
+            $ref: '#/components/schemas/CampaignEvaluationPosition'
+            type: object
+            description: The campaign position within the evaluation tree.
+    CampaignNotificationItemBase:
+      type: object
+      properties:
+        Event:
+          description: 'The type of the event. Can be one of the following: [''campaign_state_changed'', ''campaign_ruleset_changed'', ''campaign_edited'', ''campaign_created'', ''campaign_deleted'']
+
+            '
+          type: string
+          example: campaign_state_changed
+    CampaignRulesetChangedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignRulesetChangedNotificationItem'
+            description: A list of campaign notification data.
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/BaseCampaign'
+      - $ref: '#/components/schemas/AdditionalCampaignProperties'
+      - $ref: '#/components/schemas/CampaignVersions'
+      - type: object
     AdditionalCampaignProperties:
       type: object
       properties:
@@ -2116,69 +1823,62 @@ components:
           type: integer
           description: The ID of the Experiment this Campaign is part of.
           example: 1
-    Ruleset:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/NewRuleset'
-      - type: object
-        properties:
-          campaignId:
-            type: integer
-            title: Campaign ID
-            description: The ID of the campaign that owns this entity.
-            example: 320
-          templateId:
-            type: integer
-            title: Campaign Template ID
-            description: The ID of the campaign template that owns this entity.
-            example: 3
-          activatedAt:
-            type: string
-            format: date-time
-            description: Timestamp indicating when this Ruleset was activated.
-    CampaignDeletedNotification:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationBase'
-      - type: object
-        properties:
-          Data:
-            type: array
-            items:
-              $ref: '#/components/schemas/CampaignDeletedNotificationItem'
-            description: A list of campaign notification data.
-    CampaignNotificationItemBase:
+    ApplicationEntity:
       type: object
       properties:
-        Event:
-          description: 'The type of the event. Can be one of the following: [''campaign_state_changed'', ''campaign_ruleset_changed'', ''campaign_edited'', ''campaign_created'', ''campaign_deleted'']
-
-            '
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+    CampaignSetBranchNode:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
           type: string
-          example: campaign_state_changed
-    CampaignCreatedNotificationItem:
-      allOf:
-      - $ref: '#/components/schemas/CampaignNotificationItemBase'
-      - type: object
-        description: A notification regarding a campaign that was created.
-        properties:
-          campaign:
-            $ref: '#/components/schemas/Campaign'
-            type: object
-            description: The campaign whose state changed.
-          ruleset:
-            $ref: '#/components/schemas/Ruleset'
-            type: object
-            description: The current ruleset.
-          placeholders:
-            type: array
-            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
-            items:
-              $ref: '#/components/schemas/PlaceholderDetails'
-          evaluationPosition:
-            $ref: '#/components/schemas/CampaignEvaluationPosition'
-            type: object
-            description: The campaign position within the evaluation tree.
+          description: Indicates the node type.
+          enum:
+          - SET
+          example: SET
+        name:
+          type: string
+          description: Name of the set.
+          example: name
+        operator:
+          type: string
+          description: An indicator of how the set operates on its elements.
+          enum:
+          - ALL
+          - FIRST
+          example: ALL
+        elements:
+          type: array
+          description: Child elements of this set.
+          items:
+            $ref: '#/components/schemas/CampaignSetNode'
+        groupId:
+          type: integer
+          description: The ID of the campaign set.
+        locked:
+          type: boolean
+          description: An indicator of whether the campaign set is locked for modification.
+        description:
+          type: string
+          description: A description of the campaign set.
+        evaluationMode:
+          type: string
+          enum:
+          - stackable
+          - listOrder
+          - lowestDiscount
+          - highestDiscount
+          description: The mode by which campaigns in the campaign evaluation group are evaluated.
+        evaluationScope:
+          type: string
+          enum:
+          - cartItem
+          - session
+          description: The evaluation scope of the campaign evaluation group.
     CollectionWithoutPayload:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -2203,46 +1903,7 @@ components:
             type: integer
             description: The ID of the campaign that owns this entity.
             example: 7
-    CampaignSetLeafNode:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
-          type: string
-          description: Indicates the node type.
-          enum:
-          - CAMPAIGN
-        campaignId:
-          type: integer
-          description: ID of the campaign
-    CampaignBudget:
-      type: object
-      properties:
-        action:
-          type: string
-          description: 'The limitable action to which this limit applies. For example:
-
-            - `setDiscount`
-
-            - `setDiscountEffect`
-
-            - `redeemCoupon`
-
-            - `createCoupon`
-
-            '
-          example: createCoupon
-        limit:
-          type: number
-          minimum: 0
-          example: 1000
-          description: The value to set for the limit.
-        counter:
-          type: number
-          minimum: 0
-          example: 42
-          description: The number of occurrences of the limited action in the context of the campaign.
-    CampaignCreatedNotification:
+    CampaignCollectionEditedNotification:
       allOf:
       - $ref: '#/components/schemas/CampaignNotificationBase'
       - type: object
@@ -2250,17 +1911,16 @@ components:
           Data:
             type: array
             items:
-              $ref: '#/components/schemas/CampaignCreatedNotificationItem'
+              $ref: '#/components/schemas/CampaignCollectionEditedNotificationItem'
             description: A list of campaign notification data.
-    CampaignSetNode:
+    MutableEntity:
       type: object
       properties:
-        type:
+        modified:
           type: string
-          example: type
-      oneOf:
-      - $ref: '#/components/schemas/CampaignSetBranchNode'
-      - $ref: '#/components/schemas/CampaignSetLeafNode'
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
     CampaignSet:
       allOf:
       - $ref: '#/components/schemas/ApplicationEntity'
@@ -2326,62 +1986,168 @@ components:
             - Identifier
             - Store
             - Session
-    CampaignVersions:
+    CampaignStateChangedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign whose state changed.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          oldState:
+            type: string
+            description: 'The campaign''s old state. Can be one of the following: [''running'', ''disabled'', ''scheduled'', ''expired'', ''archived'']
+
+              '
+            example: disabled
+          newState:
+            type: string
+            description: 'The campaign''s new state. Can be one of the following: [''running'', ''disabled'', ''scheduled'', ''expired'', ''archived'']
+
+              '
+            example: running
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+    Rule:
       type: object
       properties:
-        revisionFrontendState:
+        id:
           type: string
-          description: The campaign revision state displayed in the Campaign Manager.
-          enum:
-          - revised
-          - pending
-          example: revised
-        activeRevisionId:
+          format: uuid
+          description: A unique identifier for the rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        parentId:
+          type: string
+          format: uuid
+          description: The ID of the rule that was copied to create this rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        title:
+          type: string
+          description: A short description of the rule.
+          example: Give discount via coupon
+        description:
+          type: string
+          description: A longer, more detailed description of the rule.
+          example: Creates a discount when a coupon is valid
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+        condition:
+          type: array
+          description: A Talang expression that will be evaluated in the context of the given event.
+          minItems: 1
+          example:
+          - and
+          - - couponValid
+          items: {}
+        effects:
+          type: array
+          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
+          items:
+            type: array
+            items: {}
+          example:
+          - catch
+          - - noop
+          - - setDiscount
+            - 10% off
+            - - '*'
+              - - .
+                - Session
+                - Total
+              - - /
+                - 10
+                - 100
+    UpdateCollection:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A short description of the purpose of this collection.
+          example: My collection of SKUs
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications where this collection is enabled.
+          example:
+          - 1
+          - 2
+          - 3
+          items:
+            type: integer
+    CampaignEvaluationTreeChangedNotification:
+      type: object
+      description: Notification about an Application whose campaign evaluation tree changed.
+      properties:
+        applicationId:
           type: integer
-          description: 'ID of the revision that was last activated on this campaign.
-
-            '
-          example: 6
-        activeRevisionVersionId:
+          description: The ID of the Application whose campaign evaluation tree changed.
+          example: 78
+        oldEvaluationTree:
+          $ref: '#/components/schemas/CampaignSet'
+          type: object
+          description: The previous campaign evaluation tree.
+        evaluationTree:
+          $ref: '#/components/schemas/CampaignSet'
+          type: object
+          description: The new campaign evaluation tree.
+    CampaignEvaluationPosition:
+      type: object
+      description: The campaign position within the evaluation tree.
+      properties:
+        groupId:
           type: integer
-          description: 'ID of the revision version that is active on the campaign.
-
-            '
-          example: 6
-        version:
+          example: 2
+          description: The ID of the campaign evaluation group the campaign belongs to.
+        groupName:
+          type: string
+          description: The name of the campaign evaluation group the campaign belongs to.
+          example: Summer campaigns
+        position:
           type: integer
-          description: 'Incrementing number representing how many revisions have been activated on this campaign, starts from 0 for a new campaign.
-
-            '
-          example: 6
-        currentRevisionId:
-          type: integer
-          description: 'ID of the revision currently being modified for the campaign.
-
-            '
-          example: 6
-        currentRevisionVersionId:
-          type: integer
-          description: 'ID of the latest version applied on the current revision.
-
-            '
-          example: 6
-        stageRevision:
-          type: boolean
-          description: 'Flag for determining whether we use current revision when sending requests with staging API key.
-
-            '
-          example: false
-          default: false
-    Campaign:
+          description: The position of the campaign node in its parent group.
+          example: 2
+    Ruleset:
       allOf:
-      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
-      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/Entity'
       - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/BaseCampaign'
-      - $ref: '#/components/schemas/AdditionalCampaignProperties'
-      - $ref: '#/components/schemas/CampaignVersions'
+      - $ref: '#/components/schemas/NewRuleset'
       - type: object
+        properties:
+          campaignId:
+            type: integer
+            title: Campaign ID
+            description: The ID of the campaign that owns this entity.
+            example: 320
+          templateId:
+            type: integer
+            title: Campaign Template ID
+            description: The ID of the campaign template that owns this entity.
+            example: 3
+          activatedAt:
+            type: string
+            format: date-time
+            description: Timestamp indicating when this Ruleset was activated.
+    CampaignDeletedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignDeletedNotificationItem'
+            description: A list of campaign notification data.
     EntityWithTalangVisibleID:
       type: object
       properties:
@@ -2394,6 +2160,146 @@ components:
           format: date-time
           description: The exact moment this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
+    CampaignCollectionEditedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a collection that was edited.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The current campaign.
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+          collection:
+            $ref: '#/components/schemas/CollectionWithoutPayload'
+            type: object
+            description: The collection that was edited.
+    CampaignSetNode:
+      type: object
+      properties:
+        type:
+          type: string
+          example: type
+      oneOf:
+      - $ref: '#/components/schemas/CampaignSetBranchNode'
+      - $ref: '#/components/schemas/CampaignSetLeafNode'
+    CampaignEvaluationTreeChangedMessage:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            description: The array of changes.
+            items:
+              $ref: '#/components/schemas/ApplicationNotification'
+    Entity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    CampaignNotificationBase:
+      type: object
+      properties:
+        NotificationType:
+          type: string
+          description: The type of the notification
+          example: CampaignNotification
+          enum:
+          - CampaignNotification
+        TotalResultSize:
+          type: integer
+          description: The total size of the result set.
+    CampaignStateChangedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignStateChangedNotificationItem'
+            description: A list of campaign notification data.
+    CampaignEditedNotificationItem:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationItemBase'
+      - type: object
+        description: A notification regarding a campaign which was edited.
+        properties:
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign whose state changed.
+          oldCampaign:
+            $ref: '#/components/schemas/Campaign'
+            type: object
+            description: The campaign before the change.
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+            type: object
+            description: The current ruleset.
+          placeholders:
+            type: array
+            description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
+            items:
+              $ref: '#/components/schemas/PlaceholderDetails'
+    NewCollection:
+      allOf:
+      - $ref: '#/components/schemas/UpdateCollection'
+      - type: object
+        properties:
+          name:
+            type: string
+            minLength: 1
+            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
+            description: The name of this collection.
+            example: My collection
+    CampaignSetLeafNode:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          description: Indicates the node type.
+          enum:
+          - CAMPAIGN
+        campaignId:
+          type: integer
+          description: ID of the campaign
+    PlaceholderDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the placeholder.
+          example: my property
+        type:
+          type: string
+          description: The type of the value assigned to the placeholder.
+          example: list string
+        value:
+          type: array
+          description: The current value of the placeholder.
+          example:
+          - 1
+          - sku_value
+          items: {}
     CampaignRulesetChangedNotificationItem:
       allOf:
       - $ref: '#/components/schemas/CampaignNotificationItemBase'
@@ -2422,7 +2328,7 @@ components:
             description: The current details of the [placeholders](https://docs.talon.one/docs/product/campaigns/templates/create-templates#use-placeholders) in the campaign.
             items:
               $ref: '#/components/schemas/PlaceholderDetails'
-    CampaignStateChangedNotification:
+    CampaignCreatedNotification:
       allOf:
       - $ref: '#/components/schemas/CampaignNotificationBase'
       - type: object
@@ -2430,24 +2336,114 @@ components:
           Data:
             type: array
             items:
-              $ref: '#/components/schemas/CampaignStateChangedNotificationItem'
+              $ref: '#/components/schemas/CampaignCreatedNotificationItem'
             description: A list of campaign notification data.
-    CampaignEvaluationTreeChangedNotification:
+    Binding:
       type: object
-      description: Notification about an Application whose campaign evaluation tree changed.
       properties:
-        applicationId:
+        name:
+          type: string
+          description: A descriptive name for the value to be bound.
+          example: Discount percentage
+        type:
+          type: string
+          description: 'The kind of binding. Possible values are:
+
+            - `bundle`
+
+            - `cartItemFilter`
+
+            - `subledgerBalance`
+
+            - `templateParameter`
+
+            '
+          example: templateParameter
+        expression:
+          type: array
+          description: 'A Talang expression that is evaluated, and its result is bound to the name of
+
+            the binding. The first element must be one of the functions or operators supported
+
+            by Talang, followed by its arguments. The arguments can be strings, numbers, or
+
+            nested expressions. For example:
+
+            - `["list", "10014", "10015"]` calls the `list` function to build a list of strings.
+
+            - `["+", 2, 0]` uses the `+` operator to add two numbers.
+
+            '
+          example:
+          - identity
+          - 10
+          items: {}
+        valueType:
+          type: string
+          description: 'The data type of the value. One of the following:
+
+            - `string`
+
+            - `number`
+
+            - `boolean`
+
+            '
+          example: number
+        minValue:
+          type: number
+          description: The minimum value allowed for this placeholder.
+          example: 0
+        maxValue:
+          type: number
+          description: The maximum value allowed for this placeholder.
+          example: 19.9
+        attributeId:
           type: integer
-          description: The ID of the Application whose campaign evaluation tree changed.
-          example: 78
-        oldEvaluationTree:
-          $ref: '#/components/schemas/CampaignSet'
-          type: object
-          description: The previous campaign evaluation tree.
-        evaluationTree:
-          $ref: '#/components/schemas/CampaignSet'
-          type: object
-          description: The new campaign evaluation tree.
+          title: Attribute ID
+          description: Identifier of the attribute attached to the placeholder.
+          example: 100
+        description:
+          type: string
+          description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
+          example: The percentage discount applied to the cart total.
+    CampaignEditedNotification:
+      allOf:
+      - $ref: '#/components/schemas/CampaignNotificationBase'
+      - type: object
+        properties:
+          Data:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignEditedNotificationItem'
+            description: A list of campaign notification data.
+    NewRuleset:
+      type: object
+      properties:
+        rules:
+          type: array
+          description: Set of rules to apply.
+          items:
+            $ref: '#/components/schemas/Rule'
+        strikethroughRules:
+          type: array
+          description: Set of rules to apply for strikethrough.
+          items:
+            $ref: '#/components/schemas/Rule'
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+          example: []
+        rbVersion:
+          type: string
+          description: The version of the rulebuilder used to create this ruleset.
+          example: v2
+        activate:
+          type: boolean
+          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
+          example: true
   parameters:
     x-uuid:
       name: X-UUID

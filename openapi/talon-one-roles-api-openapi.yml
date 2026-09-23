@@ -2,7 +2,9 @@ openapi: 3.2.0
 info:
   title: Management Roles API
   version: ''
-  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+  description: 'The Management API allows you to programmatically do what the Campaign Manager
+
+    does.'
 servers:
 - url: https://yourbaseurl.talon.one
 security:
@@ -13,9 +15,7 @@ tags:
   description: 'Represents a set of permissions assigned to a user.
 
 
-    See the [docs](https://docs.talon.one/docs/product/account/account-settings/managing-roles).
-
-    '
+    See the docs.'
 paths:
   /v2/roles:
     get:
@@ -52,9 +52,7 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        Get the details of a specific role. To see all the roles, use the [List roles](/management-api#tag/Roles/operation/listAllRolesV2) endpoint.
-
-        '
+        Get the details of a specific role. To see all the roles, use the List roles endpoint.'
       tags:
       - Roles
       parameters:
@@ -115,13 +113,6 @@ paths:
                 $ref: '#/components/schemas/RoleV2'
 components:
   schemas:
-    RoleV2:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/RoleV2Base'
-      - $ref: '#/components/schemas/RoleV2Readonly'
     RoleV2LoyaltyGroup:
       type: object
       description: A map of the link between the loyalty program-related permission set and the Application ID the permissions apply to.
@@ -130,46 +121,25 @@ components:
         description: Name of the loyalty program-related permission set.
       example:
         '10': Loyalty program manager permission set
-    RoleV2Application:
-      type: object
-      description: A map of the link between the Application, campaign, or draft campaign-related permission set and the Application ID the permissions apply to.
-      additionalProperties:
-        $ref: '#/components/schemas/RoleV2ApplicationDetails'
-        type: object
-      example:
-        '1':
-          application: Application permission set
-        '3':
-          campaign: Campaign manager permission set
-        '4':
-          draftCampaign: Campaign read-only permission set
-        '5':
-          tools: Tools permission set
-    RoleV2ApplicationDetails:
+    RoleV2Readonly:
       type: object
       properties:
-        application:
-          type: string
-          description: Name of the Application-related permission set for the given Application.
-        campaign:
-          type: string
-          description: Name of the campaign-related permission set for the given Application.
-        draftCampaign:
-          type: string
-          description: Name of the draft campaign-related permission set for the given Application.
-        tools:
-          type: string
-          description: Name of the tools-related permission set.
-          example: Tools permission set
-    AccountEntity:
+        isReadonly:
+          type: boolean
+          example: false
+          description: Identifies if the role is read-only. For read-only roles, you can only assign or unassign users. You cannot edit any other properties, such as the name, description, or permissions. The 'isReadonly' property cannot be set for new or existing roles. It is reserved for predefined roles, such as the Talon.One support role.
+          default: false
+    RolesV2Thresholds:
       type: object
-      required:
-      - accountId
       properties:
-        accountId:
+        loyaltyProgramId:
           type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
+          description: Identifier of the loyalty program. You can get the ID with the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
+          example: 8
+        loyaltyPointsLimit:
+          type: integer
+          description: Maximum number of loyalty points a support user can award without approval.
+          example: 100
     Entity:
       type: object
       required:
@@ -185,6 +155,48 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    RoleV2CampaignAccessGroup:
+      type: object
+      description: A map of the link between the campaign access group-related permission set and the Application ID the permissions apply to.
+      additionalProperties:
+        type: string
+        description: Name of the campaign access group-related permission set.
+      example:
+        '5': Campaign access group manager permission set
+    RoleV2RolesGroup:
+      type: object
+      properties:
+        applications:
+          $ref: '#/components/schemas/RoleV2Application'
+          type: object
+        loyaltyPrograms:
+          $ref: '#/components/schemas/RoleV2LoyaltyGroup'
+          type: object
+        campaignAccessGroups:
+          $ref: '#/components/schemas/RoleV2CampaignAccessGroup'
+          type: object
+        account:
+          type: string
+          description: Name of the account-level permission set
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
     RoleV2Base:
       type: object
       properties:
@@ -208,48 +220,6 @@ components:
           example:
           - 10
           - 12
-    RoleV2PermissionSet:
-      type: object
-      required:
-      - name
-      - logicalOperations
-      properties:
-        name:
-          type: string
-          description: Name of the permission set.
-          example: Campaign manager permission set
-        logicalOperations:
-          type: array
-          maxItems: 1000
-          description: 'List of logical operations in the permission set.
-
-            Each logical operation must be shown under the `x-permission` tag on an endpoint level.
-
-            '
-          items:
-            type: string
-          example:
-          - createCampaignOperations
-          - getCampaignOperations
-          - deleteCampaignOperations
-    RoleV2CampaignAccessGroup:
-      type: object
-      description: A map of the link between the campaign access group-related permission set and the Application ID the permissions apply to.
-      additionalProperties:
-        type: string
-        description: Name of the campaign access group-related permission set.
-      example:
-        '5': Campaign access group manager permission set
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
     RoleV2Permissions:
       type: object
       properties:
@@ -289,40 +259,68 @@ components:
           description: Support user limits for actions that require admin approval within the given application.
           items:
             $ref: '#/components/schemas/RolesV2Thresholds'
-    RolesV2Thresholds:
+    RoleV2Application:
+      type: object
+      description: A map of the link between the Application, campaign, or draft campaign-related permission set and the Application ID the permissions apply to.
+      additionalProperties:
+        $ref: '#/components/schemas/RoleV2ApplicationDetails'
+        type: object
+      example:
+        '1':
+          application: Application permission set
+        '3':
+          campaign: Campaign manager permission set
+        '4':
+          draftCampaign: Campaign read-only permission set
+        '5':
+          tools: Tools permission set
+    RoleV2ApplicationDetails:
       type: object
       properties:
-        loyaltyProgramId:
-          type: integer
-          description: Identifier of the loyalty program. You can get the ID with the [List loyalty programs](https://docs.talon.one/management-api#tag/Loyalty/operation/getLoyaltyPrograms) endpoint.
-          example: 8
-        loyaltyPointsLimit:
-          type: integer
-          description: Maximum number of loyalty points a support user can award without approval.
-          example: 100
-    RoleV2Readonly:
-      type: object
-      properties:
-        isReadonly:
-          type: boolean
-          example: false
-          description: Identifies if the role is read-only. For read-only roles, you can only assign or unassign users. You cannot edit any other properties, such as the name, description, or permissions. The 'isReadonly' property cannot be set for new or existing roles. It is reserved for predefined roles, such as the Talon.One support role.
-          default: false
-    RoleV2RolesGroup:
-      type: object
-      properties:
-        applications:
-          $ref: '#/components/schemas/RoleV2Application'
-          type: object
-        loyaltyPrograms:
-          $ref: '#/components/schemas/RoleV2LoyaltyGroup'
-          type: object
-        campaignAccessGroups:
-          $ref: '#/components/schemas/RoleV2CampaignAccessGroup'
-          type: object
-        account:
+        application:
           type: string
-          description: Name of the account-level permission set
+          description: Name of the Application-related permission set for the given Application.
+        campaign:
+          type: string
+          description: Name of the campaign-related permission set for the given Application.
+        draftCampaign:
+          type: string
+          description: Name of the draft campaign-related permission set for the given Application.
+        tools:
+          type: string
+          description: Name of the tools-related permission set.
+          example: Tools permission set
+    RoleV2:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/RoleV2Base'
+      - $ref: '#/components/schemas/RoleV2Readonly'
+    RoleV2PermissionSet:
+      type: object
+      required:
+      - name
+      - logicalOperations
+      properties:
+        name:
+          type: string
+          description: Name of the permission set.
+          example: Campaign manager permission set
+        logicalOperations:
+          type: array
+          maxItems: 1000
+          description: 'List of logical operations in the permission set.
+
+            Each logical operation must be shown under the `x-permission` tag on an endpoint level.
+
+            '
+          items:
+            type: string
+          example:
+          - createCampaignOperations
+          - getCampaignOperations
+          - deleteCampaignOperations
   securitySchemes:
     manager_auth:
       type: apiKey

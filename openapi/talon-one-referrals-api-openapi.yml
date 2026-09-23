@@ -19,9 +19,7 @@ tags:
     - a referral code: code to be redeemed by the advocate(s) once they referred their friend.
 
 
-    See the [docs](https://docs.talon.one/docs/product/campaigns/referrals/referral-overview).
-
-    '
+    See the docs.'
 paths:
   /v1/referrals:
     post:
@@ -36,11 +34,9 @@ paths:
         `advocateProfileIntegrationId` parameter as the advocate''s profile.
 
 
-        > [!note] Any [referral limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets#referral-limits)
+        > [!note] Any referral limits
 
-        > set are ignored when you use this endpoint.
-
-        '
+        > set are ignored when you use this endpoint.'
       security:
       - api_key_v1: []
       tags:
@@ -88,11 +84,9 @@ paths:
         parameter as the advocate''s profile.
 
 
-        > [!note] Any [referral limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets#referral-limits)
+        > [!note] Any referral limits
 
-        > set are ignored when you use this endpoint.
-
-        '
+        > set are ignored when you use this endpoint.'
       security:
       - api_key_v1: []
       tags:
@@ -317,9 +311,7 @@ paths:
       description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
 
 
-        List the friends referred by the specified customer profile in this Application.
-
-        '
+        List the friends referred by the specified customer profile in this Application.'
       tags:
       - Referrals
       parameters:
@@ -385,7 +377,7 @@ paths:
 
         > [!tip] If the exported CSV file is too large to view, you can
 
-        > [split it into multiple files](https://www.google.com/search?q=split+CSV+into+multiple+files).
+        > split it into multiple files.
 
 
         The CSV file contains the following columns:
@@ -401,9 +393,7 @@ paths:
 
         - `limitval`: The maximum number of redemptions of this code. Defaults to `1` when left blank.
 
-        - `attributes`: A json object describing _custom_ referral attribute names and their values.
-
-        '
+        - `attributes`: A json object describing _custom_ referral attribute names and their values.'
       tags:
       - Referrals
       parameters:
@@ -500,7 +490,71 @@ paths:
     post:
       operationId: importReferrals
       summary: Import referrals
-      description: "> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.\n\nUpload a CSV file containing the referrals that should be created.\n\nThe file should be sent as multipart data.\n\nThe CSV file contains the following columns:\n\n- `code` (required): The referral code.\n- `advocateprofileintegrationid` (required): The profile ID of the advocate.\n- `startdate`: The start date in RFC3339 of the code redemption period.\n- `expirydate`: The end date in RFC3339 of the code redemption period.\n- `limitval`: The maximum number of redemptions of this code. Defaults to `1` when left blank.\n- `attributes`: A JSON object describing _custom_ referral attribute names and their values, enclosed with double quotation marks.<br />\n  For example, if you created a [custom attribute](https://docs.talon.one/docs/dev/concepts/attributes#custom-attributes)\n  called `category` associated with the referral entity, the object in the CSV file, when opened in a text editor, must be: `\"{\"category\": \"10_off\"}\"`.\n\nYou can use the time zone of your choice. It is converted to UTC internally by Talon.One.\n\n> [!important] When you import a CSV file with referrals,\n> a [customer profile](https://docs.talon.one/docs/dev/concepts/entities/customer-profiles)\n> is **not** automatically created for each `advocateprofileintegrationid`\n> column value. Use the [Update customer profile](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/updateCustomerProfileV2)\n> endpoint or the [Update multiple customer profiles](https://docs.talon.one/integration-api#tag/Customer-profiles/operation/updateCustomerProfilesV2)\n> endpoint to create the customer profiles.\n\n> [!note] We recommend limiting your file size to 500 MB.\n\n## Example\n\n```text\ncode,startdate,expirydate,advocateprofileintegrationid,limitval,attributes\nREFERRAL_CODE1,2020-11-10T23:00:00Z,2021-11-11T23:00:00Z,integid_4,1,\"{\"\"my_attribute\"\":\n\"\"10_off\"\"}\"\nREFERRAL_CODE2,2020-11-10T23:00:00Z,2021-11-11T23:00:00Z,integid1,1,\"{\"\"my_attribute\"\":\n\"\"20_off\"\"}\"\n```\n"
+      description: '> [!note] Management API endpoints are **not** meant to be used in real-time integrations that directly serve your end users. Rate limit: 3 requests per second.
+
+
+        Upload a CSV file containing the referrals that should be created.
+
+
+        The file should be sent as multipart data.
+
+
+        The CSV file contains the following columns:
+
+
+        - `code` (required): The referral code.
+
+        - `advocateprofileintegrationid` (required): The profile ID of the advocate.
+
+        - `startdate`: The start date in RFC3339 of the code redemption period.
+
+        - `expirydate`: The end date in RFC3339 of the code redemption period.
+
+        - `limitval`: The maximum number of redemptions of this code. Defaults to `1` when left blank.
+
+        - `attributes`: A JSON object describing _custom_ referral attribute names and their values, enclosed with double quotation marks.
+
+
+        For example, if you created a custom attribute
+
+        called `category` associated with the referral entity, the object in the CSV file, when opened in a text editor, must be: `"{"category": "10_off"}"`.
+
+
+        You can use the time zone of your choice. It is converted to UTC internally by Talon.One.
+
+
+        > [!important] When you import a CSV file with referrals,
+
+        > a customer profile
+
+        > is **not** automatically created for each `advocateprofileintegrationid`
+
+        > column value. Use the Update customer profile
+
+        > endpoint or the Update multiple customer profiles
+
+        > endpoint to create the customer profiles.
+
+
+        > [!note] We recommend limiting your file size to 500 MB.
+
+
+        ## Example
+
+
+        ```text
+
+        code,startdate,expirydate,advocateprofileintegrationid,limitval,attributes
+
+        REFERRAL_CODE1,2020-11-10T23:00:00Z,2021-11-11T23:00:00Z,integid_4,1,"{""my_attribute"":
+
+        ""10_off""}"
+
+        REFERRAL_CODE2,2020-11-10T23:00:00Z,2021-11-11T23:00:00Z,integid1,1,"{""my_attribute"":
+
+        ""20_off""}"
+
+        ```'
       tags:
       - Referrals
       parameters:
@@ -531,19 +585,6 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
     APIError:
       type: object
       required:
@@ -571,35 +612,41 @@ components:
           description: An array of individual problems encountered during the request.
           items:
             $ref: '#/components/schemas/APIError'
-    NewReferral:
-      allOf:
-      - $ref: '#/components/schemas/ReferralConstraints'
-      - type: object
-        required:
-        - campaignId
-        - advocateProfileIntegrationId
-        properties:
-          campaignId:
-            type: integer
-            title: Referral's Campaign ID
-            description: ID of the campaign from which the referral received the referral code.
-            example: 78
-          advocateProfileIntegrationId:
-            type: string
-            title: Advocate's Profile ID
-            description: The Integration ID of the Advocate's Profile.
-            maxLength: 1000
-            example: URNGV8294NV
-          friendProfileIntegrationId:
-            type: string
-            title: Friend's Profile ID
-            description: An optional Integration ID of the Friend's Profile.
-            example: BZGGC2454PA
-          attributes:
-            type: object
-            description: Arbitrary properties associated with this item.
-            example:
-              channel: web
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    ImportEntity:
+      type: object
+      properties:
+        importId:
+          type: integer
+          description: The ID of the Import which created this referral.
+          example: 4
     Referral:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -627,28 +674,24 @@ components:
             title: Batch ID
             description: The ID of the batch the referrals belong to.
             example: tqyrgahe
-    Entity:
+    ErrorSource:
       type: object
-      required:
-      - id
-      - created
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
       properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
+        pointer:
           type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    ImportEntity:
-      type: object
-      properties:
-        importId:
-          type: integer
-          description: The ID of the Import which created this referral.
-          example: 4
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
     NewReferralsForMultipleAdvocates:
       allOf:
       - $ref: '#/components/schemas/ReferralConstraints'
@@ -723,24 +766,6 @@ components:
             example: REF-###-###
             maxLength: 100
             minLength: 3
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
     ReferralConstraints:
       type: object
       properties:
@@ -765,6 +790,44 @@ components:
           minimum: 0
           maximum: 999999
           example: 1
+    NewReferral:
+      allOf:
+      - $ref: '#/components/schemas/ReferralConstraints'
+      - type: object
+        required:
+        - campaignId
+        - advocateProfileIntegrationId
+        properties:
+          campaignId:
+            type: integer
+            title: Referral's Campaign ID
+            description: ID of the campaign from which the referral received the referral code.
+            example: 78
+          advocateProfileIntegrationId:
+            type: string
+            title: Advocate's Profile ID
+            description: The Integration ID of the Advocate's Profile.
+            maxLength: 1000
+            example: URNGV8294NV
+          friendProfileIntegrationId:
+            type: string
+            title: Friend's Profile ID
+            description: An optional Integration ID of the Friend's Profile.
+            example: BZGGC2454PA
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this item.
+            example:
+              channel: web
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
     ApplicationReferee:
       allOf:
       - $ref: '#/components/schemas/ApplicationEntity'
@@ -796,6 +859,36 @@ components:
             type: string
             format: date-time
             description: Timestamp of the moment the customer redeemed the referral.
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
     AccountEntity:
       type: object
       required:
@@ -839,52 +932,40 @@ components:
         attributes:
           type: object
           description: Arbitrary properties associated with this item.
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
-    ApplicationEntity:
-      type: object
-      required:
-      - applicationId
-      properties:
-        applicationId:
-          type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
   parameters:
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
     applicationId:
       name: applicationId
       in: path
       required: true
       description: The ID of the Application. It is displayed in your Talon.One deployment URL.
       example: 42
+      schema:
+        type: integer
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
       schema:
         type: integer
     sort:
@@ -900,33 +981,6 @@ components:
       example: name
       schema:
         type: string
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
   securitySchemes:
     api_key_v1:
       type: apiKey

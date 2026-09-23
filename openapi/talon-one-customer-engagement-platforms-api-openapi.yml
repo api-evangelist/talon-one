@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   version: ''
   title: Third-party Customer engagement platforms API
-  description: "Use the Third-party API to exchange data between Talon.One and one of the supported [technology partners](https://docs.talon.one/docs/dev/technology-partners/overview).\n\nFor example, use the Braze-specific endpoints from your Braze campaigns to interact with Talon.One.\n\nIf the CDP or CEP you are using isn't listed here, use the generic\n[Customer Data Platforms](#tag/Customer-data-platforms) and [Customer Engagement Platform](#tag/Customer-engagement-platforms) endpoints.\n\n> [!note] \n> All endpoints of this API start with `https://integration.talon.one`.\n> You must specify the base URL of your deployment in the headers or parameters.\n\n> [!note] **Are you looking for a different API?**\n> - To implement use cases that aren't covered by the Third-party API, see the [Integration API](https://docs.talon.one/management-api).\n> - To interact with the Campaign Manager for back-office operations, see the [Management API](https://docs.talon.one/management-api).\n"
+  description: Use the Third-party API to exchange data between Talon.One and one of the supported technology partners.
 servers:
 - url: https://integration.talon.one
 security:
@@ -15,9 +15,7 @@ tags:
     Use these endpoints to automate the creation of coupon and referral codes and deliver them to specific customer segments.
 
 
-    For more information, see our integration examples in [the developer docs](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).
-
-    '
+    For more information, see our integration examples in the developer docs.'
 paths:
   /customer_engagement/coupon:
     get:
@@ -25,14 +23,12 @@ paths:
       - Customer engagement platforms
       summary: Create coupon (CEP)
       operationId: cep/createCoupon
-      description: 'Create a coupon code in Talon.One. See [the tutorial](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).
+      description: 'Create a coupon code in Talon.One. See the tutorial.
 
 
         > [!tip]
 
-        > You can edit the default coupon code format in the [campaign''s settings](https://docs.talon.one/docs/product/campaigns/coupons/coupon-page-overview#editing-coupon-format).
-
-        '
+        > You can edit the default coupon code format in the campaign''s settings.'
       parameters:
       - $ref: '#/components/parameters/customerEngagementPlatformName'
       - $ref: '#/components/parameters/destinationHostname'
@@ -71,9 +67,7 @@ paths:
       - Customer engagement platforms
       summary: Create referral (CEP)
       operationId: cep/createReferral
-      description: 'Create a referral code in Talon.One. See [the tutorial](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).
-
-        '
+      description: Create a referral code in Talon.One. See the tutorial.
       parameters:
       - $ref: '#/components/parameters/customerEngagementPlatformName'
       - $ref: '#/components/parameters/destinationHostname'
@@ -109,12 +103,10 @@ paths:
       - Customer engagement platforms
       summary: Get loyalty ledger (CEP)
       operationId: cep/loyalty
-      description: 'Get the loyalty ledger information of the given customer profile from Talon.One. See [the tutorial](https://docs.talon.one/docs/dev/technology-partners/cep/integrating-cep).
+      description: 'Get the loyalty ledger information of the given customer profile from Talon.One. See the tutorial.
 
 
-        This endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.
-
-        '
+        This endpoint only works with profile-based loyalty programs.'
       parameters:
       - $ref: '#/components/parameters/customerEngagementPlatformName'
       - $ref: '#/components/parameters/destinationHostname'
@@ -144,9 +136,7 @@ paths:
       description: 'Add points in the specified loyalty program for the given customer.
 
 
-        This endpoint only works with [profile-based](https://docs.talon.one/docs/product/loyalty-programs/profile-based/profile-based-overview) loyalty programs.
-
-        '
+        This endpoint only works with profile-based loyalty programs.'
       parameters:
       - $ref: '#/components/parameters/customerEngagementPlatformName'
       - $ref: '#/components/parameters/destinationHostname'
@@ -167,124 +157,7 @@ paths:
         '429':
           $ref: '#/components/responses/TooManyRequests'
 components:
-  responses:
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 404
-                Error: Not Found
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 401
-                Error: Missing Session Token
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    TooManyRequests:
-      description: Too many requests
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 429
-                Error: Too many requests
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 400
-                Error: No Deployment URL specified
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-  examples:
-    CouponResponse:
-      value:
-        ID: 20190408
-        ApplicationID: 398
-        CampaignID: 5671
-        Value: EW-1BC2
-        StartDate: '2021-09-30T15:35:02.371569+02:00'
-        ExpiryDate: '2024-10-03T15:35:02.371569+02:00'
-        RecipientIntegrationID: URN-GV8294NV
-        UsageLimit: 1
-        Attributes:
-          email: user@mailbox.com
-          country: DE
-    ReferralResponse:
-      value:
-        id: 1374
-        created: '2022-04-01T16:46:36.625152002Z'
-        startDate: '2021-09-30T15:35:02.371569+02:00'
-        expiryDate: '2021-10-03T15:35:02.371569+02:00'
-        usageLimit: 0
-        campaignId: 5672
-        advocateProfileIntegrationId: URN-GV8294NV
-        friendProfileIntegrationId: PKBR-G06449OELK
-        attributes:
-          welcome_message: Welcome!
-        code: P8BN-4T5V
-        usageCounter: 0
   parameters:
-    startDate:
-      description: The date when the code becomes usable.
-      name: startDate
-      in: query
-      schema:
-        type: string
-        format: date-time
-      example: '2022-09-30T15:35:02Z'
-    friendProfileIntegrationId:
-      name: friendProfileIntegrationId
-      in: query
-      description: The profile ID of the referred customer.
-      schema:
-        type: string
-      example: testFriendProfile
-    usageLimit:
-      name: usageLimit
-      in: query
-      description: Number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply.
-      schema:
-        type: integer
-        format: int64
-      example: 1
-    discountLimit:
-      name: discountLimit
-      in: query
-      description: The discount amount the coupon is worth. Can be blank if, for example, the coupon provides a 10% discount, or something other than a fixed value of discounts.
-      schema:
-        type: integer
-        format: int64
-      example: 155
-    applicationId:
-      name: applicationId
-      in: query
-      description: The ID of the Application in Talon.One. It is displayed in your Talon.One deployment URL.
-      schema:
-        type: integer
-        format: int64
-      required: true
-      example: 316
     usageLimitCoupons:
       name: usageLimit
       in: query
@@ -294,39 +167,6 @@ components:
         format: int64
         default: 1
       example: 1
-    identifier:
-      name: identifier
-      in: query
-      description: 'The identifier of the request. Providing a new value creates a new coupon. Providing an existing value retrieves the existing coupon of that ID and does not create a new coupon.
-
-        '
-      schema:
-        type: string
-      example: 3495-4323
-    loyaltyProgramId:
-      name: loyaltyProgramId
-      in: query
-      description: The ID of the profile-based loyalty program in Talon.One.
-      schema:
-        type: integer
-        format: int64
-      required: true
-      example: 25
-    expiryDate:
-      description: The date when the code becomes unusable.
-      name: expiryDate
-      in: query
-      schema:
-        type: string
-        format: date-time
-      example: '2022-10-30T15:35:02Z'
-    recipientIntegrationId:
-      name: recipientIntegrationId
-      in: query
-      description: The integration ID of the only customer that can use the generated coupon code. Leave blank to allow any user to use the coupon.
-      schema:
-        type: string
-      example: URN-GV8294NV
     campaignId:
       name: campaignId
       in: query
@@ -336,6 +176,14 @@ components:
         format: int64
       required: true
       example: 5843
+    startDate:
+      description: The date when the code becomes usable.
+      name: startDate
+      in: query
+      schema:
+        type: string
+        format: date-time
+      example: '2022-09-30T15:35:02Z'
     attributes:
       name: attributes
       in: query
@@ -348,6 +196,63 @@ components:
       example:
         .firstName: john
         .country: DE
+    discountLimit:
+      name: discountLimit
+      in: query
+      description: The discount amount the coupon is worth. Can be blank if, for example, the coupon provides a 10% discount, or something other than a fixed value of discounts.
+      schema:
+        type: integer
+        format: int64
+      example: 155
+    customerEngagementPlatformName:
+      name: customer-engagement-platform-name
+      in: header
+      description: The name of the third-party platform.
+      schema:
+        type: string
+      required: true
+      example: My CEP platform
+    applicationId:
+      name: applicationId
+      in: query
+      description: The ID of the Application in Talon.One. It is displayed in your Talon.One deployment URL.
+      schema:
+        type: integer
+        format: int64
+      required: true
+      example: 316
+    advocateProfileIntegrationId:
+      name: advocateProfileIntegrationId
+      in: query
+      description: The integration ID of the advocate.
+      schema:
+        type: string
+      required: true
+      example: testAdvocateProfile
+    expiryDate:
+      description: The date when the code becomes unusable.
+      name: expiryDate
+      in: query
+      schema:
+        type: string
+        format: date-time
+      example: '2022-10-30T15:35:02Z'
+    usageLimit:
+      name: usageLimit
+      in: query
+      description: Number of times a referral code can be used. This can be set to 0 for no limit, but any campaign usage limits will still apply.
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    externalCampaignId:
+      name: externalCampaignId
+      in: query
+      description: The ID of the campaign in the third-party platform.
+      schema:
+        type: string
+      example: testCampaignId
+      required: true
     destinationHostname:
       name: destination-hostname
       in: header
@@ -357,22 +262,20 @@ components:
         type: string
         format: hostname
       example: mycompany.europe-west1.talon.one
-    advocateProfileIntegrationId:
-      name: advocateProfileIntegrationId
+    friendProfileIntegrationId:
+      name: friendProfileIntegrationId
       in: query
-      description: The integration ID of the advocate.
+      description: The profile ID of the referred customer.
       schema:
         type: string
-      required: true
-      example: testAdvocateProfile
-    customerEngagementPlatformName:
-      name: customer-engagement-platform-name
-      in: header
-      description: The name of the third-party platform.
+      example: testFriendProfile
+    recipientIntegrationId:
+      name: recipientIntegrationId
+      in: query
+      description: The integration ID of the only customer that can use the generated coupon code. Leave blank to allow any user to use the coupon.
       schema:
         type: string
-      required: true
-      example: My CEP platform
+      example: URN-GV8294NV
     profileIntegrationId:
       name: profileIntegrationId
       in: query
@@ -388,28 +291,56 @@ components:
       schema:
         type: boolean
       example: true
-    externalCampaignId:
-      name: externalCampaignId
+    loyaltyProgramId:
+      name: loyaltyProgramId
       in: query
-      description: The ID of the campaign in the third-party platform.
+      description: The ID of the profile-based loyalty program in Talon.One.
+      schema:
+        type: integer
+        format: int64
+      required: true
+      example: 25
+    identifier:
+      name: identifier
+      in: query
+      description: 'The identifier of the request. Providing a new value creates a new coupon. Providing an existing value retrieves the existing coupon of that ID and does not create a new coupon.
+
+        '
       schema:
         type: string
-      example: testCampaignId
-      required: true
+      example: 3495-4323
   schemas:
-    errorResponseWithStatus:
+    ledgerInfo:
       type: object
       properties:
-        StatusCode:
-          type: integer
-          description: The error code.
-          example: 400
-        Error:
-          type: string
-          example: Bad request
-        RequestUUID:
-          type: string
-          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
+        currentBalance:
+          type: number
+          example: 10.5
+        pendingBalance:
+          type: number
+          example: 5.1
+        expiredBalance:
+          type: number
+          example: 2
+        spentBalance:
+          type: number
+          example: 0
+        tentativeCurrentBalance:
+          type: number
+          example: 0
+        pointsToNextTier:
+          type: number
+          example: 10
+        currentTier:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 112345
+            name:
+              type: string
+              example: silver-tier
     ReferralResponse:
       type: object
       properties:
@@ -460,57 +391,6 @@ components:
         dryRun:
           type: boolean
           example: true
-    LoyaltyResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 302
-        title:
-          type: string
-          example: My loyalty program
-        name:
-          type: string
-          example: myloyaltyprogram
-        ledger:
-          allOf:
-          - $ref: '#/components/schemas/ledgerInfo'
-        subLedgers:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ledgerInfo'
-    ledgerInfo:
-      type: object
-      properties:
-        currentBalance:
-          type: number
-          example: 10.5
-        pendingBalance:
-          type: number
-          example: 5.1
-        expiredBalance:
-          type: number
-          example: 2
-        spentBalance:
-          type: number
-          example: 0
-        tentativeCurrentBalance:
-          type: number
-          example: 0
-        pointsToNextTier:
-          type: number
-          example: 10
-        currentTier:
-          type: object
-          properties:
-            id:
-              type: integer
-              format: int64
-              example: 112345
-            name:
-              type: string
-              example: silver-tier
     CouponResponse:
       type: object
       required:
@@ -572,6 +452,26 @@ components:
           type: object
           example:
             language: english
+    LoyaltyResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 302
+        title:
+          type: string
+          example: My loyalty program
+        name:
+          type: string
+          example: myloyaltyprogram
+        ledger:
+          allOf:
+          - $ref: '#/components/schemas/ledgerInfo'
+        subLedgers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ledgerInfo'
     AddLoyaltyPointsRequest:
       type: object
       required:
@@ -705,6 +605,96 @@ components:
           type: integer
           description: ID of the Application that is connected to the loyalty program. It is displayed in your Talon.One deployment URL.
           example: 322
+    errorResponseWithStatus:
+      type: object
+      properties:
+        StatusCode:
+          type: integer
+          description: The error code.
+          example: 400
+        Error:
+          type: string
+          example: Bad request
+        RequestUUID:
+          type: string
+          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
+  examples:
+    CouponResponse:
+      value:
+        ID: 20190408
+        ApplicationID: 398
+        CampaignID: 5671
+        Value: EW-1BC2
+        StartDate: '2021-09-30T15:35:02.371569+02:00'
+        ExpiryDate: '2024-10-03T15:35:02.371569+02:00'
+        RecipientIntegrationID: URN-GV8294NV
+        UsageLimit: 1
+        Attributes:
+          email: user@mailbox.com
+          country: DE
+    ReferralResponse:
+      value:
+        id: 1374
+        created: '2022-04-01T16:46:36.625152002Z'
+        startDate: '2021-09-30T15:35:02.371569+02:00'
+        expiryDate: '2021-10-03T15:35:02.371569+02:00'
+        usageLimit: 0
+        campaignId: 5672
+        advocateProfileIntegrationId: URN-GV8294NV
+        friendProfileIntegrationId: PKBR-G06449OELK
+        attributes:
+          welcome_message: Welcome!
+        code: P8BN-4T5V
+        usageCounter: 0
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 401
+                Error: Missing Session Token
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 404
+                Error: Not Found
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 400
+                Error: No Deployment URL specified
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    TooManyRequests:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 429
+                Error: Too many requests
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

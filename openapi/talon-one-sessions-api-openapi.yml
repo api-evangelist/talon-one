@@ -2,7 +2,9 @@ openapi: 3.2.0
 info:
   title: Management Sessions API
   version: ''
-  description: "The Management API allows you to programmatically do what the Campaign Manager\ndoes. Use this API for back-office operations such as campaign\nand coupon management, maintenance jobs, and bulk operations.\n\nFor more background information about this API, see\n[Management API overview](https://docs.talon.one/docs/dev/management-api/overview).\n\n> [!note] **Are you looking for a different API?**\n> - To integrate with Talon.One directly and send real-time data, see the [Integration API](https://docs.talon.one/integration-api).\n> - To integrate with Talon.One from a CEP or CDP platform, see the [Third-party API](https://docs.talon.one/third-party-api).\n\n## Authentication\n\nManagement API keys are scoped to a user account and become invalid if the user is\ndeactivated or removed from the organization. Use a dedicated service account to\ncreate keys for production integrations.\n\nFor details on generating and managing API keys, see\n[Manage Management API keys](https://docs.talon.one/docs/product/account/dev-tools/manage-mapi-keys).\n\n## Security\n\nConsider the following recommendations:\n- Store API keys securely via environment variables or by using a secret management system.\n- Only call this API from backend services.\n- Implement HTTPS for all communication with the API to ensure data privacy and security.\n- Create [user roles](https://docs.talon.one/docs/product/account/account-settings/manage-roles)\n  reflecting your own company hierarchies.\n\n## Response codes and error handling\n\nTalon.One uses conventional HTTP response codes to indicate the success or failure of an API request.\nCodes in the `2xx` range indicate success. Codes in the `4xx` range indicate the request failed based\non the information provided. Codes in the `5xx` range indicate an error with Talon.One servers.\n\nError responses include a `message` that summarizes what went wrong. Use it for logging and debugging.\n\nWhen a request has one or more specific problems, the `errors` array lists each one separately:\n- `title` gives a short description of the problem\n- `source` shows where the error originated, for example, using a `pointer` property indicating the\n  problematic property in the request body.\n\n| Code | Description | Action |\n|------|-------------|--------|\n| `2xx` | Success | None. |\n| `400` | Bad request | Fix the request (for example, a missing or invalid parameter). Not retryable. |\n| `401` | Unauthorized | Provide a valid API key. Not retryable. |\n| `404` | Not found | Check the resource path or ID. Not retryable. |\n| `409` | Conflict | If you are creating a resource, use a unique resource name/ID. Generally not retryable. |\n| `429` | Rate limit exceeded | Retry with exponential backoff. |\n| `5xx` | Server error | Retry with exponential backoff. |\n\n## URL encoding\n\nEncode all path and query parameter values that contain special characters. This applies to\ncustomer profile IDs, session IDs, coupon codes, and any other user-supplied string passed as\na URL segment or query parameter.\n\nFor example, encode a `10$OFF_NOW` coupon code as `10%24OFF_NOW` before\nincluding it in a request URL.\n\nRequests with unencoded special characters may be misrouted or return unexpected errors.\n\nFor more information, see [HTML URL Encoding Reference](https://www.w3schools.com/tags/ref_urlencode.asp).\n\n## MCP server (closed beta)\n\nTalon.One provides an MCP server that gives AI agents\nread-only access to your campaigns, customers, coupons, and loyalty programs,\nso they can answer questions about your campaigns and customers in plain language.\n\nAgents can explain campaign rule logic, check campaign status and budgets, analyze customer point\nbalances and tier status, and investigate failed API requests.\n\nTo connect, append `/v1/mcp/entrypoint` to your Talon.One deployment URL and authenticate with an MCP\nconnection API key generated in **Campaign Manager > Account > Tools > MCP Connections**.\n\nThe server is compatible with Claude Desktop, Claude Code, Cursor, Gemini CLI, ChatGPT CLI,\nCodex CLI, and other stdio-compatible MCP clients.\n\nFor more information, see [Talon.One MCP server](https://docs.talon.one/docs/dev/mcp).\n\n## Rate limiting\n\nThis API is **not** meant to be used in real-time integrations that directly serve your end users.\nIt supports a maximum of **3 requests per second** for each of these endpoints.\nFor real-time integrations use the [Integration API](https://docs.talon.one/integration-api).\n"
+  description: 'The Management API allows you to programmatically do what the Campaign Manager
+
+    does.'
 servers:
 - url: https://yourbaseurl.talon.one
 security:
@@ -12,9 +14,7 @@ tags:
 - name: Sessions
   description: 'Represents a session used for authentication purposes.
 
-    Create one with the [Create session](#tag/Sessions/operation/createSession) endpoint.
-
-    '
+    Create one with the Create session endpoint.'
 paths:
   /v1/sessions:
     post:
@@ -43,11 +43,9 @@ paths:
 
         > [!note]
 
-        > Instead of using a session, you can also use the <a href="https://docs.talon.one/docs/product/account/dev-tools/managing-mapi-keys">Management API key feature</a>
+        > Instead of using a session, you can also use the Management API key feature
 
-        > in the Campaign Manager to decide which endpoints can be used with a given key.
-
-        '
+        > in the Campaign Manager to decide which endpoints can be used with a given key.'
       tags:
       - Sessions
       requestBody:
@@ -78,26 +76,6 @@ paths:
           description: No Content
 components:
   schemas:
-    Session:
-      type: object
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user of this session.
-          example: 109
-        token:
-          type: string
-          description: The token to use as a bearer token to query Management API endpoints.
-          example: dy_Fa_lQ4iDAnqldJFvVEmnsN8xDTxej19l0LZDBJhQ
-        created:
-          type: string
-          format: date-time
-          description: Unix timestamp indicating when the session was first created.
-          example: '2021-07-20T22:00:00Z'
-      required:
-      - userId
-      - token
-      - created
     LoginParams:
       allOf:
       - $ref: '#/components/schemas/EmailEntity'
@@ -119,6 +97,26 @@ components:
           format: email
           example: john.doe@example.com
           description: The email address associated with the user profile.
+    Session:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user of this session.
+          example: 109
+        token:
+          type: string
+          description: The token to use as a bearer token to query Management API endpoints.
+          example: dy_Fa_lQ4iDAnqldJFvVEmnsN8xDTxej19l0LZDBJhQ
+        created:
+          type: string
+          format: date-time
+          description: Unix timestamp indicating when the session was first created.
+          example: '2021-07-20T22:00:00Z'
+      required:
+      - userId
+      - token
+      - created
   securitySchemes:
     manager_auth:
       type: apiKey
