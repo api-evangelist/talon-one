@@ -387,46 +387,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponseWithStatus'
 components:
   schemas:
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    ErrorResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: A message describing the error.
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
     Entity:
       type: object
       required:
@@ -442,15 +402,82 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
-    UserEntity:
+    ErrorResponse:
       type: object
       required:
-      - userId
+      - message
       properties:
-        userId:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    UpdateStore:
+      type: object
+      required:
+      - name
+      - description
+      properties:
+        name:
+          type: string
+          description: The name of the store.
+          example: South US store
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          description: The description of the store.
+          example: This is the description of the store in south US.
+        attributes:
+          type: object
+          description: The attributes of the store.
+          example:
+            country: USA
+            code: 1234
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
           type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
+          description: The ID of the account that owns this entity.
+          example: 3886
     Import:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -506,15 +533,6 @@ components:
             - 4
             - 6
             - 8
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
     NewStore:
       allOf:
       - $ref: '#/components/schemas/UpdateStore'
@@ -534,82 +552,29 @@ components:
               **Note**: You cannot edit the `integrationId` after the store has been created.
 
               '
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    UpdateStore:
+    UserEntity:
       type: object
       required:
-      - name
-      - description
+      - userId
       properties:
-        name:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
           type: string
-          description: The name of the store.
-          example: South US store
-          minLength: 1
-          maxLength: 200
-        description:
-          type: string
-          description: The description of the store.
-          example: This is the description of the store in south US.
-        attributes:
-          type: object
-          description: The attributes of the store.
-          example:
-            country: USA
-            code: 1234
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
   parameters:
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     sort:
       name: sort
       in: query
@@ -623,6 +588,41 @@ components:
       example: name
       schema:
         type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
   requestBodies:
     NewStore:
       content:

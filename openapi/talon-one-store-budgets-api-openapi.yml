@@ -378,6 +378,21 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
     ErrorResponse:
       type: object
       required:
@@ -391,6 +406,42 @@ components:
           description: An array of individual problems encountered during the request.
           items:
             $ref: '#/components/schemas/APIError'
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    NewCampaignStoreBudget:
+      type: object
+      required:
+      - action
+      - storeLimits
+      properties:
+        action:
+          type: string
+          enum:
+          - setDiscount
+        storeLimits:
+          type: array
+          description: The set of budget limits for stores linked to the campaign.
+          items:
+            $ref: '#/components/schemas/NewCampaignStoreBudgetStoreLimit'
+        period:
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
     NewCampaignStoreBudgetStoreLimit:
       type: object
       required:
@@ -409,6 +460,49 @@ components:
           type: number
           example: 1000
           description: The value to set for the limit.
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    ListCampaignStoreBudgets:
+      type: object
+      required:
+      - store
+      - limit
+      - action
+      properties:
+        store:
+          $ref: '#/components/schemas/ListCampaignStoreBudgetsStore'
+          type: object
+        limit:
+          type: integer
+        action:
+          type: string
+        period:
+          type: string
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
     SummaryCampaignStoreBudget:
       type: object
       required:
@@ -446,79 +540,6 @@ components:
           type: integer
         imported:
           type: boolean
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    ListCampaignStoreBudgetsStore:
-      type: object
-      required:
-      - id
-      - integrationId
-      - name
-      properties:
-        id:
-          type: integer
-        integrationId:
-          type: string
-        name:
-          type: string
-    NewCampaignStoreBudget:
-      type: object
-      required:
-      - action
-      - storeLimits
-      properties:
-        action:
-          type: string
-          enum:
-          - setDiscount
-        storeLimits:
-          type: array
-          description: The set of budget limits for stores linked to the campaign.
-          items:
-            $ref: '#/components/schemas/NewCampaignStoreBudgetStoreLimit'
-        period:
-          type: string
-          enum:
-          - daily
-          - weekly
-          - monthly
-          - yearly
     Import:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -540,49 +561,28 @@ components:
             minimum: 0
             example: 10
             description: The number of values that were imported.
-    ListCampaignStoreBudgets:
+    ListCampaignStoreBudgetsStore:
       type: object
       required:
-      - store
-      - limit
-      - action
+      - id
+      - integrationId
+      - name
       properties:
-        store:
-          $ref: '#/components/schemas/ListCampaignStoreBudgetsStore'
-          type: object
-        limit:
+        id:
           type: integer
-        action:
+        integrationId:
           type: string
-        period:
+        name:
           type: string
-    AccountEntity:
+    UserEntity:
       type: object
       required:
-      - accountId
+      - userId
       properties:
-        accountId:
+        userId:
           type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
+          description: The ID of the user associated with this entity.
+          example: 388
   parameters:
     campaignId:
       name: campaignId

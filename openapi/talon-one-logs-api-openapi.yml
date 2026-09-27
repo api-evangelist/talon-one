@@ -430,47 +430,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Export'
 components:
-  parameters:
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
-
-
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
-
-        '
-      example: name
-      schema:
-        type: string
   schemas:
     Entity:
       type: object
@@ -487,61 +446,6 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    MessageLogEntries:
-      type: object
-      required:
-      - data
-      properties:
-        nextCursor:
-          description: 'The next value in the database.
-
-
-            **Note:** If this value is not present, it means that there are no more values in the database for this combination of request parameters.
-
-            '
-          type: string
-          format: byte
-          example: SmJlNERRMHdyNWFsTmRDZDVYU0c=
-        data:
-          type: array
-          description: List of message logs.
-          items:
-            $ref: '#/components/schemas/MessageLogEntry'
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    MessageLogRequest:
-      type: object
-      description: Details of the request.
-      required:
-      - createdAt
-      - request
-      properties:
-        createdAt:
-          type: string
-          format: date-time
-          description: Timestamp when the request was made.
-          example: '2021-07-20T21:59:00Z'
-        request:
-          type: string
-          format: byte
-          description: Raw request data.
-          example: SGVsbG8sIHdvcmxkIQ==
     Export:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -566,6 +470,43 @@ components:
           filter:
             type: object
             description: Map of keys and values that were used to filter the exported rows.
+    Change:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - entity
+        properties:
+          applicationId:
+            type: integer
+            description: ID of application associated with change.
+            example: 359
+          entity:
+            type: string
+            description: API endpoint on which the change was initiated.
+            example: /v1/applications/359/campaigns/6727
+          old:
+            type: object
+            description: Resource before the change occurred.
+            example: {}
+          new:
+            type: object
+            description: Resource after the change occurred.
+            example:
+              applicationId": 359
+              attributes": {}
+              campaignGroups": []
+              created": '2022-07-08T13:04:02.972762328Z'
+              description": ''
+              features":
+              - referrals
+              - loyalty
+              id: 6727
+          managementKeyId:
+            type: integer
+            description: ID of management key used to perform changes.
+            example: 3
     AccessLogEntry:
       type: object
       description: Log of application accesses.
@@ -607,24 +548,32 @@ components:
           type: string
           description: payload of response
           example: '{"coupons":[],"createdCoupons":[],...}'
-    MessageLogResponse:
+    MessageLogRequest:
       type: object
-      description: Details of the response.
+      description: Details of the request.
+      required:
+      - createdAt
+      - request
       properties:
         createdAt:
           type: string
           format: date-time
-          description: Timestamp when the response was received.
-          example: '2021-07-20T22:00:50Z'
-        response:
+          description: Timestamp when the request was made.
+          example: '2021-07-20T21:59:00Z'
+        request:
           type: string
           format: byte
-          description: Raw response data.
-          example: UmVzcG9uc2UgY29udGVudA==
-        status:
+          description: Raw request data.
+          example: SGVsbG8sIHdvcmxkIQ==
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
           type: integer
-          description: HTTP status code of the response.
-          example: 200
+          description: The ID of the account that owns this entity.
+          example: 3886
     MessageLogEntry:
       type: object
       description: Message Log.
@@ -700,43 +649,94 @@ components:
           description: Identifier of the campaign.
           example: 2
           minimum: 1
-    Change:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - entity
-        properties:
-          applicationId:
-            type: integer
-            description: ID of application associated with change.
-            example: 359
-          entity:
-            type: string
-            description: API endpoint on which the change was initiated.
-            example: /v1/applications/359/campaigns/6727
-          old:
-            type: object
-            description: Resource before the change occurred.
-            example: {}
-          new:
-            type: object
-            description: Resource after the change occurred.
-            example:
-              applicationId": 359
-              attributes": {}
-              campaignGroups": []
-              created": '2022-07-08T13:04:02.972762328Z'
-              description": ''
-              features":
-              - referrals
-              - loyalty
-              id: 6727
-          managementKeyId:
-            type: integer
-            description: ID of management key used to perform changes.
-            example: 3
+    MessageLogEntries:
+      type: object
+      required:
+      - data
+      properties:
+        nextCursor:
+          description: 'The next value in the database.
+
+
+            **Note:** If this value is not present, it means that there are no more values in the database for this combination of request parameters.
+
+            '
+          type: string
+          format: byte
+          example: SmJlNERRMHdyNWFsTmRDZDVYU0c=
+        data:
+          type: array
+          description: List of message logs.
+          items:
+            $ref: '#/components/schemas/MessageLogEntry'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    MessageLogResponse:
+      type: object
+      description: Details of the response.
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the response was received.
+          example: '2021-07-20T22:00:50Z'
+        response:
+          type: string
+          format: byte
+          description: Raw response data.
+          example: UmVzcG9uc2UgY29udGVudA==
+        status:
+          type: integer
+          description: HTTP status code of the response.
+          example: 200
+  parameters:
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
   securitySchemes:
     manager_auth:
       type: apiKey

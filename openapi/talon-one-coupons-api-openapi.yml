@@ -1533,21 +1533,86 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    CouponEntity:
+    IntegrationEntity:
       type: object
       required:
-      - id
+      - integrationId
       - created
       properties:
-        id:
-          type: integer
-          description: The internal ID of the coupon.
-          example: 6
+        integrationId:
+          type: string
+          format: string
+          example: URNGV8294NV
+          maxLength: 1000
+          description: The integration ID set by your integration layer.
         created:
           type: string
           format: date-time
-          description: The time the coupon was created.
-          example: '2020-06-10T09:05:27.993483Z'
+          description: The time this entity was created.
+          example: '2020-02-07T08:15:22Z'
+    AudienceMembership:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          title: Audience ID
+          description: The ID of the audience belonging to this entity.
+          example: 2
+        name:
+          type: string
+          title: Audience Name
+          description: The Name of the audience belonging to this entity.
+          example: Travel audience
+    CouponConstraints:
+      type: object
+      properties:
+        usageLimit:
+          type: integer
+          minimum: 0
+          maximum: 999999
+          example: 100
+          description: 'The number of times the coupon code can be redeemed. `0` means unlimited redemptions but any campaign usage limits will still apply.
+
+            '
+        discountLimit:
+          type: number
+          minimum: 0
+          maximum: 1000000000000000
+          example: 30
+          description: 'The total discount value that the code can give. Typically used to represent a gift card value.
+
+            '
+        reservationLimit:
+          type: integer
+          minimum: 0
+          maximum: 999999
+          example: 45
+          description: 'The number of reservations that can be made with this coupon code.
+
+            '
+        startDate:
+          type: string
+          format: date-time
+          example: '2020-01-24T14:15:22Z'
+          description: Timestamp at which point the coupon becomes valid.
+        expiryDate:
+          type: string
+          format: date-time
+          example: '2023-08-24T14:15:22Z'
+          description: Expiration date of the coupon. Coupon never expires if this is omitted.
+    CampaignEntity:
+      type: object
+      required:
+      - campaignId
+      properties:
+        campaignId:
+          type: integer
+          title: Campaign ID
+          description: The ID of the campaign that owns this entity.
+          example: 211
     APIError:
       type: object
       required:
@@ -1562,35 +1627,83 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
-    LoyaltyMembership:
-      type: object
-      required:
-      - loyaltyProgramId
-      properties:
-        joined:
-          type: string
-          format: date-time
-          title: Loyalty program joined at
-          description: The moment in which the loyalty program was joined.
-          example: '2012-03-20T14:15:22Z'
-        loyaltyProgramId:
-          type: integer
-          title: Loyalty program ID
-          description: The ID of the loyalty program belonging to this entity.
-          example: 323414846
+    CustomerProfile:
+      allOf:
+      - $ref: '#/components/schemas/CustomerProfileEntity'
+      - $ref: '#/components/schemas/IntegrationEntity'
+      - $ref: '#/components/schemas/NewCustomerProfile'
+      - type: object
+        properties:
+          accountId:
+            type: integer
+            title: Profile belongs to Account
+            description: The ID of the Talon.One account that owns this profile.
+            example: 31
+          closedSessions:
+            type: integer
+            title: Closed sessions
+            description: The total number of closed sessions. Does not include closed sessions that have been cancelled or reopened. See the [docs](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).
+            example: 3
+          totalSales:
+            type: number
+            description: 'The total amount of money spent by the customer **before** discounts are applied.
+
+
+              The total sales amount excludes the following:
+
+              - Cancelled or reopened sessions.
+
+              - Returned items.
+
+              '
+            example: 299.99
+            title: Total Sales
+          loyaltyMemberships:
+            type: array
+            deprecated: true
+            description: '**DEPRECATED. Always returns `null`.** A list of loyalty programs joined by the customer.
+
+              '
+            items:
+              $ref: '#/components/schemas/LoyaltyMembership'
+            title: Loyalty programed joined
+            example: null
+          audienceMemberships:
+            type: array
+            description: The audiences the customer belongs to.
+            items:
+              $ref: '#/components/schemas/AudienceMembership'
+            title: Audience memberships
+          lastActivity:
+            type: string
+            format: date-time
+            title: Last activity
+            description: 'Timestamp of the most recent event received from this customer.
+
+              This field is updated on calls that trigger the Rule Engine and that are
+
+              not [dry requests](https://docs.talon.one/docs/dev/integration-api/dry-requests/#overlay).
+
+
+              For example, [reserving a coupon](https://docs.talon.one/integration-api#tag/Coupons/operation/createCouponReservation)
+
+              for a customer doesn''t impact this field.
+
+              '
+            example: '2020-02-08T14:15:20Z'
+          sandbox:
+            type: boolean
+            description: 'An indicator of whether the customer is part of a sandbox or live Application. See the [docs](https://docs.talon.one/docs/product/applications/overview#application-environments).
+
+              '
+            title: Sandbox
+            example: false
+        required:
+        - accountId
+        - closedSessions
+        - totalSales
+        - lastActivity
+        - attributes
     Coupon:
       allOf:
       - $ref: '#/components/schemas/CouponEntity'
@@ -1672,206 +1785,6 @@ components:
             description: An indication of whether the coupon is implicitly reserved for all customers.
             type: boolean
             example: false
-    CustomerProfile:
-      allOf:
-      - $ref: '#/components/schemas/CustomerProfileEntity'
-      - $ref: '#/components/schemas/IntegrationEntity'
-      - $ref: '#/components/schemas/NewCustomerProfile'
-      - type: object
-        properties:
-          accountId:
-            type: integer
-            title: Profile belongs to Account
-            description: The ID of the Talon.One account that owns this profile.
-            example: 31
-          closedSessions:
-            type: integer
-            title: Closed sessions
-            description: The total number of closed sessions. Does not include closed sessions that have been cancelled or reopened. See the [docs](https://docs.talon.one/docs/dev/concepts/entities/customer-sessions#customer-session-states).
-            example: 3
-          totalSales:
-            type: number
-            description: 'The total amount of money spent by the customer **before** discounts are applied.
-
-
-              The total sales amount excludes the following:
-
-              - Cancelled or reopened sessions.
-
-              - Returned items.
-
-              '
-            example: 299.99
-            title: Total Sales
-          loyaltyMemberships:
-            type: array
-            deprecated: true
-            description: '**DEPRECATED. Always returns `null`.** A list of loyalty programs joined by the customer.
-
-              '
-            items:
-              $ref: '#/components/schemas/LoyaltyMembership'
-            title: Loyalty programed joined
-            example: null
-          audienceMemberships:
-            type: array
-            description: The audiences the customer belongs to.
-            items:
-              $ref: '#/components/schemas/AudienceMembership'
-            title: Audience memberships
-          lastActivity:
-            type: string
-            format: date-time
-            title: Last activity
-            description: 'Timestamp of the most recent event received from this customer.
-
-              This field is updated on calls that trigger the Rule Engine and that are
-
-              not [dry requests](https://docs.talon.one/docs/dev/integration-api/dry-requests/#overlay).
-
-
-              For example, [reserving a coupon](https://docs.talon.one/integration-api#tag/Coupons/operation/createCouponReservation)
-
-              for a customer doesn''t impact this field.
-
-              '
-            example: '2020-02-08T14:15:20Z'
-          sandbox:
-            type: boolean
-            description: 'An indicator of whether the customer is part of a sandbox or live Application. See the [docs](https://docs.talon.one/docs/product/applications/overview#application-environments).
-
-              '
-            title: Sandbox
-            example: false
-        required:
-        - accountId
-        - closedSessions
-        - totalSales
-        - lastActivity
-        - attributes
-    NewCustomerProfile:
-      type: object
-      properties:
-        attributes:
-          type: object
-          additionalProperties: true
-          description: Arbitrary properties associated with this item.
-          example:
-            Language: english
-            ShippingCountry: DE
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    CouponConstraints:
-      type: object
-      properties:
-        usageLimit:
-          type: integer
-          minimum: 0
-          maximum: 999999
-          example: 100
-          description: 'The number of times the coupon code can be redeemed. `0` means unlimited redemptions but any campaign usage limits will still apply.
-
-            '
-        discountLimit:
-          type: number
-          minimum: 0
-          maximum: 1000000000000000
-          example: 30
-          description: 'The total discount value that the code can give. Typically used to represent a gift card value.
-
-            '
-        reservationLimit:
-          type: integer
-          minimum: 0
-          maximum: 999999
-          example: 45
-          description: 'The number of reservations that can be made with this coupon code.
-
-            '
-        startDate:
-          type: string
-          format: date-time
-          example: '2020-01-24T14:15:22Z'
-          description: Timestamp at which point the coupon becomes valid.
-        expiryDate:
-          type: string
-          format: date-time
-          example: '2023-08-24T14:15:22Z'
-          description: Expiration date of the coupon. Coupon never expires if this is omitted.
-    CouponLimitConfigs:
-      type: object
-      properties:
-        limits:
-          type: array
-          description: 'Limits configuration for a coupon. These limits will override the limits
-
-            set from the campaign.
-
-
-            **Note:** Only usable when creating a single coupon which is not tied to a specific recipient.
-
-            Only per-profile limits are allowed to be configured.
-
-            '
-          items:
-            $ref: '#/components/schemas/LimitConfig'
-    CouponValue:
-      type: object
-      properties:
-        value:
-          type: string
-          title: Coupon Code
-          description: The coupon code.
-          minLength: 4
-          example: XMAS-20-2021
-    IntegrationEntity:
-      type: object
-      required:
-      - integrationId
-      - created
-      properties:
-        integrationId:
-          type: string
-          format: string
-          example: URNGV8294NV
-          maxLength: 1000
-          description: The integration ID set by your integration layer.
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-02-07T08:15:22Z'
-    CustomerProfileEntity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of the customer profile.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time the customer profile was created.
-          example: '2020-06-10T09:05:27.993483Z'
     LimitConfig:
       type: object
       required:
@@ -1921,6 +1834,38 @@ components:
             - Identifier
             - Store
             - Session
+    CouponLimitConfigs:
+      type: object
+      properties:
+        limits:
+          type: array
+          description: 'Limits configuration for a coupon. These limits will override the limits
+
+            set from the campaign.
+
+
+            **Note:** Only usable when creating a single coupon which is not tied to a specific recipient.
+
+            Only per-profile limits are allowed to be configured.
+
+            '
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+    CustomerProfileEntity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of the customer profile.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time the customer profile was created.
+          example: '2020-06-10T09:05:27.993483Z'
     CouponReservations:
       type: object
       required:
@@ -1935,32 +1880,87 @@ components:
           maxItems: 1000
           items:
             type: string
-    CampaignEntity:
+    LoyaltyMembership:
       type: object
       required:
-      - campaignId
+      - loyaltyProgramId
       properties:
-        campaignId:
+        joined:
+          type: string
+          format: date-time
+          title: Loyalty program joined at
+          description: The moment in which the loyalty program was joined.
+          example: '2012-03-20T14:15:22Z'
+        loyaltyProgramId:
           type: integer
-          title: Campaign ID
-          description: The ID of the campaign that owns this entity.
-          example: 211
-    AudienceMembership:
+          title: Loyalty program ID
+          description: The ID of the loyalty program belonging to this entity.
+          example: 323414846
+    CouponValue:
+      type: object
+      properties:
+        value:
+          type: string
+          title: Coupon Code
+          description: The coupon code.
+          minLength: 4
+          example: XMAS-20-2021
+    CouponEntity:
       type: object
       required:
       - id
-      - name
+      - created
       properties:
         id:
           type: integer
-          title: Audience ID
-          description: The ID of the audience belonging to this entity.
-          example: 2
-        name:
+          description: The internal ID of the coupon.
+          example: 6
+        created:
           type: string
-          title: Audience Name
-          description: The Name of the audience belonging to this entity.
-          example: Travel audience
+          format: date-time
+          description: The time the coupon was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    NewCustomerProfile:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Arbitrary properties associated with this item.
+          example:
+            Language: english
+            ShippingCountry: DE
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
     NewCouponCreationJob:
       allOf:
       - $ref: '#/components/schemas/CouponConstraints'
@@ -1987,15 +1987,105 @@ components:
             example: false
             description: An indication of whether the code can be redeemed only if it has been reserved first.
             default: false
-    UserEntity:
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    AsyncCouponCreationResponse:
       type: object
       required:
-      - userId
+      - batchId
       properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
+        batchId:
+          type: string
+          description: The batch ID that all coupons created by the request will have.
+          example: tqyrgahe
+    NewCouponsForMultipleRecipients:
+      allOf:
+      - $ref: '#/components/schemas/CouponConstraints'
+      - type: object
+        additionalProperties: false
+        required:
+        - recipientsIntegrationIds
+        - usageLimit
+        properties:
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this item.
+            example:
+              venueId: 12
+          recipientsIntegrationIds:
+            title: Receiving customer profiles integration IDs
+            type: array
+            example:
+            - URNGV8294NV
+            - BZGGC2454PA
+            items:
+              type: string
+            description: The integration IDs for recipients.
+            maxItems: 1000
+            minItems: 1
+          validCharacters:
+            type: array
+            description: 'List of characters used to generate the random parts of a code. By default, the list of
+
+              characters is equivalent to the `[A-Z, 0-9]` regular expression.
+
+              '
+            example:
+            - A
+            - B
+            - C
+            - D
+            - E
+            - F
+            - G
+            - H
+            - I
+            - J
+            - K
+            - L
+            - M
+            - N
+            - O
+            - P
+            - Q
+            - R
+            - S
+            - T
+            - U
+            - V
+            - W
+            - X
+            - Y
+            - Z
+            items:
+              type: string
+          couponPattern:
+            type: string
+            description: 'The pattern used to generate coupon codes. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+              '
+            example: SUMMER-#####
+            maxLength: 100
+            minLength: 3
     CouponFailureSummary:
       type: object
       description: Summary of the reasons for coupon redemption failure.
@@ -2051,22 +2141,6 @@ components:
           format: date-time
           description: Timestamp when the request was last updated.
           example: '2021-07-20T21:59:00Z'
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    NewCouponDeletionJob:
-      type: object
-      required:
-      - filters
-      properties:
-        filters:
-          $ref: '#/components/schemas/CouponDeletionFilters'
     CodeGeneratorSettings:
       type: object
       properties:
@@ -2127,27 +2201,6 @@ components:
       required:
       - couponPattern
       - validCharacters
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
     IdentifiableEntity:
       type: object
       required:
@@ -2157,10 +2210,6 @@ components:
           type: integer
           description: Unique ID for this entity. Not to be confused with the Integration ID, which is set by your integration layer and used in most endpoints.
           example: 6
-    AsyncCouponDeletionJobResponse:
-      allOf:
-      - $ref: '#/components/schemas/IdentifiableEntity'
-      - type: object
     CouponDeletionFilters:
       type: object
       properties:
@@ -2238,6 +2287,40 @@ components:
           description: Filter results comparing the parameter value, expected to be an RFC3339 timestamp string, to the coupon creation timestamp. You can use any time zone setting. Talon.One will convert to UTC internally.
           type: string
           format: date-time
+    UpdateCoupon:
+      allOf:
+      - $ref: '#/components/schemas/CouponConstraints'
+      - $ref: '#/components/schemas/CouponLimitConfigs'
+      - type: object
+        additionalProperties: false
+        properties:
+          recipientIntegrationId:
+            title: Receiving customer profile integration ID
+            type: string
+            maxLength: 1000
+            description: The integration ID for this coupon's beneficiary's profile.
+            example: URNGV8294NV
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this item.
+          isReservationMandatory:
+            title: Is reservation mandatory
+            type: boolean
+            example: false
+            description: An indication of whether the code can be redeemed only if it has been reserved first.
+            default: false
+          implicitlyReserved:
+            title: Is coupon implicitly reserved for all customers
+            description: An indication of whether the coupon is implicitly reserved for all customers.
+            type: boolean
+            example: false
+    NewCouponDeletionJob:
+      type: object
+      required:
+      - filters
+      properties:
+        filters:
+          $ref: '#/components/schemas/CouponDeletionFilters'
     UpdateCouponBatch:
       allOf:
       - $ref: '#/components/schemas/CouponConstraints'
@@ -2260,15 +2343,34 @@ components:
             title: Batch ID
             type: string
             description: The ID of the batch the coupon(s) belong to.
-    AsyncCouponCreationResponse:
+    Entity:
       type: object
       required:
-      - batchId
+      - id
+      - created
       properties:
-        batchId:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
           type: string
-          description: The batch ID that all coupons created by the request will have.
-          example: tqyrgahe
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    AsyncCouponDeletionJobResponse:
+      allOf:
+      - $ref: '#/components/schemas/IdentifiableEntity'
+      - type: object
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
     NewCoupons:
       allOf:
       - $ref: '#/components/schemas/CouponConstraints'
@@ -2346,90 +2448,6 @@ components:
             type: string
             description: A note recorded when the linked support request is approved or rejected. Applied when `supportRequestId` is provided.
             example: Approved as compensation for the delayed order.
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    NewCouponsForMultipleRecipients:
-      allOf:
-      - $ref: '#/components/schemas/CouponConstraints'
-      - type: object
-        additionalProperties: false
-        required:
-        - recipientsIntegrationIds
-        - usageLimit
-        properties:
-          attributes:
-            type: object
-            description: Arbitrary properties associated with this item.
-            example:
-              venueId: 12
-          recipientsIntegrationIds:
-            title: Receiving customer profiles integration IDs
-            type: array
-            example:
-            - URNGV8294NV
-            - BZGGC2454PA
-            items:
-              type: string
-            description: The integration IDs for recipients.
-            maxItems: 1000
-            minItems: 1
-          validCharacters:
-            type: array
-            description: 'List of characters used to generate the random parts of a code. By default, the list of
-
-              characters is equivalent to the `[A-Z, 0-9]` regular expression.
-
-              '
-            example:
-            - A
-            - B
-            - C
-            - D
-            - E
-            - F
-            - G
-            - H
-            - I
-            - J
-            - K
-            - L
-            - M
-            - N
-            - O
-            - P
-            - Q
-            - R
-            - S
-            - T
-            - U
-            - V
-            - W
-            - X
-            - Y
-            - Z
-            items:
-              type: string
-          couponPattern:
-            type: string
-            description: 'The pattern used to generate coupon codes. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
-
-              '
-            example: SUMMER-#####
-            maxLength: 100
-            minLength: 3
     AttributeQuery:
       type: object
       description: Object representing a set of of attributes and their respective values.
@@ -2437,33 +2455,15 @@ components:
         my_attribute_1: some value
         my_attribute_2: some other value
         my_attribute_3: some other value
-    UpdateCoupon:
-      allOf:
-      - $ref: '#/components/schemas/CouponConstraints'
-      - $ref: '#/components/schemas/CouponLimitConfigs'
-      - type: object
-        additionalProperties: false
-        properties:
-          recipientIntegrationId:
-            title: Receiving customer profile integration ID
-            type: string
-            maxLength: 1000
-            description: The integration ID for this coupon's beneficiary's profile.
-            example: URNGV8294NV
-          attributes:
-            type: object
-            description: Arbitrary properties associated with this item.
-          isReservationMandatory:
-            title: Is reservation mandatory
-            type: boolean
-            example: false
-            description: An indication of whether the code can be redeemed only if it has been reserved first.
-            default: false
-          implicitlyReserved:
-            title: Is coupon implicitly reserved for all customers
-            description: An indication of whether the coupon is implicitly reserved for all customers.
-            type: boolean
-            example: false
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
   requestBodies:
     CouponReservations:
       content:
@@ -2480,6 +2480,14 @@ components:
       description: body
       required: true
   parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     pageSize:
       name: pageSize
       in: query
@@ -2499,22 +2507,6 @@ components:
       required: true
       schema:
         type: integer
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
     sort:
       name: sort
       in: query
@@ -2528,6 +2520,14 @@ components:
       example: name
       schema:
         type: string
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
   securitySchemes:
     api_key_v1:
       type: apiKey

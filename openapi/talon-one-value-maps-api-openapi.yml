@@ -89,6 +89,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponseWithStatus'
 components:
+  parameters:
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
   schemas:
     APIError:
       type: object
@@ -104,19 +121,6 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
     ErrorSource:
       type: object
       description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
@@ -135,23 +139,19 @@ components:
         resource:
           type: string
           description: Pointer to the resource that caused this error.
-  parameters:
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
   securitySchemes:
     manager_auth:
       type: apiKey

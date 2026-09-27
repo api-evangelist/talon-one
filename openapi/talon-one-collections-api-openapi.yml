@@ -807,101 +807,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponseWithStatus'
 components:
-  parameters:
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
-
-
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
-
-        '
-      example: name
-      schema:
-        type: string
   schemas:
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    Collection:
+    NewCollection:
       allOf:
-      - $ref: '#/components/schemas/CollectionWithoutPayload'
+      - $ref: '#/components/schemas/UpdateCollection'
       - type: object
+        required:
+        - name
         properties:
-          payload:
-            type: array
-            description: The content of the collection.
-            maxItems: 50
-            example:
-            - KTL-WH-ET-1
-            - KTL-BL-ET-1
-            items:
-              type: string
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
+          name:
+            type: string
+            minLength: 1
+            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
+            description: The name of this collection.
+            example: My collection
     Import:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -923,42 +842,24 @@ components:
             minimum: 0
             example: 10
             description: The number of values that were imported.
-    CollectionWithoutPayload:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/NewCollection'
-      - type: object
-        required:
-        - createdBy
-        properties:
-          modifiedBy:
-            type: integer
-            description: ID of the user who last updated this effect if available.
-            example: 48
-          createdBy:
-            type: integer
-            description: ID of the user who created this effect.
-            example: 134
-          applicationId:
-            type: integer
-            description: The ID of the Application that owns this entity.
-            example: 1
-          campaignId:
-            type: integer
-            description: The ID of the campaign that owns this entity.
-            example: 7
-    MutableEntity:
+    ErrorSource:
       type: object
-      required:
-      - modified
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
       properties:
-        modified:
+        pointer:
           type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
     UpdateCollection:
       type: object
       properties:
@@ -988,14 +889,19 @@ components:
             pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
             description: The name of this collection.
             example: My collection
-    CollectionItem:
-      allOf:
-      - type: object
-        required:
-        - item
-        properties:
-          item:
-            type: string
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
     APIError:
       type: object
       required:
@@ -1010,6 +916,53 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
+    UpdateCampaignCollection:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A short description of the purpose of this collection.
+          example: My collection of SKUs
+    CollectionWithoutPayload:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewCollection'
+      - type: object
+        required:
+        - createdBy
+        properties:
+          modifiedBy:
+            type: integer
+            description: ID of the user who last updated this effect if available.
+            example: 48
+          createdBy:
+            type: integer
+            description: ID of the user who created this effect.
+            example: 134
+          applicationId:
+            type: integer
+            description: The ID of the Application that owns this entity.
+            example: 1
+          campaignId:
+            type: integer
+            description: The ID of the campaign that owns this entity.
+            example: 7
+    Collection:
+      allOf:
+      - $ref: '#/components/schemas/CollectionWithoutPayload'
+      - type: object
+        properties:
+          payload:
+            type: array
+            description: The content of the collection.
+            maxItems: 50
+            example:
+            - KTL-WH-ET-1
+            - KTL-BL-ET-1
+            items:
+              type: string
     Entity:
       type: object
       required:
@@ -1025,44 +978,91 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
-    NewCollection:
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    CollectionItem:
       allOf:
-      - $ref: '#/components/schemas/UpdateCollection'
       - type: object
         required:
-        - name
+        - item
         properties:
-          name:
+          item:
             type: string
-            minLength: 1
-            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
-            description: The name of this collection.
-            example: My collection
-    ErrorSource:
+    UserEntity:
       type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+  parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
 
         '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    UpdateCampaignCollection:
-      type: object
-      properties:
-        description:
-          type: string
-          description: A short description of the purpose of this collection.
-          example: My collection of SKUs
+      example: name
+      schema:
+        type: string
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
   securitySchemes:
     manager_auth:
       type: apiKey

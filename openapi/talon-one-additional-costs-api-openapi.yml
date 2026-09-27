@@ -126,47 +126,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccountAdditionalCost'
 components:
-  requestBodies:
-    NewAdditionalCost:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/NewAdditionalCost'
-      description: body
-      required: true
-  parameters:
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
-
-
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
-
-        '
-      example: name
-      schema:
-        type: string
   schemas:
     Entity:
       type: object
@@ -230,11 +189,6 @@ components:
 
               '
             default: session
-    AccountAdditionalCost:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/NewAdditionalCost'
     AccountEntity:
       type: object
       required:
@@ -244,6 +198,52 @@ components:
           type: integer
           description: The ID of the account that owns this entity.
           example: 3886
+    AccountAdditionalCost:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/NewAdditionalCost'
+  parameters:
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+  requestBodies:
+    NewAdditionalCost:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewAdditionalCost'
+      description: body
+      required: true
   securitySchemes:
     manager_auth:
       type: apiKey

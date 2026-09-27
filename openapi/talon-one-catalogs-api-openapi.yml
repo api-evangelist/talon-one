@@ -625,19 +625,80 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    ErrorResponse:
+    LabelTargetAudience:
+      type: object
+      description: 'Represents the targeted audience.
+
+        '
+      properties:
+        type:
+          type: string
+          enum:
+          - AUDIENCE
+        audience:
+          $ref: '#/components/schemas/AudienceReference'
+      required:
+      - type
+      - audience
+    NewPriceAdjustment:
       type: object
       required:
-      - message
+      - priceType
+      - referenceId
       properties:
-        message:
+        priceType:
           type: string
-          description: A message describing the error.
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
+          description: The price type (e.g. the price for members only) to apply to a given SKU.
+          example: member
+        price:
+          type:
+          - number
+          - 'null'
+          description: The value of the price type applied to the SKU. When set to `null`, the defined price type no longer applies to the SKU.
+          example: 100
+        referenceId:
+          type: string
+          description: A unique reference identifier, e.g. a UUID.
+          example: 68851723-e6fa-488f-ace9-112581e6c19b
+          minLength: 1
+        calculatedAt:
+          type: string
+          format: date-time
+          description: The time at which this price was calculated. If provided, this is used to determine the most recent price adjustment to choose if price adjustments overlap. Defaults to internal creation time if not provided.
+          example: '2021-09-12T10:12:42Z'
+        effectiveFrom:
+          type: string
+          format: date-time
+          description: The date and time from which the price adjustment is effective.
+          example: '2021-09-12T10:12:42Z'
+        effectiveUntil:
+          type: string
+          format: date-time
+          description: The date and time until which the price adjustment is effective.
+          example: '2021-09-12T10:12:42Z'
+        contextId:
+          type: string
+          description: Identifier of the context of this price adjustment (e.g. summer sale).
+          example: Summer2025
+    AdjustmentDetails:
+      type: object
+      description: Details about an applied price adjustment.
+      properties:
+        referenceId:
+          type: string
+          description: The reference identifier used during an `ADD_PRICE_ADJUSTMENT` action.
+          example: 68851723-e6fa-488f-ace9-112581e6c19b
+        selectedPriceType:
+          type: string
+          description: The selected price type for the SKU targeted by this effect.
+          example: member
+        value:
+          type: number
+          description: The value of the applied price adjustment.
+      required:
+      - referenceId
+      - selectedPriceType
+      - value
     BestPriorPriceMetadata:
       type: object
       description: Auxiliary data for found price observation.
@@ -653,75 +714,219 @@ components:
           description: Details about the applied price adjustment.
       required:
       - influencingCampaignDetails
-    PatchManyItemsCatalogAction:
+    AudienceReference:
+      allOf:
+      - type: object
+        required:
+        - id
+        properties:
+          id:
+            type: integer
+            description: The ID of the audience.
+          integration:
+            type: string
+            description: The third-party integration of the audience.
+      - $ref: '#/components/schemas/AudienceIntegrationID'
+    BestPriorPrice:
       type: object
-      description: The specific properties of the "PATCH_MANY" catalog sync action.
+      required:
+      - id
+      - sku
+      - observedAt
+      - price
+      - contextIds
+      - metadata
+      - target
       properties:
+        id:
+          type: integer
+          description: The ID of the historical price.
+          example: 1
+        sku:
+          type: string
+          description: sku
+          example: SKU7345278
+        observedAt:
+          type: string
+          format: date-time
+          description: The date and time when the price was observed.
+          example: '2025-11-10T23:00:00Z'
+        contextIds:
+          type: array
+          items:
+            type: string
+          description: 'The identifiers of the relevant context at the time the price was observed. Includes the context IDs of any price adjustments and of the campaigns that influenced the final price.
+
+            '
+          example:
+          - SpringSale
+          - SummerSale2025
+        contextId:
+          type: string
+          deprecated: true
+          default: ''
+          description: 'This property is **deprecated**. Use `contextIds` instead. Defaults to an empty string.
+
+            '
+          example: ''
         price:
           type: number
           description: Price of the item.
           example: 99.99
-        filters:
-          type: array
-          items:
-            $ref: '#/components/schemas/CatalogActionFilter'
-          description: 'The list of filters used to select the items to patch, joined by `AND`.
-
-
-            **Note:** Every item in the catalog will be modified if there are no filters.
-
-            '
-        attributes:
-          type: object
-          description: The attributes of the items to patch.
-    AccountEntity:
+        metadata:
+          $ref: '#/components/schemas/BestPriorPriceMetadata'
+        target:
+          $ref: '#/components/schemas/LabelTarget'
+    Catalog:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewCatalog'
+      - type: object
+        required:
+        - version
+        - createdBy
+        properties:
+          version:
+            type: integer
+            description: The current version of this catalog.
+            example: 6
+          createdBy:
+            type: integer
+            description: The ID of user who created this catalog.
+            example: 6
+    NewCatalog:
+      allOf:
+      - type: object
+        required:
+        - name
+        - description
+        properties:
+          name:
+            type: string
+            description: The cart item catalog name.
+            example: seafood
+          description:
+            type: string
+            description: A description of this cart item catalog.
+            example: seafood catalog
+          subscribedApplicationsIds:
+            type: array
+            description: A list of the IDs of the applications that are subscribed to this catalog.
+            example:
+            - 1
+            - 2
+            - 3
+            items:
+              type: integer
+    BestPriorPriceResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/BestPriorPrice'
+    ErrorSource:
       type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    AddItemCatalogAction:
-      type: object
-      description: 'The specific properties of the "ADD" catalog sync action.
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
 
         '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    BestPriorTarget:
+      type: object
+      required:
+      - targetType
+      description: Specifies the target for which the best prior price calculation is taken into consideration.
+      properties:
+        targetType:
+          type: string
+          enum:
+          - NONE
+          - AUDIENCE
+          description: The type of price target.
+          example: AUDIENCE
+        audienceID:
+          type: integer
+          description: The AudienceID of an audience. Must be used with "AUDIENCE" target type.
+          example: 4
+    RemoveItemCatalogAction:
+      type: object
+      description: The specific properties of the "REMOVE" catalog sync action.
       required:
       - sku
       properties:
         sku:
           type: string
-          description: The unique SKU of the item to add.
-          example: SKU1241028
-        price:
-          type: number
-          description: Price of the item.
-          example: 99.99
-        attributes:
-          type: object
-          description: The attributes of the item to add.
-          example:
-            origin: germany
-            color: blue
-        product:
-          $ref: '#/components/schemas/Product'
-        replaceIfExists:
-          type: boolean
-          default: false
-          description: "Indicates whether to replace the attributes of the item if the same SKU exists.\n\n**Note**: When set to `true`:\n  - If you do not provide a new `price` value, the existing `price` value is retained.\n  - If you do not provide a new `product` value, the `product` value is set to `null`.\n"
-          example: false
-    LabelTargetNone:
+          description: The unique SKU of the item to remove.
+    AudienceIntegrationID:
       type: object
-      description: Represents the target type when no entity is selected.
       properties:
-        type:
+        integrationId:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: The ID of this audience in the third-party integration.
+          example: 382370BKDB946
+    CatalogActionFilter:
+      type: object
+      description: The properties for a single filtering condition in a catalog sync action.
+      required:
+      - attr
+      - op
+      - value
+      properties:
+        attr:
+          description: The name of the attribute to filter on.
+          type: string
+        op:
+          description: The filtering operator.
           type: string
           enum:
-          - NONE
-      required:
-      - type
+          - EQ
+          - LT
+          - LE
+          - GT
+          - GE
+          - IN
+        value:
+          description: The value to filter for.
     PatchItemCatalogAction:
       type: object
       description: "The specific properties of the \"PATCH\" catalog sync action.\n\n**Note:**\n  - If you do not provide a new `price` value, the existing `price` value is retained.\n  - If you do not provide a new `product` value, the `product` value is set to `null`.\n"
@@ -744,6 +949,150 @@ components:
           type: boolean
           default: false
           description: Indicates whether to create an item if the SKU does not exist.
+    LabelTargetNone:
+      type: object
+      description: Represents the target type when no entity is selected.
+      properties:
+        type:
+          type: string
+          enum:
+          - NONE
+      required:
+      - type
+    CatalogSyncRequest:
+      type: object
+      required:
+      - actions
+      properties:
+        actions:
+          type: array
+          maxItems: 1000
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CatalogAction'
+        version:
+          type: integer
+          minimum: 1
+          description: The version number of the catalog to apply the actions on.
+          example: 244
+    RemoveManyItemsCatalogAction:
+      type: object
+      description: The specific properties of the "REMOVE_MANY" catalog sync action.
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogActionFilter'
+          description: 'The list of filters used to select the items to patch, joined by `AND`.
+
+
+            **Note:** Every item in the catalog will be removed if there are no filters.
+
+            '
+    Product:
+      type: object
+      description: The specific properties of the product this item belongs to, if available.
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The product the item belongs to.
+          example: sample_product
+    InfluencingCampaignDetails:
+      type: object
+      description: Details about a campaign that influenced the final price.
+      properties:
+        campaignId:
+          type: integer
+          description: Identifier of the campaign that influenced the final price.
+        discountValue:
+          type: number
+          description: Discount value applied by the campaign.
+      required:
+      - campaignId
+      - discountValue
+    AddPriceAdjustmentCatalogAction:
+      type: object
+      description: "The specific properties of the \"ADD_PRICE_ADJUSTMENT\" catalog sync action.\n      \n**Note:** You can only use this object if the `Beta` **price types** feature is enabled for your Application.\nTo enable it, contact your Technical Account Manager.\n"
+      required:
+      - sku
+      - adjustments
+      properties:
+        sku:
+          type: string
+          description: The SKU of the item for which the price is being adjusted.
+          example: SKU1241028
+        adjustments:
+          type: array
+          description: A list of adjustments to apply to a given item.
+          items:
+            $ref: '#/components/schemas/NewPriceAdjustment'
+            minItems: 1
+            maxItems: 100
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    LabelTarget:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/LabelTargetNone'
+      - $ref: '#/components/schemas/LabelTargetAudience'
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    PatchManyItemsCatalogAction:
+      type: object
+      description: The specific properties of the "PATCH_MANY" catalog sync action.
+      properties:
+        price:
+          type: number
+          description: Price of the item.
+          example: 99.99
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogActionFilter'
+          description: 'The list of filters used to select the items to patch, joined by `AND`.
+
+
+            **Note:** Every item in the catalog will be modified if there are no filters.
+
+            '
+        attributes:
+          type: object
+          description: The attributes of the items to patch.
     BestPriorPriceRequest:
       type: object
       required:
@@ -788,32 +1137,16 @@ components:
           example: sale
         target:
           $ref: '#/components/schemas/BestPriorTarget'
-    InfluencingCampaignDetails:
+    MutableEntity:
       type: object
-      description: Details about a campaign that influenced the final price.
-      properties:
-        campaignId:
-          type: integer
-          description: Identifier of the campaign that influenced the final price.
-        discountValue:
-          type: number
-          description: Discount value applied by the campaign.
       required:
-      - campaignId
-      - discountValue
-    ErrorResponseWithStatus:
-      type: object
+      - modified
       properties:
-        message:
+        modified:
           type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
     CatalogAction:
       type: object
       description: Definition of all the properties that are needed for a single catalog sync action.
@@ -879,368 +1212,128 @@ components:
         required:
         - type
         - payload
-    RemoveItemCatalogAction:
+    AddItemCatalogAction:
       type: object
-      description: The specific properties of the "REMOVE" catalog sync action.
-      required:
-      - sku
-      properties:
-        sku:
-          type: string
-          description: The unique SKU of the item to remove.
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
-    LabelTargetAudience:
-      type: object
-      description: 'Represents the targeted audience.
+      description: 'The specific properties of the "ADD" catalog sync action.
 
         '
-      properties:
-        type:
-          type: string
-          enum:
-          - AUDIENCE
-        audience:
-          $ref: '#/components/schemas/AudienceReference'
       required:
-      - type
-      - audience
-    RemoveManyItemsCatalogAction:
-      type: object
-      description: The specific properties of the "REMOVE_MANY" catalog sync action.
-      properties:
-        filters:
-          type: array
-          items:
-            $ref: '#/components/schemas/CatalogActionFilter'
-          description: 'The list of filters used to select the items to patch, joined by `AND`.
-
-
-            **Note:** Every item in the catalog will be removed if there are no filters.
-
-            '
-    Catalog:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/NewCatalog'
-      - type: object
-        required:
-        - version
-        - createdBy
-        properties:
-          version:
-            type: integer
-            description: The current version of this catalog.
-            example: 6
-          createdBy:
-            type: integer
-            description: The ID of user who created this catalog.
-            example: 6
-    AudienceReference:
-      allOf:
-      - type: object
-        required:
-        - id
-        properties:
-          id:
-            type: integer
-            description: The ID of the audience.
-          integration:
-            type: string
-            description: The third-party integration of the audience.
-      - $ref: '#/components/schemas/AudienceIntegrationID'
-    BestPriorTarget:
-      type: object
-      required:
-      - targetType
-      description: Specifies the target for which the best prior price calculation is taken into consideration.
-      properties:
-        targetType:
-          type: string
-          enum:
-          - NONE
-          - AUDIENCE
-          description: The type of price target.
-          example: AUDIENCE
-        audienceID:
-          type: integer
-          description: The AudienceID of an audience. Must be used with "AUDIENCE" target type.
-          example: 4
-    CatalogActionFilter:
-      type: object
-      description: The properties for a single filtering condition in a catalog sync action.
-      required:
-      - attr
-      - op
-      - value
-      properties:
-        attr:
-          description: The name of the attribute to filter on.
-          type: string
-        op:
-          description: The filtering operator.
-          type: string
-          enum:
-          - EQ
-          - LT
-          - LE
-          - GT
-          - GE
-          - IN
-        value:
-          description: The value to filter for.
-    BestPriorPriceResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/BestPriorPrice'
-    AdjustmentDetails:
-      type: object
-      description: Details about an applied price adjustment.
-      properties:
-        referenceId:
-          type: string
-          description: The reference identifier used during an `ADD_PRICE_ADJUSTMENT` action.
-          example: 68851723-e6fa-488f-ace9-112581e6c19b
-        selectedPriceType:
-          type: string
-          description: The selected price type for the SKU targeted by this effect.
-          example: member
-        value:
-          type: number
-          description: The value of the applied price adjustment.
-      required:
-      - referenceId
-      - selectedPriceType
-      - value
-    Product:
-      type: object
-      description: The specific properties of the product this item belongs to, if available.
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: The product the item belongs to.
-          example: sample_product
-    NewPriceAdjustment:
-      type: object
-      required:
-      - priceType
-      - referenceId
-      properties:
-        priceType:
-          type: string
-          description: The price type (e.g. the price for members only) to apply to a given SKU.
-          example: member
-        price:
-          type:
-          - number
-          - 'null'
-          description: The value of the price type applied to the SKU. When set to `null`, the defined price type no longer applies to the SKU.
-          example: 100
-        referenceId:
-          type: string
-          description: A unique reference identifier, e.g. a UUID.
-          example: 68851723-e6fa-488f-ace9-112581e6c19b
-          minLength: 1
-        calculatedAt:
-          type: string
-          format: date-time
-          description: The time at which this price was calculated. If provided, this is used to determine the most recent price adjustment to choose if price adjustments overlap. Defaults to internal creation time if not provided.
-          example: '2021-09-12T10:12:42Z'
-        effectiveFrom:
-          type: string
-          format: date-time
-          description: The date and time from which the price adjustment is effective.
-          example: '2021-09-12T10:12:42Z'
-        effectiveUntil:
-          type: string
-          format: date-time
-          description: The date and time until which the price adjustment is effective.
-          example: '2021-09-12T10:12:42Z'
-        contextId:
-          type: string
-          description: Identifier of the context of this price adjustment (e.g. summer sale).
-          example: Summer2025
-    NewCatalog:
-      allOf:
-      - type: object
-        required:
-        - name
-        - description
-        properties:
-          name:
-            type: string
-            description: The cart item catalog name.
-            example: seafood
-          description:
-            type: string
-            description: A description of this cart item catalog.
-            example: seafood catalog
-          subscribedApplicationsIds:
-            type: array
-            description: A list of the IDs of the applications that are subscribed to this catalog.
-            example:
-            - 1
-            - 2
-            - 3
-            items:
-              type: integer
-    BestPriorPrice:
-      type: object
-      required:
-      - id
       - sku
-      - observedAt
-      - price
-      - contextIds
-      - metadata
-      - target
       properties:
-        id:
-          type: integer
-          description: The ID of the historical price.
-          example: 1
         sku:
           type: string
-          description: sku
-          example: SKU7345278
-        observedAt:
-          type: string
-          format: date-time
-          description: The date and time when the price was observed.
-          example: '2025-11-10T23:00:00Z'
-        contextIds:
-          type: array
-          items:
-            type: string
-          description: 'The identifiers of the relevant context at the time the price was observed. Includes the context IDs of any price adjustments and of the campaigns that influenced the final price.
-
-            '
-          example:
-          - SpringSale
-          - SummerSale2025
-        contextId:
-          type: string
-          deprecated: true
-          default: ''
-          description: 'This property is **deprecated**. Use `contextIds` instead. Defaults to an empty string.
-
-            '
-          example: ''
+          description: The unique SKU of the item to add.
+          example: SKU1241028
         price:
           type: number
           description: Price of the item.
           example: 99.99
-        metadata:
-          $ref: '#/components/schemas/BestPriorPriceMetadata'
-        target:
-          $ref: '#/components/schemas/LabelTarget'
-    LabelTarget:
+        attributes:
+          type: object
+          description: The attributes of the item to add.
+          example:
+            origin: germany
+            color: blue
+        product:
+          $ref: '#/components/schemas/Product'
+        replaceIfExists:
+          type: boolean
+          default: false
+          description: "Indicates whether to replace the attributes of the item if the same SKU exists.\n\n**Note**: When set to `true`:\n  - If you do not provide a new `price` value, the existing `price` value is retained.\n  - If you do not provide a new `product` value, the `product` value is set to `null`.\n"
+          example: false
+    CatalogItem:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - type: object
+        required:
+        - sku
+        - catalogid
+        - version
+        properties:
+          sku:
+            type: string
+            description: The stock keeping unit of the item.
+            example: SKU1241028
+          price:
+            type: number
+            description: Price of the item.
+            example: 99.99
+            x-fieldType: NullDecimal
+          catalogid:
+            type: integer
+            description: The ID of the catalog the item belongs to.
+            example: 6
+          version:
+            type: integer
+            minimum: 1
+            description: The version of the catalog item.
+            example: 5
+          attributes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ItemAttribute'
+          product:
+            $ref: '#/components/schemas/Product'
+    PriceHistoryRequest:
       type: object
-      oneOf:
-      - $ref: '#/components/schemas/LabelTargetNone'
-      - $ref: '#/components/schemas/LabelTargetAudience'
-    AddPriceAdjustmentCatalogAction:
-      type: object
-      description: "The specific properties of the \"ADD_PRICE_ADJUSTMENT\" catalog sync action.\n      \n**Note:** You can only use this object if the `Beta` **price types** feature is enabled for your Application.\nTo enable it, contact your Technical Account Manager.\n"
       required:
       - sku
-      - adjustments
+      - endDate
+      - startDate
       properties:
         sku:
           type: string
-          description: The SKU of the item for which the price is being adjusted.
+          description: The SKU of the item for which the historical prices are being retrieved.
           example: SKU1241028
-        adjustments:
-          type: array
-          description: A list of adjustments to apply to a given item.
-          items:
-            $ref: '#/components/schemas/NewPriceAdjustment'
-            minItems: 1
-            maxItems: 100
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
+        startDate:
           type: string
           format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    CatalogSyncRequest:
+          description: The start date of the period for which historical prices should be retrieved.
+          example: '2020-11-10T23:00:00Z'
+        endDate:
+          type: string
+          format: date-time
+          description: The end date of the period for which historical prices should be retrieved.
+          example: '2020-12-10T23:00:00Z'
+    PriceHistoryResponse:
       type: object
       required:
-      - actions
+      - sku
+      - history
       properties:
-        actions:
+        sku:
+          type: string
+          description: The SKU of the item for which historical prices should be retrieved.
+          example: SKU1241028
+        history:
           type: array
-          maxItems: 1000
-          minItems: 1
           items:
-            $ref: '#/components/schemas/CatalogAction'
-        version:
-          type: integer
-          minimum: 1
-          description: The version number of the catalog to apply the actions on.
-          example: 244
-    ErrorSource:
+            $ref: '#/components/schemas/History'
+    ExcludePriceObservationsRequest:
       type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+      required:
+      - ids
+      - reason
+      properties:
+        ids:
+          description: 'A list of historical price IDs to exclude from best prior price calculation. Must contain between 1 and 1000 IDs. All IDs must be valid `id` values obtained from the [Get summary of price history](https://docs.talon.one/management-api#tag/Catalogs/operation/priceHistory.responses.200.history) endpoint, must belong to the specified Application, and must not already be excluded from best prior price calculation.
 
-        '
-      properties:
-        pointer:
+            '
+          type: array
+          items:
+            type: integer
+            format: int64
+            minimum: 1
+          minItems: 1
+          uniqueItems: true
+          maxItems: 1000
+        reason:
+          description: 'The reason for excluding these historical price IDs. Applies to all IDs in the batch.
+
+            '
           type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    AudienceIntegrationID:
-      type: object
-      properties:
-        integrationId:
-          type: string
+          example: Incorrect contextID value.
           minLength: 1
-          maxLength: 1000
-          description: The ID of this audience in the third-party integration.
-          example: 382370BKDB946
     ItemAttribute:
       allOf:
       - type: object
@@ -1312,112 +1405,12 @@ components:
           type: string
           description: The reason for excluding this historical price ID.
           example: Incorrect contextID value
-    ExcludePriceObservationsRequest:
-      type: object
-      required:
-      - ids
-      - reason
-      properties:
-        ids:
-          description: 'A list of historical price IDs to exclude from best prior price calculation. Must contain between 1 and 1000 IDs. All IDs must be valid `id` values obtained from the [Get summary of price history](https://docs.talon.one/management-api#tag/Catalogs/operation/priceHistory.responses.200.history) endpoint, must belong to the specified Application, and must not already be excluded from best prior price calculation.
-
-            '
-          type: array
-          items:
-            type: integer
-            format: int64
-            minimum: 1
-          minItems: 1
-          uniqueItems: true
-          maxItems: 1000
-        reason:
-          description: 'The reason for excluding these historical price IDs. Applies to all IDs in the batch.
-
-            '
-          type: string
-          example: Incorrect contextID value.
-          minLength: 1
-    PriceHistoryResponse:
-      type: object
-      required:
-      - sku
-      - history
-      properties:
-        sku:
-          type: string
-          description: The SKU of the item for which historical prices should be retrieved.
-          example: SKU1241028
-        history:
-          type: array
-          items:
-            $ref: '#/components/schemas/History'
-    CatalogItem:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - type: object
-        required:
-        - sku
-        - catalogid
-        - version
-        properties:
-          sku:
-            type: string
-            description: The stock keeping unit of the item.
-            example: SKU1241028
-          price:
-            type: number
-            description: Price of the item.
-            example: 99.99
-            x-fieldType: NullDecimal
-          catalogid:
-            type: integer
-            description: The ID of the catalog the item belongs to.
-            example: 6
-          version:
-            type: integer
-            minimum: 1
-            description: The version of the catalog item.
-            example: 5
-          attributes:
-            type: array
-            items:
-              $ref: '#/components/schemas/ItemAttribute'
-          product:
-            $ref: '#/components/schemas/Product'
-    PriceHistoryRequest:
-      type: object
-      required:
-      - sku
-      - endDate
-      - startDate
-      properties:
-        sku:
-          type: string
-          description: The SKU of the item for which the historical prices are being retrieved.
-          example: SKU1241028
-        startDate:
-          type: string
-          format: date-time
-          description: The start date of the period for which historical prices should be retrieved.
-          example: '2020-11-10T23:00:00Z'
-        endDate:
-          type: string
-          format: date-time
-          description: The end date of the period for which historical prices should be retrieved.
-          example: '2020-12-10T23:00:00Z'
   requestBodies:
     BestPriorPrice:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/BestPriorPriceRequest'
-      description: body
-      required: true
-    ExcludePriceObservations:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ExcludePriceObservationsRequest'
       description: body
       required: true
     PriceHistory:
@@ -1427,7 +1420,22 @@ components:
             $ref: '#/components/schemas/PriceHistoryRequest'
       description: body
       required: true
+    ExcludePriceObservations:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExcludePriceObservationsRequest'
+      description: body
+      required: true
   parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     pageSize:
       name: pageSize
       in: query
@@ -1439,14 +1447,6 @@ components:
         minimum: 1
         maximum: 1000
         default: 1000
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     applicationId:
       name: applicationId
       in: path

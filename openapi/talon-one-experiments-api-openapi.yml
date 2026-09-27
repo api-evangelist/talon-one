@@ -113,12 +113,116 @@ paths:
                 $ref: '#/components/schemas/Experiment'
 components:
   schemas:
-    CampaignBudget:
+    NewRuleset:
+      type: object
+      required:
+      - rules
+      - bindings
+      properties:
+        rules:
+          type: array
+          description: Set of rules to apply.
+          items:
+            $ref: '#/components/schemas/Rule'
+        strikethroughRules:
+          type: array
+          description: Set of rules to apply for strikethrough.
+          items:
+            $ref: '#/components/schemas/Rule'
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+          example: []
+        rbVersion:
+          type: string
+          description: The version of the rulebuilder used to create this ruleset.
+          example: v2
+        activate:
+          type: boolean
+          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
+          example: true
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    Experiment:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - type: object
+        properties:
+          isVariantAssignmentExternal:
+            type: boolean
+            description: 'The source of the assignment. - false - The variant assignment is handled internally by Talon.One. - true - The variant assignment is handled externally.
+
+              '
+          campaign:
+            $ref: '#/components/schemas/Campaign'
+          activated:
+            type: string
+            format: date-time
+            description: 'The date and time the experiment was activated.
+
+              '
+          state:
+            type: string
+            enum:
+            - enabled
+            - disabled
+            - archived
+            default: disabled
+            example: enabled
+            description: 'A disabled experiment is not evaluated for rules or coupons.
+
+              '
+          variants:
+            type: array
+            items:
+              $ref: '#/components/schemas/ExperimentVariant'
+          goalType:
+            type: string
+            enum:
+            - other
+            - maximize_revenue
+            - optimize_discount_efficiency
+            - maximize_items_sold
+            description: 'The goal of the experiment. Determines which single metric is used to decide the winning variant. When set to `other`, multiple metrics are used.
+
+              '
+          goalDescription:
+            type: string
+            description: 'A description of the experiment goal. Provides context for the AI summary and helps it interpret the outcome of the experiment against the stated goal.
+
+              '
+            example: Offering free shipping will increase average order revenue more than a 10% discount
+          deletedat:
+            type: string
+            format: date-time
+            description: 'The date and time the experiment was deleted.
+
+              '
+        required:
+        - state
+        - goalType
+    LimitConfig:
       type: object
       required:
       - action
       - limit
-      - counter
+      - entities
       properties:
         action:
           type: string
@@ -139,11 +243,182 @@ components:
           minimum: 0
           example: 1000
           description: The value to set for the limit.
-        counter:
+        period:
+          description: The period on which the budget limit recurs.
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+          example: yearly
+        entities:
+          type: array
+          description: The entity that this limit applies to.
+          example:
+          - Coupon
+          items:
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Profile
+            - Identifier
+            - Store
+            - Session
+    CodeGeneratorSettings:
+      type: object
+      properties:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
+          type: string
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+      required:
+      - couponPattern
+      - validCharacters
+    Ruleset:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/NewRuleset'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            title: Campaign ID
+            description: The ID of the campaign that owns this entity.
+            example: 320
+          templateId:
+            type: integer
+            title: Campaign Template ID
+            description: The ID of the campaign template that owns this entity.
+            example: 3
+          activatedAt:
+            type: string
+            format: date-time
+            description: Timestamp indicating when this Ruleset was activated.
+    Binding:
+      type: object
+      required:
+      - name
+      - expression
+      properties:
+        name:
+          type: string
+          description: A descriptive name for the value to be bound.
+          example: Discount percentage
+        type:
+          type: string
+          description: 'The kind of binding. Possible values are:
+
+            - `bundle`
+
+            - `cartItemFilter`
+
+            - `subledgerBalance`
+
+            - `templateParameter`
+
+            '
+          example: templateParameter
+        expression:
+          type: array
+          description: 'A Talang expression that is evaluated, and its result is bound to the name of
+
+            the binding. The first element must be one of the functions or operators supported
+
+            by Talang, followed by its arguments. The arguments can be strings, numbers, or
+
+            nested expressions. For example:
+
+            - `["list", "10014", "10015"]` calls the `list` function to build a list of strings.
+
+            - `["+", 2, 0]` uses the `+` operator to add two numbers.
+
+            '
+          example:
+          - identity
+          - 10
+          items: {}
+        valueType:
+          type: string
+          description: 'The data type of the value. One of the following:
+
+            - `string`
+
+            - `number`
+
+            - `boolean`
+
+            '
+          example: number
+        minValue:
           type: number
-          minimum: 0
-          example: 42
-          description: The number of occurrences of the limited action in the context of the campaign.
+          description: The minimum value allowed for this placeholder.
+          example: 0
+        maxValue:
+          type: number
+          description: The maximum value allowed for this placeholder.
+          example: 19.9
+        attributeId:
+          type: integer
+          title: Attribute ID
+          description: Identifier of the attribute attached to the placeholder.
+          example: 100
+        description:
+          type: string
+          description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
+          example: The percentage discount applied to the cart total.
     Rule:
       type: object
       required:
@@ -200,6 +475,75 @@ components:
               - - /
                 - 10
                 - 100
+    ExperimentVariant:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - type: object
+        required:
+        - name
+        - isPrimary
+        properties:
+          name:
+            type: string
+            example: Variant A
+          experimentId:
+            type: integer
+            example: 10
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+          weight:
+            type: integer
+            example: 12
+          isPrimary:
+            type: boolean
+            example: true
+    CampaignVersions:
+      type: object
+      properties:
+        revisionFrontendState:
+          type: string
+          description: The campaign revision state displayed in the Campaign Manager.
+          enum:
+          - revised
+          - pending
+          example: revised
+        activeRevisionId:
+          type: integer
+          description: 'ID of the revision that was last activated on this campaign.
+
+            '
+          example: 6
+        activeRevisionVersionId:
+          type: integer
+          description: 'ID of the revision version that is active on the campaign.
+
+            '
+          example: 6
+        version:
+          type: integer
+          description: 'Incrementing number representing how many revisions have been activated on this campaign, starts from 0 for a new campaign.
+
+            '
+          example: 6
+        currentRevisionId:
+          type: integer
+          description: 'ID of the revision currently being modified for the campaign.
+
+            '
+          example: 6
+        currentRevisionVersionId:
+          type: integer
+          description: 'ID of the latest version applied on the current revision.
+
+            '
+          example: 6
+        stageRevision:
+          type: boolean
+          description: 'Flag for determining whether we use current revision when sending requests with staging API key.
+
+            '
+          example: false
+          default: false
     AdditionalCampaignProperties:
       type: object
       properties:
@@ -409,6 +753,81 @@ components:
       - type
       - frontendState
       - storesImported
+    CampaignBudget:
+      type: object
+      required:
+      - action
+      - limit
+      - counter
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        counter:
+          type: number
+          minimum: 0
+          example: 42
+          description: The number of occurrences of the limited action in the context of the campaign.
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/BaseCampaign'
+      - $ref: '#/components/schemas/AdditionalCampaignProperties'
+      - $ref: '#/components/schemas/CampaignVersions'
+      - type: object
+        required:
+        - reevaluateOnReturn
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+    EntityWithTalangVisibleID:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: Unique ID for this entity.
+          example: 4
+        created:
+          type: string
+          format: date-time
+          description: The exact moment this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
     BaseCampaign:
       type: object
       properties:
@@ -543,425 +962,6 @@ components:
       - tags
       - limits
       - features
-    ExperimentVariant:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - type: object
-        required:
-        - name
-        - isPrimary
-        properties:
-          name:
-            type: string
-            example: Variant A
-          experimentId:
-            type: integer
-            example: 10
-          ruleset:
-            $ref: '#/components/schemas/Ruleset'
-          weight:
-            type: integer
-            example: 12
-          isPrimary:
-            type: boolean
-            example: true
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    ApplicationEntity:
-      type: object
-      required:
-      - applicationId
-      properties:
-        applicationId:
-          type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    Ruleset:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/NewRuleset'
-      - type: object
-        properties:
-          campaignId:
-            type: integer
-            title: Campaign ID
-            description: The ID of the campaign that owns this entity.
-            example: 320
-          templateId:
-            type: integer
-            title: Campaign Template ID
-            description: The ID of the campaign template that owns this entity.
-            example: 3
-          activatedAt:
-            type: string
-            format: date-time
-            description: Timestamp indicating when this Ruleset was activated.
-    CodeGeneratorSettings:
-      type: object
-      properties:
-        validCharacters:
-          type: array
-          description: 'List of characters used to generate the random parts of a code.
-
-            '
-          example:
-          - A
-          - B
-          - C
-          - D
-          - E
-          - F
-          - G
-          - H
-          - I
-          - J
-          - K
-          - L
-          - M
-          - N
-          - O
-          - P
-          - Q
-          - R
-          - S
-          - T
-          - U
-          - V
-          - W
-          - X
-          - Y
-          - Z
-          - '0'
-          - '1'
-          - '2'
-          - '3'
-          - '4'
-          - '5'
-          - '6'
-          - '7'
-          - '8'
-          - '9'
-          items:
-            type: string
-        couponPattern:
-          type: string
-          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
-
-            '
-          maxLength: 100
-          minLength: 3
-          pattern: ^[A-Za-z0-9._%+@#-]+$
-          example: SUMMER-####-####
-      additionalProperties: false
-      required:
-      - couponPattern
-      - validCharacters
-    CampaignVersions:
-      type: object
-      properties:
-        revisionFrontendState:
-          type: string
-          description: The campaign revision state displayed in the Campaign Manager.
-          enum:
-          - revised
-          - pending
-          example: revised
-        activeRevisionId:
-          type: integer
-          description: 'ID of the revision that was last activated on this campaign.
-
-            '
-          example: 6
-        activeRevisionVersionId:
-          type: integer
-          description: 'ID of the revision version that is active on the campaign.
-
-            '
-          example: 6
-        version:
-          type: integer
-          description: 'Incrementing number representing how many revisions have been activated on this campaign, starts from 0 for a new campaign.
-
-            '
-          example: 6
-        currentRevisionId:
-          type: integer
-          description: 'ID of the revision currently being modified for the campaign.
-
-            '
-          example: 6
-        currentRevisionVersionId:
-          type: integer
-          description: 'ID of the latest version applied on the current revision.
-
-            '
-          example: 6
-        stageRevision:
-          type: boolean
-          description: 'Flag for determining whether we use current revision when sending requests with staging API key.
-
-            '
-          example: false
-          default: false
-    Experiment:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/ApplicationEntity'
-      - type: object
-        properties:
-          isVariantAssignmentExternal:
-            type: boolean
-            description: 'The source of the assignment. - false - The variant assignment is handled internally by Talon.One. - true - The variant assignment is handled externally.
-
-              '
-          campaign:
-            $ref: '#/components/schemas/Campaign'
-          activated:
-            type: string
-            format: date-time
-            description: 'The date and time the experiment was activated.
-
-              '
-          state:
-            type: string
-            enum:
-            - enabled
-            - disabled
-            - archived
-            default: disabled
-            example: enabled
-            description: 'A disabled experiment is not evaluated for rules or coupons.
-
-              '
-          variants:
-            type: array
-            items:
-              $ref: '#/components/schemas/ExperimentVariant'
-          goalType:
-            type: string
-            enum:
-            - other
-            - maximize_revenue
-            - optimize_discount_efficiency
-            - maximize_items_sold
-            description: 'The goal of the experiment. Determines which single metric is used to decide the winning variant. When set to `other`, multiple metrics are used.
-
-              '
-          goalDescription:
-            type: string
-            description: 'A description of the experiment goal. Provides context for the AI summary and helps it interpret the outcome of the experiment against the stated goal.
-
-              '
-            example: Offering free shipping will increase average order revenue more than a 10% discount
-          deletedat:
-            type: string
-            format: date-time
-            description: 'The date and time the experiment was deleted.
-
-              '
-        required:
-        - state
-        - goalType
-    Binding:
-      type: object
-      required:
-      - name
-      - expression
-      properties:
-        name:
-          type: string
-          description: A descriptive name for the value to be bound.
-          example: Discount percentage
-        type:
-          type: string
-          description: 'The kind of binding. Possible values are:
-
-            - `bundle`
-
-            - `cartItemFilter`
-
-            - `subledgerBalance`
-
-            - `templateParameter`
-
-            '
-          example: templateParameter
-        expression:
-          type: array
-          description: 'A Talang expression that is evaluated, and its result is bound to the name of
-
-            the binding. The first element must be one of the functions or operators supported
-
-            by Talang, followed by its arguments. The arguments can be strings, numbers, or
-
-            nested expressions. For example:
-
-            - `["list", "10014", "10015"]` calls the `list` function to build a list of strings.
-
-            - `["+", 2, 0]` uses the `+` operator to add two numbers.
-
-            '
-          example:
-          - identity
-          - 10
-          items: {}
-        valueType:
-          type: string
-          description: 'The data type of the value. One of the following:
-
-            - `string`
-
-            - `number`
-
-            - `boolean`
-
-            '
-          example: number
-        minValue:
-          type: number
-          description: The minimum value allowed for this placeholder.
-          example: 0
-        maxValue:
-          type: number
-          description: The maximum value allowed for this placeholder.
-          example: 19.9
-        attributeId:
-          type: integer
-          title: Attribute ID
-          description: Identifier of the attribute attached to the placeholder.
-          example: 100
-        description:
-          type: string
-          description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
-          example: The percentage discount applied to the cart total.
-    EntityWithTalangVisibleID:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: Unique ID for this entity.
-          example: 4
-        created:
-          type: string
-          format: date-time
-          description: The exact moment this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    NewRuleset:
-      type: object
-      required:
-      - rules
-      - bindings
-      properties:
-        rules:
-          type: array
-          description: Set of rules to apply.
-          items:
-            $ref: '#/components/schemas/Rule'
-        strikethroughRules:
-          type: array
-          description: Set of rules to apply for strikethrough.
-          items:
-            $ref: '#/components/schemas/Rule'
-        bindings:
-          type: array
-          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
-          items:
-            $ref: '#/components/schemas/Binding'
-          example: []
-        rbVersion:
-          type: string
-          description: The version of the rulebuilder used to create this ruleset.
-          example: v2
-        activate:
-          type: boolean
-          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
-          example: true
-    LimitConfig:
-      type: object
-      required:
-      - action
-      - limit
-      - entities
-      properties:
-        action:
-          type: string
-          description: 'The limitable action to which this limit applies. For example:
-
-            - `setDiscount`
-
-            - `setDiscountEffect`
-
-            - `redeemCoupon`
-
-            - `createCoupon`
-
-            '
-          example: createCoupon
-        limit:
-          type: number
-          minimum: 0
-          example: 1000
-          description: The value to set for the limit.
-        period:
-          description: The period on which the budget limit recurs.
-          type: string
-          enum:
-          - daily
-          - weekly
-          - monthly
-          - yearly
-          example: yearly
-        entities:
-          type: array
-          description: The entity that this limit applies to.
-          example:
-          - Coupon
-          items:
-            type: string
-            enum:
-            - Coupon
-            - Referral
-            - Profile
-            - Identifier
-            - Store
-            - Session
-    Campaign:
-      allOf:
-      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
-      - $ref: '#/components/schemas/ApplicationEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/BaseCampaign'
-      - $ref: '#/components/schemas/AdditionalCampaignProperties'
-      - $ref: '#/components/schemas/CampaignVersions'
-      - type: object
-        required:
-        - reevaluateOnReturn
   securitySchemes:
     manager_auth:
       type: apiKey

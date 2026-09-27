@@ -126,6 +126,37 @@ paths:
         '429':
           $ref: '#/components/responses/TooManyRequests'
 components:
+  examples:
+    EmarsysCustomerProfilesAudiencesRequest:
+      value:
+        parameters:
+        - customerProfileId: customer123
+          audienceId: 1
+          actionType: add
+    EmarsysLoyaltyBalanceResponse:
+      value:
+        content:
+        - integrationId: test-user-4zoj1c
+          loyaltyProgramId: '8431'
+          activeBalance: 100
+          pendingBalance: 0
+          expiredBalance: 0
+          totalBalance: 100
+    EmarsysCouponResponse:
+      value:
+        content:
+        - integrationId: test-user-4zoj1c
+          campaignId: '8431'
+          id: 26443683
+          created: '2024-01-03T11:28:25.648154Z'
+          value: QQ4R-C3BQ
+          usageLimit: 1
+          usageCounter: 0
+          recipientIntegrationId: test-user-4zoj1c
+          reservation: false
+          batchId: qndflqqd
+          profileRedemptionCount: 0
+          state: active
   schemas:
     EmarsysCouponRequest:
       type: object
@@ -166,87 +197,6 @@ components:
           minimum: 0
           example: 1000
           description: The value to set for the limit.
-    EmarsysCustomerProfilesAudiencesRequest:
-      type: object
-      required:
-      - parameters
-      properties:
-        parameters:
-          type: array
-          maxItems: 1000
-          items:
-            type: object
-            required:
-            - customerProfileId
-            - audienceId
-            - actionType
-            properties:
-              customerProfileId:
-                type: string
-                description: The integration ID of the customer profile.
-                example: customer123
-              audienceId:
-                type: string
-                description: The internal ID of the audience. Must be a string containing the numeric ID of an existing audience.
-                example: '1'
-              actionType:
-                type: string
-                description: The action to perform.
-                enum:
-                - add
-                - delete
-                example: add
-    errorResponseWithStatus:
-      type: object
-      properties:
-        StatusCode:
-          type: integer
-          description: The error code.
-          example: 400
-        Error:
-          type: string
-          example: Bad request
-        RequestUUID:
-          type: string
-          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
-    EmarsysLoyaltyBalanceRequest:
-      type: object
-      required:
-      - fields
-      - limit
-      - parameters
-      properties:
-        parameters:
-          type: array
-          items:
-            properties:
-              loyaltyProgramId:
-                type: string
-                description: The ID of the loyalty program in Talon.One.
-                example: '34'
-              integrationId:
-                type: string
-                description: The integration ID of the customer profile.
-                example: URNGV8294NV
-              subledgerId:
-                type: string
-                description: The ID of the subledger from which to retrieve the loyalty balance. If not provided, the loyalty balance is retrieved from the main ledger.
-                example: subledger-123
-            required:
-            - loyaltyProgramId
-            - integrationId
-        fields:
-          type: array
-          description: 'Additional fields to include in the response.
-
-            Valid fields are `activeBalance`, `pendingBalance`, `expiredBalance`, and `spentBalance`.
-
-            '
-          example:
-          - activeBalance
-          - pendingBalance
-          items:
-            type: string
     EmarsysLoyaltyBalanceResponse:
       properties:
         content:
@@ -288,6 +238,44 @@ components:
                 type: number
                 description: Total amount of points already spent by this customer.
                 example: 50
+    EmarsysLoyaltyBalanceRequest:
+      type: object
+      required:
+      - fields
+      - limit
+      - parameters
+      properties:
+        parameters:
+          type: array
+          items:
+            properties:
+              loyaltyProgramId:
+                type: string
+                description: The ID of the loyalty program in Talon.One.
+                example: '34'
+              integrationId:
+                type: string
+                description: The integration ID of the customer profile.
+                example: URNGV8294NV
+              subledgerId:
+                type: string
+                description: The ID of the subledger from which to retrieve the loyalty balance. If not provided, the loyalty balance is retrieved from the main ledger.
+                example: subledger-123
+            required:
+            - loyaltyProgramId
+            - integrationId
+        fields:
+          type: array
+          description: 'Additional fields to include in the response.
+
+            Valid fields are `activeBalance`, `pendingBalance`, `expiredBalance`, and `spentBalance`.
+
+            '
+          example:
+          - activeBalance
+          - pendingBalance
+          items:
+            type: string
     EmarsysCouponResponse:
       properties:
         content:
@@ -309,6 +297,19 @@ components:
                 type: string
                 description: The integration ID of the customer profile.
                 example: URNGV8294NV
+    errorResponseWithStatus:
+      type: object
+      properties:
+        StatusCode:
+          type: integer
+          description: The error code.
+          example: 400
+        Error:
+          type: string
+          example: Bad request
+        RequestUUID:
+          type: string
+          example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
     EmarsysUpdateAudiencesResponse:
       type: object
       properties:
@@ -325,6 +326,36 @@ components:
                 example: '1'
               actionType:
                 type: string
+                example: add
+    EmarsysCustomerProfilesAudiencesRequest:
+      type: object
+      required:
+      - parameters
+      properties:
+        parameters:
+          type: array
+          maxItems: 1000
+          items:
+            type: object
+            required:
+            - customerProfileId
+            - audienceId
+            - actionType
+            properties:
+              customerProfileId:
+                type: string
+                description: The integration ID of the customer profile.
+                example: customer123
+              audienceId:
+                type: string
+                description: The internal ID of the audience. Must be a string containing the numeric ID of an existing audience.
+                example: '1'
+              actionType:
+                type: string
+                description: The action to perform.
+                enum:
+                - add
+                - delete
                 example: add
   responses:
     BadRequest:
@@ -351,18 +382,6 @@ components:
                 StatusCode: 429
                 Error: Too many requests
                 RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 401
-                Error: Missing Session Token
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
     NotFound:
       description: Not Found
       content:
@@ -375,37 +394,18 @@ components:
                 StatusCode: 404
                 Error: Not Found
                 RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-  examples:
-    EmarsysCustomerProfilesAudiencesRequest:
-      value:
-        parameters:
-        - customerProfileId: customer123
-          audienceId: 1
-          actionType: add
-    EmarsysCouponResponse:
-      value:
-        content:
-        - integrationId: test-user-4zoj1c
-          campaignId: '8431'
-          id: 26443683
-          created: '2024-01-03T11:28:25.648154Z'
-          value: QQ4R-C3BQ
-          usageLimit: 1
-          usageCounter: 0
-          recipientIntegrationId: test-user-4zoj1c
-          reservation: false
-          batchId: qndflqqd
-          profileRedemptionCount: 0
-          state: active
-    EmarsysLoyaltyBalanceResponse:
-      value:
-        content:
-        - integrationId: test-user-4zoj1c
-          loyaltyProgramId: '8431'
-          activeBalance: 100
-          pendingBalance: 0
-          expiredBalance: 0
-          totalBalance: 100
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 401
+                Error: Missing Session Token
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
   parameters:
     deployment:
       name: deployment

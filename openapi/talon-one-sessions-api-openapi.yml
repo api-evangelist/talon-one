@@ -76,6 +76,26 @@ paths:
           description: No Content
 components:
   schemas:
+    Session:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user of this session.
+          example: 109
+        token:
+          type: string
+          description: The token to use as a bearer token to query Management API endpoints.
+          example: dy_Fa_lQ4iDAnqldJFvVEmnsN8xDTxej19l0LZDBJhQ
+        created:
+          type: string
+          format: date-time
+          description: Unix timestamp indicating when the session was first created.
+          example: '2021-07-20T22:00:00Z'
+      required:
+      - userId
+      - token
+      - created
     LoginParams:
       allOf:
       - $ref: '#/components/schemas/EmailEntity'
@@ -97,26 +117,6 @@ components:
           format: email
           example: john.doe@example.com
           description: The email address associated with the user profile.
-    Session:
-      type: object
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user of this session.
-          example: 109
-        token:
-          type: string
-          description: The token to use as a bearer token to query Management API endpoints.
-          example: dy_Fa_lQ4iDAnqldJFvVEmnsN8xDTxej19l0LZDBJhQ
-        created:
-          type: string
-          format: date-time
-          description: Unix timestamp indicating when the session was first created.
-          example: '2021-07-20T22:00:00Z'
-      required:
-      - userId
-      - token
-      - created
   securitySchemes:
     manager_auth:
       type: apiKey
