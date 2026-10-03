@@ -285,6 +285,58 @@ paths:
                 $ref: '#/components/schemas/ErrorResponseWithStatus'
 components:
   schemas:
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
     Entity:
       type: object
       required:
@@ -300,6 +352,15 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
     Attribute:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -310,42 +371,6 @@ components:
           eventTypeId:
             type: integer
             example: 22
-    ErrorResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: A message describing the error.
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
     NewAttribute:
       allOf:
       - type: object
@@ -464,68 +489,51 @@ components:
               enum:
               - application
               - catalog
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
-    UserEntity:
+    ErrorResponse:
       type: object
       required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    ErrorResponseWithStatus:
-      type: object
+      - message
       properties:
         message:
           type: string
+          description: A message describing the error.
         errors:
           type: array
           description: An array of individual problems encountered during the request.
           items:
             $ref: '#/components/schemas/APIError'
-        StatusCode:
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
           type: integer
-          description: The error code
+          description: The ID of the account that owns this entity.
+          example: 3886
   parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     sort:
       name: sort
       in: query
@@ -539,14 +547,6 @@ components:
       example: name
       schema:
         type: string
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     pageSize:
       name: pageSize
       in: query

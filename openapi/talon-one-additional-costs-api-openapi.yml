@@ -127,21 +127,6 @@ paths:
                 $ref: '#/components/schemas/AccountAdditionalCost'
 components:
   schemas:
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
     NewAdditionalCost:
       allOf:
       - type: object
@@ -189,6 +174,26 @@ components:
 
               '
             default: session
+    AccountAdditionalCost:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/NewAdditionalCost'
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
     AccountEntity:
       type: object
       required:
@@ -198,12 +203,15 @@ components:
           type: integer
           description: The ID of the account that owns this entity.
           example: 3886
-    AccountAdditionalCost:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/NewAdditionalCost'
   parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     sort:
       name: sort
       in: query
@@ -217,14 +225,6 @@ components:
       example: name
       schema:
         type: string
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     pageSize:
       name: pageSize
       in: query

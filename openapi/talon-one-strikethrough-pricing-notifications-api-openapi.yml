@@ -216,6 +216,42 @@ webhooks:
         required: true
 components:
   schemas:
+    StrikethroughCustomEffectPerItemProps:
+      type: object
+      description: customEffectPerItem effect in strikethrough pricing payload.
+      properties:
+        effectId:
+          description: ID of the effect.
+          type: integer
+          example: 1
+        name:
+          type: string
+          description: The type of the custom effect.
+          example: my_custom_effect
+        payload:
+          description: The JSON payload of the custom effect.
+          type: object
+          x-arbitraryJSON: true
+    AudienceIntegrationID:
+      type: object
+      properties:
+        integrationId:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: The ID of this audience in the third-party integration.
+          example: 382370BKDB946
+    StrikethroughSetDiscountPerItemMemberEffectProps:
+      type: object
+      description: setDiscountPerItem member effect in strikethrough pricing payload.
+      properties:
+        name:
+          description: The effect name.
+          type: string
+          example: 10% off members only
+        value:
+          description: The discount value.
+          example: 9
     StrikethroughSetDiscountPerItemEffectProps:
       type: object
       description: setDiscountPerItem effect in strikethrough pricing payload.
@@ -230,23 +266,52 @@ components:
         excludedFromPriceHistory:
           description: When set to `true`, the applied discount is excluded from the item's price history.
           type: boolean
-    LabelTarget:
+    StrikethroughLabelingNotification:
       type: object
-      oneOf:
-      - $ref: '#/components/schemas/LabelTargetNone'
-      - $ref: '#/components/schemas/LabelTargetAudience'
-    LabelTargetAudience:
-      type: object
-      description: 'Represents the targeted audience.
-
-        '
+      description: The strikethrough labels notification for an application.
       properties:
-        type:
+        version:
           type: string
+          description: 'The version of the strikethrough pricing notification. Set for **scheduled** strikethrough pricing updates only.
+
+            '
           enum:
-          - AUDIENCE
-        audience:
-          $ref: '#/components/schemas/AudienceReference'
+          - v2
+        validFrom:
+          type: string
+          format: date-time
+          description: 'Timestamp at which the strikethrough pricing update becomes valid. Set for **scheduled** strikethrough pricing updates (version: v2) only.
+
+            '
+          example: '2021-07-20T22:00:00Z'
+        applicationId:
+          type: integer
+          description: The ID of the Application to which the catalog items labels belongs.
+          example: 322
+        currentBatch:
+          type: integer
+          description: The batch number of the notification. Notifications might be sent in different batches.
+          example: 1
+        totalBatches:
+          type: integer
+          description: The total number of batches for the notification.
+          example: 10
+        trigger:
+          $ref: '#/components/schemas/StrikethroughTrigger'
+          type: object
+        changedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/StrikethroughChangedItem'
+        NotificationType:
+          type: string
+          description: The type of notification.
+          enum:
+          - StrikethroughPrice
+        sentAt:
+          type: string
+          description: Timestamp at which the notification was sent.
+          format: date-time
     LabelTargetNone:
       type: object
       description: Represents the target type when no entity is selected.
@@ -309,79 +374,6 @@ components:
           description: A list of entities (e.g. audiences) targeted by this effect.
           items:
             $ref: '#/components/schemas/LabelTarget'
-    PriceDetail:
-      type: object
-      properties:
-        price:
-          type: number
-          format: float
-          description: The value of this price type.
-          example: 90
-        adjustmentContextId:
-          type: string
-          description: The context identifier of the selected price adjustment.
-          example: summer25
-        adjustmentReferenceId:
-          type: string
-          format: uuid
-          description: The reference identifier of the selected price adjustment for this SKU.
-          example: 68851723-e6fa-488f-ace9-112581e6c19b
-        adjustmentEffectiveFrom:
-          type: string
-          format: date-time
-          description: The date and time from which the price adjustment is effective.
-          example: '2025-05-25T00:00:00Z'
-        adjustmentEffectiveUntil:
-          type: string
-          format: date-time
-          description: The date and time until which the price adjustment is effective.
-          example: '2025-05-30T00:00:00Z'
-    StrikethroughLabelingNotification:
-      type: object
-      description: The strikethrough labels notification for an application.
-      properties:
-        version:
-          type: string
-          description: 'The version of the strikethrough pricing notification. Set for **scheduled** strikethrough pricing updates only.
-
-            '
-          enum:
-          - v2
-        validFrom:
-          type: string
-          format: date-time
-          description: 'Timestamp at which the strikethrough pricing update becomes valid. Set for **scheduled** strikethrough pricing updates (version: v2) only.
-
-            '
-          example: '2021-07-20T22:00:00Z'
-        applicationId:
-          type: integer
-          description: The ID of the Application to which the catalog items labels belongs.
-          example: 322
-        currentBatch:
-          type: integer
-          description: The batch number of the notification. Notifications might be sent in different batches.
-          example: 1
-        totalBatches:
-          type: integer
-          description: The total number of batches for the notification.
-          example: 10
-        trigger:
-          $ref: '#/components/schemas/StrikethroughTrigger'
-          type: object
-        changedItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/StrikethroughChangedItem'
-        NotificationType:
-          type: string
-          description: The type of notification.
-          enum:
-          - StrikethroughPrice
-        sentAt:
-          type: string
-          description: Timestamp at which the notification was sent.
-          format: date-time
     StrikethroughChangedItem:
       type: object
       description: The information of affected items.
@@ -430,6 +422,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StrikethroughEffect'
+    LabelTarget:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/LabelTargetNone'
+      - $ref: '#/components/schemas/LabelTargetAudience'
+    PriceDetail:
+      type: object
+      properties:
+        price:
+          type: number
+          format: float
+          description: The value of this price type.
+          example: 90
+        adjustmentContextId:
+          type: string
+          description: The context identifier of the selected price adjustment.
+          example: summer25
+        adjustmentReferenceId:
+          type: string
+          format: uuid
+          description: The reference identifier of the selected price adjustment for this SKU.
+          example: 68851723-e6fa-488f-ace9-112581e6c19b
+        adjustmentEffectiveFrom:
+          type: string
+          format: date-time
+          description: The date and time from which the price adjustment is effective.
+          example: '2025-05-25T00:00:00Z'
+        adjustmentEffectiveUntil:
+          type: string
+          format: date-time
+          description: The date and time until which the price adjustment is effective.
+          example: '2025-05-30T00:00:00Z'
+    LabelTargetAudience:
+      type: object
+      description: 'Represents the targeted audience.
+
+        '
+      properties:
+        type:
+          type: string
+          enum:
+          - AUDIENCE
+        audience:
+          $ref: '#/components/schemas/AudienceReference'
+    StrikethroughEffectProps:
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/StrikethroughSetDiscountPerItemEffectProps'
+      - $ref: '#/components/schemas/StrikethroughCustomEffectPerItemProps'
+      - $ref: '#/components/schemas/StrikethroughSetDiscountPerItemMemberEffectProps'
     AudienceReference:
       allOf:
       - type: object
@@ -469,48 +511,6 @@ components:
           example:
             catalogId: 2
             catalogVersion: 100
-    StrikethroughSetDiscountPerItemMemberEffectProps:
-      type: object
-      description: setDiscountPerItem member effect in strikethrough pricing payload.
-      properties:
-        name:
-          description: The effect name.
-          type: string
-          example: 10% off members only
-        value:
-          description: The discount value.
-          example: 9
-    AudienceIntegrationID:
-      type: object
-      properties:
-        integrationId:
-          type: string
-          minLength: 1
-          maxLength: 1000
-          description: The ID of this audience in the third-party integration.
-          example: 382370BKDB946
-    StrikethroughCustomEffectPerItemProps:
-      type: object
-      description: customEffectPerItem effect in strikethrough pricing payload.
-      properties:
-        effectId:
-          description: ID of the effect.
-          type: integer
-          example: 1
-        name:
-          type: string
-          description: The type of the custom effect.
-          example: my_custom_effect
-        payload:
-          description: The JSON payload of the custom effect.
-          type: object
-          x-arbitraryJSON: true
-    StrikethroughEffectProps:
-      type: object
-      oneOf:
-      - $ref: '#/components/schemas/StrikethroughSetDiscountPerItemEffectProps'
-      - $ref: '#/components/schemas/StrikethroughCustomEffectPerItemProps'
-      - $ref: '#/components/schemas/StrikethroughSetDiscountPerItemMemberEffectProps'
   parameters:
     x-uuid:
       name: X-UUID

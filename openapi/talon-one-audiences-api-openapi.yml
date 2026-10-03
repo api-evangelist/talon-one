@@ -681,79 +681,6 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    CustomerProfileAudienceRequest:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerProfileAudienceRequestItem'
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    CustomerProfileAudienceRequestItem:
-      type: object
-      required:
-      - action
-      - profileIntegrationId
-      - audienceId
-      properties:
-        action:
-          type: string
-          enum:
-          - add
-          - delete
-          description: "Defines the action to perform:\n- `add`: Adds the customer profile to the audience.\n\n  **Note**: If the customer profile does not exist, it will be created. The profile will not be visible in any Application\n  until a session or profile update is received for that profile.\n- `delete`: Removes the customer profile from the audience.\n"
-          example: add
-        profileIntegrationId:
-          type: string
-          description: The ID of this customer profile in the third-party integration.
-          example: R195412
-          maxLength: 1000
-        audienceId:
-          type: integer
-          description: The ID of the audience. You get it via the `id` property when [creating an audience](#tag/Audiences/operation/createAudienceV2).
-          example: 748
-    Audience:
-      allOf:
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/NewAudience'
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
     NewAudience:
       allOf:
       - $ref: '#/components/schemas/NewInternalAudience'
@@ -793,13 +720,26 @@ components:
             format: date-time
             description: The last time that the audience memberships changed.
             example: '2022-04-26T11:02:38Z'
-    AttributeQuery:
+    ErrorResponseWithStatus:
       type: object
-      description: Object representing a set of of attributes and their respective values.
-      example:
-        my_attribute_1: some value
-        my_attribute_2: some other value
-        my_attribute_3: some other value
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    CustomerProfileAudienceRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerProfileAudienceRequestItem'
     ErrorSource:
       type: object
       description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
@@ -818,6 +758,21 @@ components:
         resource:
           type: string
           description: Pointer to the resource that caused this error.
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
     UpdateAudience:
       type: object
       required:
@@ -864,117 +819,64 @@ components:
           example:
           - 3
           - 13
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
-    IntegrationEntity:
+    APIError:
       type: object
       required:
-      - integrationId
-      - created
+      - source
+      - title
       properties:
-        integrationId:
+        title:
           type: string
-          format: string
-          example: URNGV8294NV
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    AttributeQuery:
+      type: object
+      description: Object representing a set of of attributes and their respective values.
+      example:
+        my_attribute_1: some value
+        my_attribute_2: some other value
+        my_attribute_3: some other value
+    CustomerProfileAudienceRequestItem:
+      type: object
+      required:
+      - action
+      - profileIntegrationId
+      - audienceId
+      properties:
+        action:
+          type: string
+          enum:
+          - add
+          - delete
+          description: "Defines the action to perform:\n- `add`: Adds the customer profile to the audience.\n\n  **Note**: If the customer profile does not exist, it will be created. The profile will not be visible in any Application\n  until a session or profile update is received for that profile.\n- `delete`: Removes the customer profile from the audience.\n"
+          example: add
+        profileIntegrationId:
+          type: string
+          description: The ID of this customer profile in the third-party integration.
+          example: R195412
           maxLength: 1000
-          description: The integration ID set by your integration layer.
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-02-07T08:15:22Z'
-    CustomerProfileEntity:
+        audienceId:
+          type: integer
+          description: The ID of the audience. You get it via the `id` property when [creating an audience](#tag/Audiences/operation/createAudienceV2).
+          example: 748
+    AccountEntity:
       type: object
       required:
-      - id
-      - created
+      - accountId
       properties:
-        id:
+        accountId:
           type: integer
-          description: The internal ID of the customer profile.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time the customer profile was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    Import:
+          description: The ID of the account that owns this entity.
+          example: 3886
+    Audience:
       allOf:
-      - $ref: '#/components/schemas/Entity'
       - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
-    LoyaltyMembership:
-      type: object
-      required:
-      - loyaltyProgramId
-      properties:
-        joined:
-          type: string
-          format: date-time
-          title: Loyalty program joined at
-          description: The moment in which the loyalty program was joined.
-          example: '2012-03-20T14:15:22Z'
-        loyaltyProgramId:
-          type: integer
-          title: Loyalty program ID
-          description: The ID of the loyalty program belonging to this entity.
-          example: 323414846
-    AudienceMembership:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id:
-          type: integer
-          title: Audience ID
-          description: The ID of the audience belonging to this entity.
-          example: 2
-        name:
-          type: string
-          title: Audience Name
-          description: The Name of the audience belonging to this entity.
-          example: Travel audience
-    ErrorResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: A message describing the error.
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/NewAudience'
     CustomerProfile:
       allOf:
       - $ref: '#/components/schemas/CustomerProfileEntity'
@@ -1064,6 +966,22 @@ components:
           type: integer
           description: The member count of the audience.
           example: 1234
+    LoyaltyMembership:
+      type: object
+      required:
+      - loyaltyProgramId
+      properties:
+        joined:
+          type: string
+          format: date-time
+          title: Loyalty program joined at
+          description: The moment in which the loyalty program was joined.
+          example: '2012-03-20T14:15:22Z'
+        loyaltyProgramId:
+          type: integer
+          title: Loyalty program ID
+          description: The ID of the loyalty program belonging to this entity.
+          example: 323414846
     UserEntity:
       type: object
       required:
@@ -1073,6 +991,88 @@ components:
           type: integer
           description: The ID of the user associated with this entity.
           example: 388
+    IntegrationEntity:
+      type: object
+      required:
+      - integrationId
+      - created
+      properties:
+        integrationId:
+          type: string
+          format: string
+          example: URNGV8294NV
+          maxLength: 1000
+          description: The integration ID set by your integration layer.
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-02-07T08:15:22Z'
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    AudienceMembership:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          title: Audience ID
+          description: The ID of the audience belonging to this entity.
+          example: 2
+        name:
+          type: string
+          title: Audience Name
+          description: The Name of the audience belonging to this entity.
+          example: Travel audience
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+    CustomerProfileEntity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of the customer profile.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time the customer profile was created.
+          example: '2020-06-10T09:05:27.993483Z'
     NewCustomerProfile:
       type: object
       properties:

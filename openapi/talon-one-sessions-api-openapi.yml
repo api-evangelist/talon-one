@@ -76,6 +76,16 @@ paths:
           description: No Content
 components:
   schemas:
+    EmailEntity:
+      type: object
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+          description: The email address associated with the user profile.
     Session:
       type: object
       properties:
@@ -107,16 +117,6 @@ components:
             example: admin123456
         required:
         - password
-    EmailEntity:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-          example: john.doe@example.com
-          description: The email address associated with the user profile.
   securitySchemes:
     manager_auth:
       type: apiKey

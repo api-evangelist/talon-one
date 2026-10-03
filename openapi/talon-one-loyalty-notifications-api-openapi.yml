@@ -261,9 +261,13 @@ components:
           format: date-time
           description: The date and time the tier expires.
           example: '2023-12-01T12:23:00+02:00'
-    PendingActivePointsData:
+    TierUpgradeData:
       type: object
       properties:
+        CustomerProfileID:
+          type: string
+          description: The integration ID of the customer profile whose tier was upgraded.
+          example: URNGV8294NV
         LoyaltyProgramID:
           type: integer
           description: The ID of the loyalty program.
@@ -274,28 +278,135 @@ components:
           description: The ID of the subledger, when applicable. If this field is empty, the main ledger is used.
           default: ''
           example: SL001
+        CurrentTier:
+          type: string
+          description: The name of the customer's current tier.
+          example: Silver
+        CurrentPoints:
+          type: number
+          description: The number of points the customer had at the time of tier upgrade.
+          example: 120.55
+        OldTier:
+          type: string
+          description: The name of the customer's previous tier.
+          example: Bronze
+        PointsRequiredToTheNextTier:
+          type: number
+          description: The number of points needed for a customer to reach the next tier.
+          example: 23.51
+        NextTier:
+          type: string
+          description: The name of the customer's next tier.
+          example: Gold
+        TierExpirationDate:
+          type: string
+          format: date-time
+          description: The exact date and time the tier expires.
+          example: '2023-12-01T12:23:00+02:00'
+        TimestampOfTierChange:
+          type: string
+          format: date-time
+          description: The exact date and time the tier was changed.
+          example: '2023-10-26T12:23:00+02:00'
+    ExpiringPointsData:
+      type: object
+      properties:
+        ExpiryDate:
+          type: string
+          format: date
+          description: The expiration date of loyalty points.
+        LoyaltyProgramID:
+          type: integer
+          description: The ID of the loyalty program.
+          minimum: 1
+          example: 5
         CustomerProfileID:
           type: string
-          description: The integration ID of the customer profile whose loyalty points are becoming active.
+          description: The integration ID of the customer profile that has expiring points.
           example: URNGV8294NV
-        Points:
+        AmountOfExpiringPoints:
           type: number
-          description: The amount of pending loyalty points becoming active.
+          description: The amount of loyalty points that will be expired soon.
           example: 10.99
-        ActiveOn:
+        SubledgerID:
           type: string
-          format: date-time
-          description: The date and time the loyalty points become active.
-          example: '2023-08-20T12:22:00+02:00'
-        ExpireOn:
+          description: The ID of the subledger within the loyalty program where these points were added.
+          example: sub-123
+    ExpiringPointsNotification:
+      type: object
+      properties:
+        TotalResultSize:
+          type: integer
+          example: 1
+        Data:
+          type: array
+          description: The array of expiring points.
+          maxLength: 1000
+          items:
+            $ref: '#/components/schemas/ExpiringPointsData'
+        NotificationType:
           type: string
-          format: date-time
-          description: The date and time the loyalty points expire.
-          example: '2023-09-01T12:23:00+02:00'
+          description: The type of notification.
+          enum:
+          - LoyaltyPointsExpiring
+    AddedDeductedPointsBalancesNotification:
+      type: object
+      properties:
+        EmployeeName:
+          type: string
+          description: The name of the employee who added or deducted points.
+          example: Franziska Schneider
+        LoyaltyProgramID:
+          type: integer
+          description: The ID of the loyalty program.
+          minimum: 1
+          example: 5
+        NotificationType:
+          type: string
+          description: The type of notification.
+          enum:
+          - LoyaltyAddedDeductedPointsBalances
+        ProfileIntegrationID:
+          type: string
+          description: The integration ID of the customer profile to whom points were added or deducted.
+          example: URNGV8294NV
         SessionIntegrationID:
           type: string
-          description: The integration ID of the session through which the points were earned.
+          description: The integration ID of the session through which the points were earned or lost.
           example: cc53e4fa-547f-4f5e-8333-76e05c381f67
+        SubledgerID:
+          type: string
+          description: The ID of the subledger within the loyalty program where these points were added.
+          example: sub-123
+        TypeOfChange:
+          type: string
+          enum:
+          - campaign_manager
+          - rule_engine
+          - management_api
+          description: 'The notification source, that is, it indicates whether the points were added or deducted via one of the following routes:
+
+            - [The Campaign Manager](/docs/product/getting-started)
+
+            - [Management API](/management-api#tag/Loyalty)
+
+            - [Rule Engine](/docs/product/applications/evaluation-order-for-rules-and-filters)
+
+            '
+        UserID:
+          type: integer
+          description: The ID of the employee who added or deducted points.
+          example: 25
+        Actions:
+          type: array
+          description: The list of actions that have been triggered in the loyalty program.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AddedDeductedPointsBalancesAction'
+        CurrentPoints:
+          type: number
+          description: The current points balance.
+          example: 10.99
     AddedDeductedPointsNotification:
       type: object
       properties:
@@ -378,30 +489,23 @@ components:
           type: string
           format: uuid
           description: The identifier of the transaction in the loyalty ledger.
-    ExpiringPointsData:
+    PendingActivePointsNotification:
       type: object
       properties:
-        ExpiryDate:
-          type: string
-          format: date
-          description: The expiration date of loyalty points.
-        LoyaltyProgramID:
+        TotalResultSize:
           type: integer
-          description: The ID of the loyalty program.
-          minimum: 1
-          example: 5
-        CustomerProfileID:
+          example: 1
+        Data:
+          type: array
+          description: The array of pending points.
+          maxLength: 1000
+          items:
+            $ref: '#/components/schemas/PendingActivePointsData'
+        NotificationType:
           type: string
-          description: The integration ID of the customer profile that has expiring points.
-          example: URNGV8294NV
-        AmountOfExpiringPoints:
-          type: number
-          description: The amount of loyalty points that will be expired soon.
-          example: 10.99
-        SubledgerID:
-          type: string
-          description: The ID of the subledger within the loyalty program where these points were added.
-          example: sub-123
+          description: The type of notification.
+          enum:
+          - LoyaltyPointsPendingToActive
     TierUpgradeNotification:
       type: object
       properties:
@@ -419,44 +523,9 @@ components:
           description: The type of notification.
           enum:
           - TierUpgrade
-    AddedDeductedPointsBalancesAction:
+    PendingActivePointsData:
       type: object
       properties:
-        Amount:
-          type: number
-          description: The amount of added or deducted loyalty points.
-          example: 10.99
-        Reason:
-          type: string
-          description: The reason for the points addition or deduction.
-          example: Compensation
-        Operation:
-          type: string
-          description: The action (addition or subtraction) made with loyalty points.
-          enum:
-          - addition
-          - subtraction
-        StartDate:
-          type: string
-          format: date-time
-          description: The start date for loyalty points.
-          example: '2023-01-24T14:15:22Z'
-        ExpiryDate:
-          type: string
-          format: date-time
-          description: The expiration date for loyalty points.
-          example: '2024-01-24T14:15:22Z'
-        TransactionUUID:
-          type: string
-          format: uuid
-          description: The identifier of the transaction in the loyalty ledger.
-    TierUpgradeData:
-      type: object
-      properties:
-        CustomerProfileID:
-          type: string
-          description: The integration ID of the customer profile whose tier was upgraded.
-          example: URNGV8294NV
         LoyaltyProgramID:
           type: integer
           description: The ID of the loyalty program.
@@ -467,53 +536,28 @@ components:
           description: The ID of the subledger, when applicable. If this field is empty, the main ledger is used.
           default: ''
           example: SL001
-        CurrentTier:
+        CustomerProfileID:
           type: string
-          description: The name of the customer's current tier.
-          example: Silver
-        CurrentPoints:
+          description: The integration ID of the customer profile whose loyalty points are becoming active.
+          example: URNGV8294NV
+        Points:
           type: number
-          description: The number of points the customer had at the time of tier upgrade.
-          example: 120.55
-        OldTier:
-          type: string
-          description: The name of the customer's previous tier.
-          example: Bronze
-        PointsRequiredToTheNextTier:
-          type: number
-          description: The number of points needed for a customer to reach the next tier.
-          example: 23.51
-        NextTier:
-          type: string
-          description: The name of the customer's next tier.
-          example: Gold
-        TierExpirationDate:
+          description: The amount of pending loyalty points becoming active.
+          example: 10.99
+        ActiveOn:
           type: string
           format: date-time
-          description: The exact date and time the tier expires.
-          example: '2023-12-01T12:23:00+02:00'
-        TimestampOfTierChange:
+          description: The date and time the loyalty points become active.
+          example: '2023-08-20T12:22:00+02:00'
+        ExpireOn:
           type: string
           format: date-time
-          description: The exact date and time the tier was changed.
-          example: '2023-10-26T12:23:00+02:00'
-    ExpiringPointsNotification:
-      type: object
-      properties:
-        TotalResultSize:
-          type: integer
-          example: 1
-        Data:
-          type: array
-          description: The array of expiring points.
-          maxLength: 1000
-          items:
-            $ref: '#/components/schemas/ExpiringPointsData'
-        NotificationType:
+          description: The date and time the loyalty points expire.
+          example: '2023-09-01T12:23:00+02:00'
+        SessionIntegrationID:
           type: string
-          description: The type of notification.
-          enum:
-          - LoyaltyPointsExpiring
+          description: The integration ID of the session through which the points were earned.
+          example: cc53e4fa-547f-4f5e-8333-76e05c381f67
     TierDowngradeData:
       type: object
       properties:
@@ -553,6 +597,37 @@ components:
           format: date-time
           description: The exact date and time the tier was changed.
           example: '2023-10-26T12:23:00+02:00'
+    AddedDeductedPointsBalancesAction:
+      type: object
+      properties:
+        Amount:
+          type: number
+          description: The amount of added or deducted loyalty points.
+          example: 10.99
+        Reason:
+          type: string
+          description: The reason for the points addition or deduction.
+          example: Compensation
+        Operation:
+          type: string
+          description: The action (addition or subtraction) made with loyalty points.
+          enum:
+          - addition
+          - subtraction
+        StartDate:
+          type: string
+          format: date-time
+          description: The start date for loyalty points.
+          example: '2023-01-24T14:15:22Z'
+        ExpiryDate:
+          type: string
+          format: date-time
+          description: The expiration date for loyalty points.
+          example: '2024-01-24T14:15:22Z'
+        TransactionUUID:
+          type: string
+          format: uuid
+          description: The identifier of the transaction in the loyalty ledger.
     TierWillDowngradeNotification:
       type: object
       properties:
@@ -570,81 +645,6 @@ components:
           description: The type of notification.
           enum:
           - TierWillDowngrade
-    AddedDeductedPointsBalancesNotification:
-      type: object
-      properties:
-        EmployeeName:
-          type: string
-          description: The name of the employee who added or deducted points.
-          example: Franziska Schneider
-        LoyaltyProgramID:
-          type: integer
-          description: The ID of the loyalty program.
-          minimum: 1
-          example: 5
-        NotificationType:
-          type: string
-          description: The type of notification.
-          enum:
-          - LoyaltyAddedDeductedPointsBalances
-        ProfileIntegrationID:
-          type: string
-          description: The integration ID of the customer profile to whom points were added or deducted.
-          example: URNGV8294NV
-        SessionIntegrationID:
-          type: string
-          description: The integration ID of the session through which the points were earned or lost.
-          example: cc53e4fa-547f-4f5e-8333-76e05c381f67
-        SubledgerID:
-          type: string
-          description: The ID of the subledger within the loyalty program where these points were added.
-          example: sub-123
-        TypeOfChange:
-          type: string
-          enum:
-          - campaign_manager
-          - rule_engine
-          - management_api
-          description: 'The notification source, that is, it indicates whether the points were added or deducted via one of the following routes:
-
-            - [The Campaign Manager](/docs/product/getting-started)
-
-            - [Management API](/management-api#tag/Loyalty)
-
-            - [Rule Engine](/docs/product/applications/evaluation-order-for-rules-and-filters)
-
-            '
-        UserID:
-          type: integer
-          description: The ID of the employee who added or deducted points.
-          example: 25
-        Actions:
-          type: array
-          description: The list of actions that have been triggered in the loyalty program.
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/AddedDeductedPointsBalancesAction'
-        CurrentPoints:
-          type: number
-          description: The current points balance.
-          example: 10.99
-    PendingActivePointsNotification:
-      type: object
-      properties:
-        TotalResultSize:
-          type: integer
-          example: 1
-        Data:
-          type: array
-          description: The array of pending points.
-          maxLength: 1000
-          items:
-            $ref: '#/components/schemas/PendingActivePointsData'
-        NotificationType:
-          type: string
-          description: The type of notification.
-          enum:
-          - LoyaltyPointsPendingToActive
     TierDowngradeNotification:
       type: object
       properties:

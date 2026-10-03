@@ -93,15 +93,6 @@ paths:
                     success: false
                     message: Internal Server Error
 components:
-  parameters:
-    ShopifyShopDomain:
-      name: X-Shopify-Shop-Domain
-      in: header
-      required: true
-      description: The Shopify domain of the shop (e.g., `store.myshopify.com`).
-      schema:
-        type: string
-        example: store.myshopify.com
   schemas:
     UpsertSessionResponse:
       type: object
@@ -165,6 +156,15 @@ components:
         attributes:
           type: object
           description: Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session.
+  parameters:
+    ShopifyShopDomain:
+      name: X-Shopify-Shop-Domain
+      in: header
+      required: true
+      description: The Shopify domain of the shop (e.g., `store.myshopify.com`).
+      schema:
+        type: string
+        example: store.myshopify.com
   securitySchemes:
     ShopifyCustomerAccessToken:
       type: apiKey

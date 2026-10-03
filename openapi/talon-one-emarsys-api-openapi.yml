@@ -127,21 +127,6 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
 components:
   examples:
-    EmarsysCustomerProfilesAudiencesRequest:
-      value:
-        parameters:
-        - customerProfileId: customer123
-          audienceId: 1
-          actionType: add
-    EmarsysLoyaltyBalanceResponse:
-      value:
-        content:
-        - integrationId: test-user-4zoj1c
-          loyaltyProgramId: '8431'
-          activeBalance: 100
-          pendingBalance: 0
-          expiredBalance: 0
-          totalBalance: 100
     EmarsysCouponResponse:
       value:
         content:
@@ -157,6 +142,21 @@ components:
           batchId: qndflqqd
           profileRedemptionCount: 0
           state: active
+    EmarsysCustomerProfilesAudiencesRequest:
+      value:
+        parameters:
+        - customerProfileId: customer123
+          audienceId: 1
+          actionType: add
+    EmarsysLoyaltyBalanceResponse:
+      value:
+        content:
+        - integrationId: test-user-4zoj1c
+          loyaltyProgramId: '8431'
+          activeBalance: 100
+          pendingBalance: 0
+          expiredBalance: 0
+          totalBalance: 100
   schemas:
     EmarsysCouponRequest:
       type: object
@@ -197,6 +197,82 @@ components:
           minimum: 0
           example: 1000
           description: The value to set for the limit.
+    EmarsysCouponResponse:
+      properties:
+        content:
+          type: array
+          description: 'The relevant coupon-related content, including the properties passed in the `fields` array of the request.
+
+            '
+          items:
+            type: object
+            required:
+            - campaignId
+            - integrationId
+            properties:
+              campaignId:
+                type: string
+                description: The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL.
+                example: '34'
+              integrationId:
+                type: string
+                description: The integration ID of the customer profile.
+                example: URNGV8294NV
+    EmarsysLoyaltyBalanceRequest:
+      type: object
+      required:
+      - fields
+      - limit
+      - parameters
+      properties:
+        parameters:
+          type: array
+          items:
+            properties:
+              loyaltyProgramId:
+                type: string
+                description: The ID of the loyalty program in Talon.One.
+                example: '34'
+              integrationId:
+                type: string
+                description: The integration ID of the customer profile.
+                example: URNGV8294NV
+              subledgerId:
+                type: string
+                description: The ID of the subledger from which to retrieve the loyalty balance. If not provided, the loyalty balance is retrieved from the main ledger.
+                example: subledger-123
+            required:
+            - loyaltyProgramId
+            - integrationId
+        fields:
+          type: array
+          description: 'Additional fields to include in the response.
+
+            Valid fields are `activeBalance`, `pendingBalance`, `expiredBalance`, and `spentBalance`.
+
+            '
+          example:
+          - activeBalance
+          - pendingBalance
+          items:
+            type: string
+    EmarsysUpdateAudiencesResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            type: object
+            properties:
+              customerProfileId:
+                type: string
+                example: profile-1
+              audienceId:
+                type: string
+                example: '1'
+              actionType:
+                type: string
+                example: add
     EmarsysLoyaltyBalanceResponse:
       properties:
         content:
@@ -238,65 +314,6 @@ components:
                 type: number
                 description: Total amount of points already spent by this customer.
                 example: 50
-    EmarsysLoyaltyBalanceRequest:
-      type: object
-      required:
-      - fields
-      - limit
-      - parameters
-      properties:
-        parameters:
-          type: array
-          items:
-            properties:
-              loyaltyProgramId:
-                type: string
-                description: The ID of the loyalty program in Talon.One.
-                example: '34'
-              integrationId:
-                type: string
-                description: The integration ID of the customer profile.
-                example: URNGV8294NV
-              subledgerId:
-                type: string
-                description: The ID of the subledger from which to retrieve the loyalty balance. If not provided, the loyalty balance is retrieved from the main ledger.
-                example: subledger-123
-            required:
-            - loyaltyProgramId
-            - integrationId
-        fields:
-          type: array
-          description: 'Additional fields to include in the response.
-
-            Valid fields are `activeBalance`, `pendingBalance`, `expiredBalance`, and `spentBalance`.
-
-            '
-          example:
-          - activeBalance
-          - pendingBalance
-          items:
-            type: string
-    EmarsysCouponResponse:
-      properties:
-        content:
-          type: array
-          description: 'The relevant coupon-related content, including the properties passed in the `fields` array of the request.
-
-            '
-          items:
-            type: object
-            required:
-            - campaignId
-            - integrationId
-            properties:
-              campaignId:
-                type: string
-                description: The ID of the campaign in Talon.One. It is displayed in your Talon.One deployment URL.
-                example: '34'
-              integrationId:
-                type: string
-                description: The integration ID of the customer profile.
-                example: URNGV8294NV
     errorResponseWithStatus:
       type: object
       properties:
@@ -310,23 +327,6 @@ components:
         RequestUUID:
           type: string
           example: 51fad142-3563-4fe2-b4aa-41ab20be31d911
-    EmarsysUpdateAudiencesResponse:
-      type: object
-      properties:
-        content:
-          type: array
-          items:
-            type: object
-            properties:
-              customerProfileId:
-                type: string
-                example: profile-1
-              audienceId:
-                type: string
-                example: '1'
-              actionType:
-                type: string
-                example: add
     EmarsysCustomerProfilesAudiencesRequest:
       type: object
       required:
@@ -358,18 +358,6 @@ components:
                 - delete
                 example: add
   responses:
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponseWithStatus'
-          examples:
-            default:
-              value:
-                StatusCode: 400
-                Error: No Deployment URL specified
-                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
     TooManyRequests:
       description: Too many requests
       content:
@@ -382,8 +370,8 @@ components:
                 StatusCode: 429
                 Error: Too many requests
                 RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
-    NotFound:
-      description: Not Found
+    BadRequest:
+      description: Bad Request
       content:
         application/json:
           schema:
@@ -391,8 +379,8 @@ components:
           examples:
             default:
               value:
-                StatusCode: 404
-                Error: Not Found
+                StatusCode: 400
+                Error: No Deployment URL specified
                 RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
     Unauthorized:
       description: Unauthorized
@@ -405,6 +393,18 @@ components:
               value:
                 StatusCode: 401
                 Error: Missing Session Token
+                RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponseWithStatus'
+          examples:
+            default:
+              value:
+                StatusCode: 404
+                Error: Not Found
                 RequestUUID: fd2f7c55-d064-46e1-ab87-a39cb877cd82
   parameters:
     deployment:

@@ -430,7 +430,66 @@ paths:
                     items:
                       $ref: '#/components/schemas/Export'
 components:
+  parameters:
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
   schemas:
+    MessageLogResponse:
+      type: object
+      description: Details of the response.
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the response was received.
+          example: '2021-07-20T22:00:50Z'
+        response:
+          type: string
+          format: byte
+          description: Raw response data.
+          example: UmVzcG9uc2UgY29udGVudA==
+        status:
+          type: integer
+          description: HTTP status code of the response.
+          example: 200
     Entity:
       type: object
       required:
@@ -470,6 +529,15 @@ components:
           filter:
             type: object
             description: Map of keys and values that were used to filter the exported rows.
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
     Change:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -548,32 +616,6 @@ components:
           type: string
           description: payload of response
           example: '{"coupons":[],"createdCoupons":[],...}'
-    MessageLogRequest:
-      type: object
-      description: Details of the request.
-      required:
-      - createdAt
-      - request
-      properties:
-        createdAt:
-          type: string
-          format: date-time
-          description: Timestamp when the request was made.
-          example: '2021-07-20T21:59:00Z'
-        request:
-          type: string
-          format: byte
-          description: Raw request data.
-          example: SGVsbG8sIHdvcmxkIQ==
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
     MessageLogEntry:
       type: object
       description: Message Log.
@@ -669,74 +711,32 @@ components:
           description: List of message logs.
           items:
             $ref: '#/components/schemas/MessageLogEntry'
-    UserEntity:
+    MessageLogRequest:
       type: object
+      description: Details of the request.
       required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    MessageLogResponse:
-      type: object
-      description: Details of the response.
+      - createdAt
+      - request
       properties:
         createdAt:
           type: string
           format: date-time
-          description: Timestamp when the response was received.
-          example: '2021-07-20T22:00:50Z'
-        response:
+          description: Timestamp when the request was made.
+          example: '2021-07-20T21:59:00Z'
+        request:
           type: string
           format: byte
-          description: Raw response data.
-          example: UmVzcG9uc2UgY29udGVudA==
-        status:
+          description: Raw request data.
+          example: SGVsbG8sIHdvcmxkIQ==
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
           type: integer
-          description: HTTP status code of the response.
-          example: 200
-  parameters:
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
-
-
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
-
-        '
-      example: name
-      schema:
-        type: string
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
   securitySchemes:
     manager_auth:
       type: apiKey

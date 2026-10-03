@@ -76,21 +76,6 @@ paths:
                 $ref: '#/components/schemas/CampaignGroup'
 components:
   schemas:
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
     NewCampaignGroup:
       type: object
       properties:
@@ -123,15 +108,28 @@ components:
           - 8
       required:
       - name
-    AccountEntity:
+    Entity:
       type: object
       required:
-      - accountId
+      - id
+      - created
       properties:
-        accountId:
+        id:
           type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    CampaignGroup:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/NewCampaignGroup'
+      - type: object
     MutableEntity:
       type: object
       required:
@@ -142,14 +140,24 @@ components:
           format: date-time
           description: The time this entity was last modified.
           example: '2021-09-12T10:12:42Z'
-    CampaignGroup:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/NewCampaignGroup'
-      - type: object
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
   parameters:
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     sort:
       name: sort
       in: query
@@ -163,14 +171,6 @@ components:
       example: name
       schema:
         type: string
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     pageSize:
       name: pageSize
       in: query

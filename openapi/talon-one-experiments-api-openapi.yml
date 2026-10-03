@@ -113,51 +113,120 @@ paths:
                 $ref: '#/components/schemas/Experiment'
 components:
   schemas:
-    NewRuleset:
+    LimitConfig:
       type: object
       required:
-      - rules
-      - bindings
+      - action
+      - limit
+      - entities
       properties:
-        rules:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        period:
+          description: The period on which the budget limit recurs.
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+          example: yearly
+        entities:
           type: array
-          description: Set of rules to apply.
+          description: The entity that this limit applies to.
+          example:
+          - Coupon
           items:
-            $ref: '#/components/schemas/Rule'
-        strikethroughRules:
-          type: array
-          description: Set of rules to apply for strikethrough.
-          items:
-            $ref: '#/components/schemas/Rule'
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Profile
+            - Identifier
+            - Store
+            - Session
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
+    Rule:
+      type: object
+      required:
+      - title
+      - condition
+      - effects
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: A unique identifier for the rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        parentId:
+          type: string
+          format: uuid
+          description: The ID of the rule that was copied to create this rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
+        title:
+          type: string
+          description: A short description of the rule.
+          example: Give discount via coupon
+        description:
+          type: string
+          description: A longer, more detailed description of the rule.
+          example: Creates a discount when a coupon is valid
         bindings:
           type: array
           description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
           items:
             $ref: '#/components/schemas/Binding'
-          example: []
-        rbVersion:
-          type: string
-          description: The version of the rulebuilder used to create this ruleset.
-          example: v2
-        activate:
-          type: boolean
-          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
-          example: true
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
+        condition:
+          type: array
+          description: A Talang expression that will be evaluated in the context of the given event.
+          minItems: 1
+          example:
+          - and
+          - - couponValid
+          items: {}
+        effects:
+          type: array
+          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
+          items:
+            type: array
+            items: {}
+          example:
+          - catch
+          - - noop
+          - - setDiscount
+            - 10% off
+            - - '*'
+              - - .
+                - Session
+                - Total
+              - - /
+                - 10
+                - 100
     Experiment:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -217,55 +286,226 @@ components:
         required:
         - state
         - goalType
-    LimitConfig:
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/BaseCampaign'
+      - $ref: '#/components/schemas/AdditionalCampaignProperties'
+      - $ref: '#/components/schemas/CampaignVersions'
+      - type: object
+        required:
+        - reevaluateOnReturn
+    Entity:
       type: object
       required:
-      - action
-      - limit
-      - entities
+      - id
+      - created
       properties:
-        action:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
           type: string
-          description: 'The limitable action to which this limit applies. For example:
-
-            - `setDiscount`
-
-            - `setDiscountEffect`
-
-            - `redeemCoupon`
-
-            - `createCoupon`
-
-            '
-          example: createCoupon
-        limit:
-          type: number
-          minimum: 0
-          example: 1000
-          description: The value to set for the limit.
-        period:
-          description: The period on which the budget limit recurs.
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    NewRuleset:
+      type: object
+      required:
+      - rules
+      - bindings
+      properties:
+        rules:
+          type: array
+          description: Set of rules to apply.
+          items:
+            $ref: '#/components/schemas/Rule'
+        strikethroughRules:
+          type: array
+          description: Set of rules to apply for strikethrough.
+          items:
+            $ref: '#/components/schemas/Rule'
+        bindings:
+          type: array
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
+          items:
+            $ref: '#/components/schemas/Binding'
+          example: []
+        rbVersion:
+          type: string
+          description: The version of the rulebuilder used to create this ruleset.
+          example: v2
+        activate:
+          type: boolean
+          description: Indicates whether this created ruleset should be activated for the campaign that owns it.
+          example: true
+    BaseCampaign:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Campaign Name
+          description: A user-facing name for this campaign.
+          minLength: 1
+          example: Summer promotions
+        description:
+          type: string
+          title: Campaign Description
+          description: A detailed description of the campaign.
+          example: Campaign for all summer 2021 promotions
+        startTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become active.
+          example: '2021-07-20T22:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become inactive.
+          example: '2021-09-22T22:00:00Z'
+        attributes:
+          type: object
+          description: Arbitrary properties associated with this campaign.
+        state:
           type: string
           enum:
-          - daily
-          - weekly
-          - monthly
-          - yearly
-          example: yearly
-        entities:
+          - enabled
+          - disabled
+          - archived
+          default: enabled
+          example: enabled
+          description: 'A disabled or archived campaign is not evaluated for rules or coupons.
+
+            '
+        activeRulesetId:
+          type: integer
+          description: '[ID of Ruleset](https://docs.talon.one/management-api#tag/Campaigns/operation/getRulesets) this
+
+            campaign applies on customer session evaluation.
+
+            '
+          example: 6
+        tags:
           type: array
-          description: The entity that this limit applies to.
+          description: A list of tags for the campaign.
           example:
-          - Coupon
+          - summer
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+        reevaluateOnReturn:
+          type: boolean
+          title: Reevaluate on return
+          description: Indicates whether this campaign should be reevaluated when a customer returns an item.
+          example: true
+        features:
+          type: array
+          description: The features enabled in this campaign.
+          example:
+          - coupons
+          - referrals
           items:
             type: string
             enum:
-            - Coupon
-            - Referral
-            - Profile
-            - Identifier
-            - Store
-            - Session
+            - coupons
+            - referrals
+            - loyalty
+            - giveaways
+            - strikethrough
+            - achievements
+            - advancedEvents
+        couponSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        referralSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        limits:
+          type: array
+          description: 'The set of [budget limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets) for this campaign.
+
+            '
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+        campaignGroups:
+          type: array
+          description: 'The IDs of the [campaign groups](https://docs.talon.one/docs/product/account/managing-campaign-groups) this campaign belongs to.
+
+            '
+          example:
+          - 1
+          - 3
+          items:
+            type: integer
+        type:
+          type: string
+          title: Type
+          enum:
+          - cartItem
+          - advanced
+          default: advanced
+          example: advanced
+          description: "The campaign type. Possible type values:\n  - `cartItem`: Type of campaign that can apply effects only to cart items.\n  - `advanced`: Type of campaign that can apply effects to customer sessions and cart items.\n"
+        linkedStoreIds:
+          type: array
+          description: 'A list of store IDs that you want to link to the campaign.
+
+
+            **Note:** Campaigns with linked store IDs will only be evaluated when there is a
+
+            [customer session update](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+
+            that references a linked store.
+
+            '
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        couponAttributes:
+          type: object
+          description: Arbitrary properties associated with coupons in this campaign.
+      required:
+      - name
+      - state
+      - tags
+      - limits
+      - features
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    Ruleset:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/NewRuleset'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            title: Campaign ID
+            description: The ID of the campaign that owns this entity.
+            example: 320
+          templateId:
+            type: integer
+            title: Campaign Template ID
+            description: The ID of the campaign template that owns this entity.
+            example: 3
+          activatedAt:
+            type: string
+            format: date-time
+            description: Timestamp indicating when this Ruleset was activated.
     CodeGeneratorSettings:
       type: object
       properties:
@@ -326,27 +566,6 @@ components:
       required:
       - couponPattern
       - validCharacters
-    Ruleset:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/NewRuleset'
-      - type: object
-        properties:
-          campaignId:
-            type: integer
-            title: Campaign ID
-            description: The ID of the campaign that owns this entity.
-            example: 320
-          templateId:
-            type: integer
-            title: Campaign Template ID
-            description: The ID of the campaign template that owns this entity.
-            example: 3
-          activatedAt:
-            type: string
-            format: date-time
-            description: Timestamp indicating when this Ruleset was activated.
     Binding:
       type: object
       required:
@@ -419,84 +638,6 @@ components:
           type: string
           description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
           example: The percentage discount applied to the cart total.
-    Rule:
-      type: object
-      required:
-      - title
-      - condition
-      - effects
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: A unique identifier for the rule.
-          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
-        parentId:
-          type: string
-          format: uuid
-          description: The ID of the rule that was copied to create this rule.
-          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
-        title:
-          type: string
-          description: A short description of the rule.
-          example: Give discount via coupon
-        description:
-          type: string
-          description: A longer, more detailed description of the rule.
-          example: Creates a discount when a coupon is valid
-        bindings:
-          type: array
-          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
-          items:
-            $ref: '#/components/schemas/Binding'
-        condition:
-          type: array
-          description: A Talang expression that will be evaluated in the context of the given event.
-          minItems: 1
-          example:
-          - and
-          - - couponValid
-          items: {}
-        effects:
-          type: array
-          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
-          items:
-            type: array
-            items: {}
-          example:
-          - catch
-          - - noop
-          - - setDiscount
-            - 10% off
-            - - '*'
-              - - .
-                - Session
-                - Total
-              - - /
-                - 10
-                - 100
-    ExperimentVariant:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - type: object
-        required:
-        - name
-        - isPrimary
-        properties:
-          name:
-            type: string
-            example: Variant A
-          experimentId:
-            type: integer
-            example: 10
-          ruleset:
-            $ref: '#/components/schemas/Ruleset'
-          weight:
-            type: integer
-            example: 12
-          isPrimary:
-            type: boolean
-            example: true
     CampaignVersions:
       type: object
       properties:
@@ -753,6 +894,21 @@ components:
       - type
       - frontendState
       - storesImported
+    EntityWithTalangVisibleID:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: Unique ID for this entity.
+          example: 4
+        created:
+          type: string
+          format: date-time
+          description: The exact moment this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
     CampaignBudget:
       type: object
       required:
@@ -784,184 +940,28 @@ components:
           minimum: 0
           example: 42
           description: The number of occurrences of the limited action in the context of the campaign.
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    Campaign:
+    ExperimentVariant:
       allOf:
-      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
-      - $ref: '#/components/schemas/ApplicationEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/BaseCampaign'
-      - $ref: '#/components/schemas/AdditionalCampaignProperties'
-      - $ref: '#/components/schemas/CampaignVersions'
+      - $ref: '#/components/schemas/Entity'
       - type: object
         required:
-        - reevaluateOnReturn
-    ApplicationEntity:
-      type: object
-      required:
-      - applicationId
-      properties:
-        applicationId:
-          type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
-    EntityWithTalangVisibleID:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: Unique ID for this entity.
-          example: 4
-        created:
-          type: string
-          format: date-time
-          description: The exact moment this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    BaseCampaign:
-      type: object
-      properties:
-        name:
-          type: string
-          title: Campaign Name
-          description: A user-facing name for this campaign.
-          minLength: 1
-          example: Summer promotions
-        description:
-          type: string
-          title: Campaign Description
-          description: A detailed description of the campaign.
-          example: Campaign for all summer 2021 promotions
-        startTime:
-          type: string
-          format: date-time
-          description: Timestamp when the campaign will become active.
-          example: '2021-07-20T22:00:00Z'
-        endTime:
-          type: string
-          format: date-time
-          description: Timestamp when the campaign will become inactive.
-          example: '2021-09-22T22:00:00Z'
-        attributes:
-          type: object
-          description: Arbitrary properties associated with this campaign.
-        state:
-          type: string
-          enum:
-          - enabled
-          - disabled
-          - archived
-          default: enabled
-          example: enabled
-          description: 'A disabled or archived campaign is not evaluated for rules or coupons.
-
-            '
-        activeRulesetId:
-          type: integer
-          description: '[ID of Ruleset](https://docs.talon.one/management-api#tag/Campaigns/operation/getRulesets) this
-
-            campaign applies on customer session evaluation.
-
-            '
-          example: 6
-        tags:
-          type: array
-          description: A list of tags for the campaign.
-          example:
-          - summer
-          maxItems: 50
-          items:
+        - name
+        - isPrimary
+        properties:
+          name:
             type: string
-            minLength: 1
-            maxLength: 50
-        reevaluateOnReturn:
-          type: boolean
-          title: Reevaluate on return
-          description: Indicates whether this campaign should be reevaluated when a customer returns an item.
-          example: true
-        features:
-          type: array
-          description: The features enabled in this campaign.
-          example:
-          - coupons
-          - referrals
-          items:
-            type: string
-            enum:
-            - coupons
-            - referrals
-            - loyalty
-            - giveaways
-            - strikethrough
-            - achievements
-            - advancedEvents
-        couponSettings:
-          $ref: '#/components/schemas/CodeGeneratorSettings'
-        referralSettings:
-          $ref: '#/components/schemas/CodeGeneratorSettings'
-        limits:
-          type: array
-          description: 'The set of [budget limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets) for this campaign.
-
-            '
-          items:
-            $ref: '#/components/schemas/LimitConfig'
-        campaignGroups:
-          type: array
-          description: 'The IDs of the [campaign groups](https://docs.talon.one/docs/product/account/managing-campaign-groups) this campaign belongs to.
-
-            '
-          example:
-          - 1
-          - 3
-          items:
+            example: Variant A
+          experimentId:
             type: integer
-        type:
-          type: string
-          title: Type
-          enum:
-          - cartItem
-          - advanced
-          default: advanced
-          example: advanced
-          description: "The campaign type. Possible type values:\n  - `cartItem`: Type of campaign that can apply effects only to cart items.\n  - `advanced`: Type of campaign that can apply effects to customer sessions and cart items.\n"
-        linkedStoreIds:
-          type: array
-          description: 'A list of store IDs that you want to link to the campaign.
-
-
-            **Note:** Campaigns with linked store IDs will only be evaluated when there is a
-
-            [customer session update](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
-
-            that references a linked store.
-
-            '
-          items:
+            example: 10
+          ruleset:
+            $ref: '#/components/schemas/Ruleset'
+          weight:
             type: integer
-          example:
-          - 1
-          - 2
-          - 3
-        couponAttributes:
-          type: object
-          description: Arbitrary properties associated with coupons in this campaign.
-      required:
-      - name
-      - state
-      - tags
-      - limits
-      - features
+            example: 12
+          isPrimary:
+            type: boolean
+            example: true
   securitySchemes:
     manager_auth:
       type: apiKey

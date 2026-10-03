@@ -990,6 +990,37 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
     Entity:
       type: object
       required:
@@ -1005,29 +1036,6 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
-    CreateAchievement:
-      allOf:
-      - $ref: '#/components/schemas/AchievementBase'
-      - type: object
-        required:
-        - name
-        - title
-        - description
-        - target
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
     AchievementStatusEntry:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -1110,6 +1118,64 @@ components:
         hour: 23
         minute: 59
         second: 59
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    AchievementProgress:
+      type: object
+      description: The current progress of the customer in the achievement.
+      required:
+      - status
+      - progress
+      properties:
+        status:
+          type: string
+          enum:
+          - inprogress
+          - completed
+          - expired
+          - not_started
+          example: completed
+          description: The status of the achievement.
+        progress:
+          type: number
+          example: 10
+          description: The current progress of the customer in the achievement.
+        startDate:
+          format: date-time
+          description: Timestamp at which the customer started the achievement.
+          type: string
+          example: 2024-01-01T15:04:05Z07:00
+        completionDate:
+          format: date-time
+          description: Timestamp at which point the customer completed the achievement.
+          type: string
+          example: 2024-01-15T15:04:05Z07:00
+        endDate:
+          format: date-time
+          description: Timestamp at which point the achievement ends and resets for the customer.
+          type: string
+          example: 2024-02-01T15:04:05Z07:00
+    CreateAchievement:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBase'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
     AchievementBase:
       type: object
       properties:
@@ -1241,72 +1307,15 @@ components:
           type: boolean
           description: When `true`, customer progress can be rolled back in completed achievements.
           example: false
-    AchievementProgress:
-      type: object
-      description: The current progress of the customer in the achievement.
-      required:
-      - status
-      - progress
-      properties:
-        status:
-          type: string
-          enum:
-          - inprogress
-          - completed
-          - expired
-          - not_started
-          example: completed
-          description: The status of the achievement.
-        progress:
-          type: number
-          example: 10
-          description: The current progress of the customer in the achievement.
-        startDate:
-          format: date-time
-          description: Timestamp at which the customer started the achievement.
-          type: string
-          example: 2024-01-01T15:04:05Z07:00
-        completionDate:
-          format: date-time
-          description: Timestamp at which point the customer completed the achievement.
-          type: string
-          example: 2024-01-15T15:04:05Z07:00
-        endDate:
-          format: date-time
-          description: Timestamp at which point the achievement ends and resets for the customer.
-          type: string
-          example: 2024-02-01T15:04:05Z07:00
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
+    Achievement:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/CreateAchievement'
+      - $ref: '#/components/schemas/AchievementAdditionalProperties'
+      - type: object
+    UpdateAchievement:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBase'
     AchievementV2:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -1334,12 +1343,73 @@ components:
             description: A string containing an IANA timezone descriptor.
             minLength: 1
             example: Europe/Berlin
-    Achievement:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/CreateAchievement'
-      - $ref: '#/components/schemas/AchievementAdditionalProperties'
-      - type: object
+    AchievementAdditionalPropertiesV2:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user that created this achievement.
+          example: 1234
+        createdBy:
+          type: string
+          description: 'Name of the user that created the achievement.
+
+
+            **Note**: This is not available if the user has been deleted.
+
+            '
+          example: John Doe
+        periodEndOverride:
+          $ref: '#/components/schemas/TimePoint'
+          deprecated: true
+        hasProgress:
+          type: boolean
+          description: Indicates if a customer has made progress in the achievement.
+        status:
+          type: string
+          enum:
+          - active
+          - scheduled
+          - expired
+          example: active
+          description: "The status of the achievement.                                                                                              \n- `active`: The achievement is available to customers.\n- `scheduled`: The achievement has a `fixedStartDate` set in the future.\n- `expired`: The achievement's `endDate` is in the past.\n"
+    AchievementAdditionalProperties:
+      type: object
+      required:
+      - campaignId
+      - userId
+      properties:
+        campaignId:
+          type: integer
+          description: The ID of the campaign the achievement belongs to.
+          example: 1
+        userId:
+          type: integer
+          description: ID of the user that created this achievement.
+          example: 1234
+        createdBy:
+          type: string
+          description: 'Name of the user that created the achievement.
+
+
+            **Note**: This is not available if the user has been deleted.
+
+            '
+          example: John Doe
+        hasProgress:
+          type: boolean
+          description: Indicates if a customer has made progress in the achievement.
+        status:
+          type: string
+          enum:
+          - inprogress
+          - expired
+          - not_started
+          - completed
+          example: inprogress
+          description: The status of the achievement.
     CreateAchievementV2:
       allOf:
       - $ref: '#/components/schemas/AchievementBaseV2'
@@ -1468,9 +1538,6 @@ components:
         - description
         - target
         - subscribedApplications
-    UpdateAchievement:
-      allOf:
-      - $ref: '#/components/schemas/AchievementBase'
     AchievementBaseV2:
       type: object
       properties:
@@ -1608,73 +1675,6 @@ components:
           example:
           - 132
           - 97
-    AchievementAdditionalProperties:
-      type: object
-      required:
-      - campaignId
-      - userId
-      properties:
-        campaignId:
-          type: integer
-          description: The ID of the campaign the achievement belongs to.
-          example: 1
-        userId:
-          type: integer
-          description: ID of the user that created this achievement.
-          example: 1234
-        createdBy:
-          type: string
-          description: 'Name of the user that created the achievement.
-
-
-            **Note**: This is not available if the user has been deleted.
-
-            '
-          example: John Doe
-        hasProgress:
-          type: boolean
-          description: Indicates if a customer has made progress in the achievement.
-        status:
-          type: string
-          enum:
-          - inprogress
-          - expired
-          - not_started
-          - completed
-          example: inprogress
-          description: The status of the achievement.
-    AchievementAdditionalPropertiesV2:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user that created this achievement.
-          example: 1234
-        createdBy:
-          type: string
-          description: 'Name of the user that created the achievement.
-
-
-            **Note**: This is not available if the user has been deleted.
-
-            '
-          example: John Doe
-        periodEndOverride:
-          $ref: '#/components/schemas/TimePoint'
-          deprecated: true
-        hasProgress:
-          type: boolean
-          description: Indicates if a customer has made progress in the achievement.
-        status:
-          type: string
-          enum:
-          - active
-          - scheduled
-          - expired
-          example: active
-          description: "The status of the achievement.                                                                                              \n- `active`: The achievement is available to customers.\n- `scheduled`: The achievement has a `fixedStartDate` set in the future.\n- `expired`: The achievement's `endDate` is in the past.\n"
   parameters:
     skip:
       name: skip
@@ -1703,6 +1703,14 @@ components:
       required: true
       schema:
         type: integer
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
     sort:
       name: sort
       in: query
@@ -1716,14 +1724,6 @@ components:
       example: name
       schema:
         type: string
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
   securitySchemes:
     api_key_v1:
       type: apiKey

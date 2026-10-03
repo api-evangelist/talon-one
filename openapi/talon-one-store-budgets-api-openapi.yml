@@ -378,88 +378,36 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    ErrorResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          description: A message describing the error.
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    NewCampaignStoreBudget:
-      type: object
-      required:
-      - action
-      - storeLimits
-      properties:
-        action:
-          type: string
-          enum:
-          - setDiscount
-        storeLimits:
-          type: array
-          description: The set of budget limits for stores linked to the campaign.
-          items:
-            $ref: '#/components/schemas/NewCampaignStoreBudgetStoreLimit'
-        period:
-          type: string
-          enum:
-          - daily
-          - weekly
-          - monthly
-          - yearly
-    NewCampaignStoreBudgetStoreLimit:
-      type: object
-      required:
-      - storeId
-      - limit
-      properties:
-        storeId:
-          type: integer
-          description: 'The ID of the store.
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
 
-            You can get this ID with the [List stores](#tag/Stores/operation/listStores) endpoint.
-
-            '
-          example: 17
-        limit:
-          type: number
-          example: 1000
-          description: The value to set for the limit.
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
     ErrorSource:
       type: object
       description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
@@ -478,31 +426,24 @@ components:
         resource:
           type: string
           description: Pointer to the resource that caused this error.
-    ListCampaignStoreBudgets:
+    NewCampaignStoreBudgetStoreLimit:
       type: object
       required:
-      - store
+      - storeId
       - limit
-      - action
       properties:
-        store:
-          $ref: '#/components/schemas/ListCampaignStoreBudgetsStore'
-          type: object
+        storeId:
+          type: integer
+          description: 'The ID of the store.
+
+            You can get this ID with the [List stores](#tag/Stores/operation/listStores) endpoint.
+
+            '
+          example: 17
         limit:
-          type: integer
-        action:
-          type: string
-        period:
-          type: string
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
+          type: number
+          example: 1000
+          description: The value to set for the limit.
     SummaryCampaignStoreBudget:
       type: object
       required:
@@ -540,27 +481,79 @@ components:
           type: integer
         imported:
           type: boolean
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    NewCampaignStoreBudget:
+      type: object
+      required:
+      - action
+      - storeLimits
+      properties:
+        action:
+          type: string
+          enum:
+          - setDiscount
+        storeLimits:
+          type: array
+          description: The set of budget limits for stores linked to the campaign.
+          items:
+            $ref: '#/components/schemas/NewCampaignStoreBudgetStoreLimit'
+        period:
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
     ListCampaignStoreBudgetsStore:
       type: object
       required:
@@ -574,30 +567,37 @@ components:
           type: string
         name:
           type: string
-    UserEntity:
+    ListCampaignStoreBudgets:
       type: object
       required:
-      - userId
+      - store
+      - limit
+      - action
       properties:
-        userId:
+        store:
+          $ref: '#/components/schemas/ListCampaignStoreBudgetsStore'
+          type: object
+        limit:
           type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
+        action:
+          type: string
+        period:
+          type: string
   parameters:
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
     applicationId:
       name: applicationId
       in: path
       required: true
       description: The ID of the Application. It is displayed in your Talon.One deployment URL.
       example: 42
+      schema:
+        type: integer
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
       schema:
         type: integer
   securitySchemes:
