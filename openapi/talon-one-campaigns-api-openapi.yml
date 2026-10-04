@@ -818,37 +818,6 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
     RuleMetadata:
       type: object
       required:
@@ -872,6 +841,19 @@ components:
 
             '
           example: https://example.com/discounts/20-off-shoes.png
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
     APIError:
       type: object
       required:
@@ -886,6 +868,15 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
+    ApplicationEntity:
+      type: object
+      required:
+      - applicationId
+      properties:
+        applicationId:
+          type: integer
+          description: The ID of the Application that owns this entity.
+          example: 322
     IntegrationCampaign:
       allOf:
       - $ref: '#/components/schemas/IntegrationCampaignBase'
@@ -987,52 +978,401 @@ components:
               - giveaways
               - strikethrough
               - achievements
-    ApplicationEntity:
+    ErrorSource:
       type: object
-      required:
-      - applicationId
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
       properties:
-        applicationId:
-          type: integer
-          description: The ID of the Application that owns this entity.
-          example: 322
-    AwardDiscountBundleItemByIndex:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    PassthroughBlock:
       type: object
-      title: AwardDiscountBundleItemByIndex
-      description: Identifies a bundle slot by its zero-based index within the bundle.
+      title: PassthroughBlock
+      description: A block representing a Talang expression that could not be mapped to a typed block. The expression is preserved in its raw Talang array form for diagnostic and round-trip purposes.
+      required:
+      - id
+      - type
+      - expression
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this block.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        type:
+          type: string
+          enum:
+          - passthrough
+          description: The type discriminator for this block.
+        expression:
+          type: array
+          description: The raw Talang expression as an array. For a function call, the first element is the function name and subsequent elements are its arguments. For any other expression (for example a bare attribute path or a literal value), this is a single-element array containing that value.
+          items: {}
+    UpdateAchievementProgressBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: UpdateAchievementProgressBlock
+        description: A block that updates the progress of a customer in an achievement.
+        required:
+        - operator
+        - value
+        - achievement
+        properties:
+          operator:
+            type: string
+            enum:
+            - increaseBy
+            example: increaseBy
+          value:
+            type: string
+            description: The value to update the progress by. Supports template placeholders (e.g. "{{$Session.Total / 2}}") for dynamic quantities.
+            example: '10'
+          achievement:
+            type: object
+            description: The achievement to update.
+            required:
+            - id
+            - name
+            - title
+            - target
+            properties:
+              id:
+                type: integer
+                description: The ID of the achievement.
+                example: 42
+              name:
+                type: string
+                description: The internal name of the achievement used in API requests.
+                example: Order50Discount
+              title:
+                type: string
+                description: The display name of the achievement in the Campaign Manager.
+                example: 50% off on 50th purchase.
+              target:
+                type: number
+                description: The required number of actions or the transactional milestone to complete the achievement.
+                example: 50
+    AwardDiscountBundleItemByAttribute:
+      type: object
+      title: AwardDiscountBundleItemByAttribute
+      description: Identifies a bundle slot by ranking items by a per-item attribute expression and picking the highest- or lowest-ranked one.
       required:
       - type
-      - value
+      - attribute
+      - direction
       properties:
         type:
           type: string
           enum:
-          - byIndex
-          description: A bundle-item selector of type `byIndex`.
-        value:
-          type: integer
-          format: int64
-          description: The zero-based index of the slot within the bundle.
-          example: 0
-    BetweenCheckAttributeBlock:
-      type: object
-      title: BetweenCheckAttributeBlock
-      description: Variant of `CheckAttributeBlock` for the `between` operator, which requires both a minimum and maximum value.
-      required:
-      - min
-      - max
-      properties:
-        operator:
+          - byAttribute
+          description: A bundle-item selector of type `byAttribute`.
+        attribute:
           type: string
-          description: The range comparison operator. Must be `between`.
+          description: A per-item attribute expression used to rank bundle items.
+          example: '{{$Item.Price}}'
+        direction:
+          type: string
           enum:
-          - between
-        min:
-          description: The minimum value allowed for the `between` operator.
-          example: 10
-        max:
-          description: The maximum value allowed for the `between` operator.
-          example: 100
+          - highest
+          - lowest
+          description: Ranking direction. `highest` picks the item with the largest attribute value, `lowest` the smallest.
+          example: highest
+    StrikethroughCheckAttributeBlock:
+      allOf:
+      - $ref: '#/components/schemas/CheckAttributeBlockBase'
+      - type: object
+        title: StrikethroughCheckAttributeBlock
+        description: A `CheckAttributeBlock` valid in a strikethrough rule, where each `onFailure` block must itself be a valid strikethrough block.
+        properties:
+          onFailure:
+            type: array
+            description: Strikethrough blocks evaluated when this block fails or returns false.
+            items:
+              $ref: '#/components/schemas/StrikethroughBlock'
+    PromotionBlock:
+      description: Describes a part of the logic of the rule.
+      oneOf:
+      - $ref: '#/components/schemas/PromotionGroupBlock'
+      - $ref: '#/components/schemas/AwardDiscountBlock'
+      - $ref: '#/components/schemas/PassthroughBlock'
+      - $ref: '#/components/schemas/ShowNotificationBlock'
+      - $ref: '#/components/schemas/AwardItemBlock'
+      - $ref: '#/components/schemas/AwardGiveawayBlock'
+      - $ref: '#/components/schemas/PromotionCheckAttributeBlock'
+      - $ref: '#/components/schemas/CheckAudienceBlock'
+      - $ref: '#/components/schemas/CheckLoyaltyBalanceBlock'
+      - $ref: '#/components/schemas/CheckCouponBlock'
+      - $ref: '#/components/schemas/CheckReferralBlock'
+      - $ref: '#/components/schemas/UpdateAudienceMembershipBlock'
+      - $ref: '#/components/schemas/UpdateAchievementProgressBlock'
+      - $ref: '#/components/schemas/UpdateAttributeValueBlock'
+      - $ref: '#/components/schemas/TriggerWebhookBlock'
+      - $ref: '#/components/schemas/TriggerCustomEffectBlock'
+      - $ref: '#/components/schemas/CheckEventBlock'
+      - $ref: '#/components/schemas/CheckAchievementBlock'
+      - $ref: '#/components/schemas/CheckBudgetBlock'
+      - $ref: '#/components/schemas/CreateCouponBlock'
+      - $ref: '#/components/schemas/CreateReferralBlock'
+      - $ref: '#/components/schemas/ReserveCouponBlock'
+      discriminator:
+        propertyName: type
+        mapping:
+          group: '#/components/schemas/PromotionGroupBlock'
+          awardDiscount: '#/components/schemas/AwardDiscountBlock'
+          passthrough: '#/components/schemas/PassthroughBlock'
+          showNotification: '#/components/schemas/ShowNotificationBlock'
+          awardItem: '#/components/schemas/AwardItemBlock'
+          awardGiveaway: '#/components/schemas/AwardGiveawayBlock'
+          triggerWebhook: '#/components/schemas/TriggerWebhookBlock'
+          checkAttribute: '#/components/schemas/PromotionCheckAttributeBlock'
+          checkAudience: '#/components/schemas/CheckAudienceBlock'
+          checkLoyaltyBalance: '#/components/schemas/CheckLoyaltyBalanceBlock'
+          checkCoupon: '#/components/schemas/CheckCouponBlock'
+          checkReferral: '#/components/schemas/CheckReferralBlock'
+          updateAudienceMembership: '#/components/schemas/UpdateAudienceMembershipBlock'
+          updateAchievementProgress: '#/components/schemas/UpdateAchievementProgressBlock'
+          updateAttributeValue: '#/components/schemas/UpdateAttributeValueBlock'
+          triggerCustomEffect: '#/components/schemas/TriggerCustomEffectBlock'
+          checkEvent: '#/components/schemas/CheckEventBlock'
+          checkAchievement: '#/components/schemas/CheckAchievementBlock'
+          checkBudget: '#/components/schemas/CheckBudgetBlock'
+          createCoupon: '#/components/schemas/CreateCouponBlock'
+          createReferral: '#/components/schemas/CreateReferralBlock'
+          reserveCoupon: '#/components/schemas/ReserveCouponBlock'
+    Campaign:
+      allOf:
+      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
+      - $ref: '#/components/schemas/ApplicationEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/BaseCampaign'
+      - $ref: '#/components/schemas/AdditionalCampaignProperties'
+      - $ref: '#/components/schemas/CampaignVersions'
+      - type: object
+        required:
+        - reevaluateOnReturn
+    CampaignCopy:
+      type: object
+      required:
+      - applicationIds
+      properties:
+        name:
+          type: string
+          description: Name of the copied campaign (Defaults to "Copy of original campaign name").
+          example: Copy of Summer promotions
+        applicationIds:
+          type: array
+          description: Application IDs of the applications to which a campaign should be copied to.
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        description:
+          type: string
+          title: Campaign Description
+          description: A detailed description of the campaign.
+          example: Campaign for all summer 2021 promotions
+        startTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become active.
+          example: '2021-06-01T09:00:27.993483Z'
+        endTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become inactive.
+          example: '2021-09-10T01:00:00.993483Z'
+        tags:
+          type: array
+          description: A list of tags for the campaign.
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          example:
+          - Summer
+          - Shoes
+        evaluationGroupId:
+          type: integer
+          example: 2
+          description: The ID of the campaign evaluation group the campaign belongs to.
+    CampaignSearch:
+      type: object
+      required:
+      - attributes
+      properties:
+        attributes:
+          type: object
+          description: Properties to match against a campaign. All provided attributes will be exactly matched against campaign attributes.
+    SelectorBlock:
+      description: A predicate block valid inside a selector filter step. The `type` field determines the block variant.
+      oneOf:
+      - $ref: '#/components/schemas/CheckAttributeBlock'
+      - $ref: '#/components/schemas/SelectorGroupBlock'
+      - $ref: '#/components/schemas/PassthroughBlock'
+      discriminator:
+        propertyName: type
+        mapping:
+          checkAttribute: '#/components/schemas/CheckAttributeBlock'
+          group: '#/components/schemas/SelectorGroupBlock'
+          passthrough: '#/components/schemas/PassthroughBlock'
+    StrikethroughBlock:
+      description: A block valid in a strikethrough rule. The `type` field identifies the concrete block type.
+      oneOf:
+      - $ref: '#/components/schemas/StrikethroughGroupBlock'
+      - $ref: '#/components/schemas/AwardDiscountBlock'
+      - $ref: '#/components/schemas/PassthroughBlock'
+      - $ref: '#/components/schemas/StrikethroughCheckAttributeBlock'
+      discriminator:
+        propertyName: type
+        mapping:
+          group: '#/components/schemas/StrikethroughGroupBlock'
+          awardDiscount: '#/components/schemas/AwardDiscountBlock'
+          passthrough: '#/components/schemas/PassthroughBlock'
+          checkAttribute: '#/components/schemas/StrikethroughCheckAttributeBlock'
+    SelectorStep:
+      description: A single step in a selector item pipeline. The `type` field determines the step variant.
+      oneOf:
+      - $ref: '#/components/schemas/FilterSelectorStep'
+      - $ref: '#/components/schemas/SortSelectorStep'
+      - $ref: '#/components/schemas/SelectSelectorStep'
+      - $ref: '#/components/schemas/MapSelectorStep'
+      - $ref: '#/components/schemas/ReduceSelectorStep'
+      - $ref: '#/components/schemas/ReverseSelectorStep'
+      - $ref: '#/components/schemas/FilterAndMapValuesSelectorStep'
+      discriminator:
+        propertyName: type
+        mapping:
+          filter: '#/components/schemas/FilterSelectorStep'
+          sort: '#/components/schemas/SortSelectorStep'
+          select: '#/components/schemas/SelectSelectorStep'
+          map: '#/components/schemas/MapSelectorStep'
+          reduce: '#/components/schemas/ReduceSelectorStep'
+          reverse: '#/components/schemas/ReverseSelectorStep'
+          filterAndMapValues: '#/components/schemas/FilterAndMapValuesSelectorStep'
+    MapSelectorStep:
+      type: object
+      title: MapSelectorStep
+      description: Transforms each item using an expression.
+      required:
+      - type
+      - expression
+      properties:
+        type:
+          type: string
+          enum:
+          - map
+          description: A step discriminator of type `map`.
+          example: map
+        expression:
+          type: string
+          description: The attribute path each item is mapped to.
+          example: $Item.Price
+    CampaignBudget:
+      type: object
+      required:
+      - action
+      - limit
+      - counter
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        counter:
+          type: number
+          minimum: 0
+          example: 42
+          description: The number of occurrences of the limited action in the context of the campaign.
+    CheckBudgetBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: CheckBudgetBlock
+        description: A block that verifies if a specific budget has sufficient limit available, and whether this limit meets or exceeds a specific value.
+        required:
+        - operator
+        - action
+        properties:
+          operator:
+            type: string
+            enum:
+            - available
+            - enoughFor
+            description: The comparison operator applied to the limit. `available` checks if there is budget available for a given limitable action; `enoughFor` checks if the available budget meets or exceeds a specific value limit.
+            example: available
+          action:
+            type: string
+            enum:
+            - redeemCoupon
+            - redeemReferral
+            - setDiscount
+            - createCoupon
+            - createReferral
+            - setDiscountEffect
+            - createLoyaltyPoints
+            - createLoyaltyPointsEffect
+            - redeemLoyaltyPoints
+            - redeemLoyaltyPointsEffect
+            - awardGiveaway
+            - addFreeItemEffect
+            - customEffect
+            - callApi
+            description: The limitable action to check.
+            example: setDiscount
+          value:
+            type: number
+            description: The value to check against when using the `enoughFor` operator.
+            example: 5
+          onFailure:
+            type: array
+            description: Promotion blocks evaluated when this block fails or returns false.
+            items:
+              $ref: '#/components/schemas/PromotionBlock'
+    FilterAndMapValuesSelectorStep:
+      type: object
+      title: FilterAndMapValuesSelectorStep
+      description: Keeps items that exist in the value map, and attaches each kept item's mapped value.
+      required:
+      - type
+      - valueMap
+      properties:
+        type:
+          type: string
+          enum:
+          - filterAndMapValues
+          description: A step discriminator of type `filterAndMapValues`.
+          example: filterAndMapValues
+        valueMap:
+          $ref: '#/components/schemas/SelectorValueMapRef'
     NewRuleset:
       type: object
       required:
@@ -1063,6 +1403,132 @@ components:
           type: boolean
           description: Indicates whether this created ruleset should be activated for the campaign that owns it.
           example: true
+    ReserveCouponBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: ReserveCouponBlock
+        description: A block that reserve a coupon during a customer session.
+    ReverseSelectorStep:
+      type: object
+      title: ReverseSelectorStep
+      description: Reverses the order of the items.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - reverse
+          description: A step discriminator of type `reverse`.
+          example: reverse
+    Ruleset:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/UserEntity'
+      - $ref: '#/components/schemas/NewRuleset'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            title: Campaign ID
+            description: The ID of the campaign that owns this entity.
+            example: 320
+          templateId:
+            type: integer
+            title: Campaign Template ID
+            description: The ID of the campaign template that owns this entity.
+            example: 3
+          activatedAt:
+            type: string
+            format: date-time
+            description: Timestamp indicating when this Ruleset was activated.
+    CheckAttributeBlock:
+      allOf:
+      - $ref: '#/components/schemas/CheckAttributeBlockBase'
+      oneOf:
+      - $ref: '#/components/schemas/ScalarCheckAttributeBlock'
+      - $ref: '#/components/schemas/BetweenCheckAttributeBlock'
+      - $ref: '#/components/schemas/ListCheckAttributeBlock'
+      - $ref: '#/components/schemas/ListWithCountCheckAttributeBlock'
+      - $ref: '#/components/schemas/UnaryCheckAttributeBlock'
+      - $ref: '#/components/schemas/WithinCheckAttributeBlock'
+      discriminator:
+        propertyName: operator
+        mapping:
+          equals: '#/components/schemas/ScalarCheckAttributeBlock'
+          not(equals): '#/components/schemas/ScalarCheckAttributeBlock'
+          lessThan: '#/components/schemas/ScalarCheckAttributeBlock'
+          lessThanOrEqual: '#/components/schemas/ScalarCheckAttributeBlock'
+          greaterThan: '#/components/schemas/ScalarCheckAttributeBlock'
+          greaterThanOrEqual: '#/components/schemas/ScalarCheckAttributeBlock'
+          contains: '#/components/schemas/ScalarCheckAttributeBlock'
+          not(contains): '#/components/schemas/ScalarCheckAttributeBlock'
+          matchesRegexp: '#/components/schemas/ScalarCheckAttributeBlock'
+          startsWith: '#/components/schemas/ScalarCheckAttributeBlock'
+          endsWith: '#/components/schemas/ScalarCheckAttributeBlock'
+          oneOf: '#/components/schemas/ScalarCheckAttributeBlock'
+          not(oneOf): '#/components/schemas/ScalarCheckAttributeBlock'
+          inCollection: '#/components/schemas/ScalarCheckAttributeBlock'
+          not(inCollection): '#/components/schemas/ScalarCheckAttributeBlock'
+          between: '#/components/schemas/BetweenCheckAttributeBlock'
+          containsOneOf: '#/components/schemas/ListCheckAttributeBlock'
+          containsNoneOf: '#/components/schemas/ListCheckAttributeBlock'
+          containsAllOf: '#/components/schemas/ListCheckAttributeBlock'
+          containsAtLeast: '#/components/schemas/ListWithCountCheckAttributeBlock'
+          containsExactly: '#/components/schemas/ListWithCountCheckAttributeBlock'
+          empty: '#/components/schemas/UnaryCheckAttributeBlock'
+          not(empty): '#/components/schemas/UnaryCheckAttributeBlock'
+          exists: '#/components/schemas/UnaryCheckAttributeBlock'
+          not(exists): '#/components/schemas/UnaryCheckAttributeBlock'
+          isTrue: '#/components/schemas/UnaryCheckAttributeBlock'
+          isFalse: '#/components/schemas/UnaryCheckAttributeBlock'
+          after: '#/components/schemas/ScalarCheckAttributeBlock'
+          before: '#/components/schemas/ScalarCheckAttributeBlock'
+          within: '#/components/schemas/WithinCheckAttributeBlock'
+          not(within): '#/components/schemas/WithinCheckAttributeBlock'
+    PromotionRuleV2:
+      allOf:
+      - $ref: '#/components/schemas/RuleV2'
+      - type: object
+        title: PromotionRuleV2
+        description: A single promotion rule in V2 block format.
+        required:
+        - blocks
+        properties:
+          blocks:
+            type: array
+            description: The condition and effect blocks that make up this promotion rule.
+            items:
+              $ref: '#/components/schemas/PromotionBlock'
+    AwardDiscountBundleItem:
+      description: Selects which slot inside a bundle a discount applies to. The `type` field picks the selection mode.
+      oneOf:
+      - $ref: '#/components/schemas/AwardDiscountBundleItemByIndex'
+      - $ref: '#/components/schemas/AwardDiscountBundleItemByAttribute'
+      discriminator:
+        propertyName: type
+        mapping:
+          byIndex: '#/components/schemas/AwardDiscountBundleItemByIndex'
+          byAttribute: '#/components/schemas/AwardDiscountBundleItemByAttribute'
+    CheckCouponBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: CheckCouponBlock
+        description: A block that validates the coupon code value and date.
+        required:
+        - redeem
+        properties:
+          redeem:
+            type: boolean
+            description: When `true`, the coupon code is redeemed.
+            example: true
+          onFailure:
+            type: array
+            description: Promotion blocks evaluated when this block fails or returns false.
+            items:
+              $ref: '#/components/schemas/PromotionBlock'
     SelectorGroupBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
@@ -1086,49 +1552,24 @@ components:
             description: Child predicate blocks evaluated according to the operator.
             items:
               $ref: '#/components/schemas/SelectorBlock'
-    PassthroughBlock:
+    AwardDiscountBundleItemByIndex:
       type: object
-      title: PassthroughBlock
-      description: A block representing a Talang expression that could not be mapped to a typed block. The expression is preserved in its raw Talang array form for diagnostic and round-trip purposes.
-      required:
-      - id
-      - type
-      - expression
-      properties:
-        id:
-          type: string
-          description: Unique identifier for this block.
-          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        type:
-          type: string
-          enum:
-          - passthrough
-          description: The type discriminator for this block.
-        expression:
-          type: array
-          description: The raw Talang expression as an array. For a function call, the first element is the function name and subsequent elements are its arguments. For any other expression (for example a bare attribute path or a literal value), this is a single-element array containing that value.
-          items: {}
-    AwardDiscountSelectorTarget:
-      type: object
-      title: AwardDiscountSelectorTarget
-      description: Applies the discount to items matched by a named selector binding.
+      title: AwardDiscountBundleItemByIndex
+      description: Identifies a bundle slot by its zero-based index within the bundle.
       required:
       - type
-      - name
+      - value
       properties:
         type:
           type: string
           enum:
-          - selector
-          description: A target discriminator of type `selector`.
-        name:
-          type: string
-          description: The name of the selector binding the discount targets.
-          example: ElectronicsItems
-        prorated:
-          type: boolean
-          description: Whether to distribute the discount proportionally across the selected items.
-          example: false
+          - byIndex
+          description: A bundle-item selector of type `byIndex`.
+        value:
+          type: integer
+          format: int64
+          description: The zero-based index of the slot within the bundle.
+          example: 0
     AdditionalCampaignProperties:
       type: object
       properties:
@@ -1338,10 +1779,134 @@ components:
       - type
       - frontendState
       - storesImported
-    AwardDiscountBundleTarget:
+    UpdateAudienceMembershipBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: UpdateAudienceMembershipBlock
+        description: A block that adds a customer to or removes them from an audience.
+        required:
+        - operator
+        - profile
+        - audience
+        properties:
+          operator:
+            type: string
+            enum:
+            - add
+            - remove
+            description: The action to perform.
+            example: add
+          profile:
+            type: string
+            enum:
+            - Current
+            - Advocate
+            description: The customer profile to add or remove from the audience. `Current` targets the customer in the current session; `Advocate` targets the person who invited their friend via referral program.
+            example: Current
+          audience:
+            type: object
+            description: The audience to add the customer to or remove them from.
+            required:
+            - id
+            - name
+            properties:
+              id:
+                type: integer
+                description: The ID of the audience.
+                example: 42
+              name:
+                type: string
+                description: The display name of the audience.
+                example: Travel audience
+              integration:
+                type: string
+                description: 'The Talon.One-supported [3rd-party platform](https://docs.talon.one/docs/dev/technology-partners/overview) that this audience was created in.
+
+
+                  For example, `mParticle`, `Segment`, `Shopify`, `Braze`, or `Iterable`.
+
+
+                  **Note:** If you do not integrate with any of these platforms, do not use this property.
+
+                  '
+                example: mparticle
+              integrationId:
+                type: string
+                description: 'The ID of this audience in the third-party integration.
+
+
+                  **Note:** To create an audience that doesn''t come from a 3rd party platform, do not use this property.
+
+                  '
+                example: 382370BKDB946
+    TriggerCustomEffectBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: TriggerCustomEffectBlock
+        description: A block that triggers a configured custom effect and passes its required parameters.
+        required:
+        - customEffect
+        - target
+        properties:
+          customEffect:
+            type: object
+            description: The custom effect to trigger.
+            required:
+            - id
+            - name
+            - title
+            properties:
+              id:
+                type: integer
+                description: The unique identifier of the custom effect.
+                example: 1
+              name:
+                type: string
+                description: The name of the custom effect, as used in API requests.
+                example: sendEmail
+              title:
+                type: string
+                description: The display name of the custom effect.
+                example: Send email
+          params:
+            type: object
+            additionalProperties: true
+            description: The custom effect's parameters, in configured order. Each property name is the parameter's title, lowercased with spaces replaced by underscores (for example, `Order ID` becomes `order_id`); falls back to `param_0`, `param_1`, and so on if a title is blank or collides with another.
+            example:
+              template_id: TPL-10293
+          target:
+            type: object
+            required:
+            - type
+            description: The target scope of this effect.
+            properties:
+              type:
+                type: string
+                enum:
+                - cart
+                - allItems
+                - selector
+                - globalFilter
+                - bundle
+                description: 'The scope the custom effect applies to: - `cart` applies once to the whole cart. - `allItems` applies once per cart item. - `selector` applies once per item matched by the named selector. - `globalFilter` applies once per item matched by the named global item filter. - `bundle` applies once per item in the named bundle.'
+                example: cart
+              name:
+                type: string
+                description: The name of the targeted selector or bundle. Only set when `type` is `selector`, `globalFilter`, or `bundle`.
+                example: giftBundle
+          onError:
+            type: object
+            description: Named error handlers evaluated when a specific error occurs.
+            additionalProperties:
+              type: array
+              items:
+                $ref: '#/components/schemas/PromotionBlock'
+    AwardDiscountSelectorTarget:
       type: object
-      title: AwardDiscountBundleTarget
-      description: Applies the discount to items belonging to a named bundle.
+      title: AwardDiscountSelectorTarget
+      description: Applies the discount to items matched by a named selector binding.
       required:
       - type
       - name
@@ -1349,71 +1914,411 @@ components:
         type:
           type: string
           enum:
-          - bundle
-          description: A target discriminator of type `bundle`.
+          - selector
+          description: A target discriminator of type `selector`.
         name:
           type: string
-          description: Name of the bundle binding the discount targets.
-          example: BogoBundle
-        item:
-          $ref: '#/components/schemas/AwardDiscountBundleItem'
+          description: The name of the selector binding the discount targets.
+          example: ElectronicsItems
         prorated:
           type: boolean
-          description: Whether to distribute the discount proportionally across the bundle's items.
+          description: Whether to distribute the discount proportionally across the selected items.
           example: false
-    CreateReferralBlock:
+    AwardDiscountCartTarget:
+      type: object
+      title: AwardDiscountCartTarget
+      description: Applies the discount to the entire cart as a single unit.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - cart
+          description: A target discriminator of type `cart`.
+    AwardDiscountGlobalFilterTarget:
+      type: object
+      title: AwardDiscountGlobalFilterTarget
+      description: Applies the discount to items matched by a named Application-level cart-item filter.
+      required:
+      - type
+      - name
+      properties:
+        type:
+          type: string
+          enum:
+          - globalFilter
+          description: A target discriminator of type `globalFilter`.
+        name:
+          type: string
+          description: The name of the Application-level cart-item filter the discount targets.
+          example: PremiumItems
+        prorated:
+          type: boolean
+          description: Whether to distribute the discount proportionally across the matched items.
+          example: false
+    BetweenCheckAttributeBlock:
+      type: object
+      title: BetweenCheckAttributeBlock
+      description: Variant of `CheckAttributeBlock` for the `between` operator, which requires both a minimum and maximum value.
+      required:
+      - min
+      - max
+      properties:
+        operator:
+          type: string
+          description: The range comparison operator. Must be `between`.
+          enum:
+          - between
+        min:
+          description: The minimum value allowed for the `between` operator.
+          example: 10
+        max:
+          description: The maximum value allowed for the `between` operator.
+          example: 100
+    UnaryCheckAttributeBlock:
+      type: object
+      title: UnaryCheckAttributeBlock
+      description: Variant of `CheckAttributeBlock` for operators that test a property of the attribute itself with no comparison value.
+      properties:
+        operator:
+          type: string
+          description: The unary operator applied to the attribute. These operators require no comparison value.
+          enum:
+          - empty
+          - not(empty)
+          - exists
+          - not(exists)
+          - isTrue
+          - isFalse
+    AwardDiscountAdditionalCostTarget:
+      type: object
+      title: AwardDiscountAdditionalCostTarget
+      description: Applies the discount to an additional cost. The `target` field determines which subset of cart items the additional cost contribution is applied to.
+      required:
+      - type
+      - additionalCost
+      - target
+      properties:
+        type:
+          type: string
+          enum:
+          - additionalCost
+          description: A target discriminator of type `additionalCost`.
+        additionalCost:
+          $ref: '#/components/schemas/AdditionalCostReference'
+        target:
+          description: A subset of cart items whose additional cost the discount applies to. Cannot be another `additionalCost` target.
+          oneOf:
+          - $ref: '#/components/schemas/AwardDiscountCartTarget'
+          - $ref: '#/components/schemas/AwardDiscountAllItemsTarget'
+          - $ref: '#/components/schemas/AwardDiscountGlobalFilterTarget'
+          - $ref: '#/components/schemas/AwardDiscountSelectorTarget'
+          discriminator:
+            propertyName: type
+            mapping:
+              cart: '#/components/schemas/AwardDiscountCartTarget'
+              allItems: '#/components/schemas/AwardDiscountAllItemsTarget'
+              globalFilter: '#/components/schemas/AwardDiscountGlobalFilterTarget'
+              selector: '#/components/schemas/AwardDiscountSelectorTarget'
+    ShowNotificationBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: CreateReferralBlock
-        description: A block that creates a referral code.
+        title: ShowNotificationBlock
+        description: A block that displays a notification to the customer with a configurable type, title, and optional body message.
         required:
-        - campaignId
-        - friendId
-        - storeInSession
+        - notificationType
+        - title
         properties:
-          campaignId:
-            description: The ID of the campaign in which the referral code is created. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
-            oneOf:
-            - type: number
-              example: 3
-            - type: string
-              example: '{{$Campaign.Id}}'
-          friendId:
+          notificationType:
             type: string
-            description: An optional integration ID of the friend's profile.
-            example: '{{$Profile.IntegrationId}}'
-          storeInSession:
-            type: boolean
-            description: When `true`, the referral code is stored in the session.
-            example: true
-          usageLimit:
-            description: 'The number of times the referral code code can be redeemed. `0` means unlimited redemptions, but any campaign usage limits still apply. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
+            description: The type of notification to display.
+            example: Info
+          title:
+            type: string
+            description: The notification heading shown to the customer.
+            example: You earned a reward!
+          body:
+            type: string
+            description: The notification body text. Supports template placeholders (e.g. "{{$Session.Total}}") evaluated at rule execution time.
+            example: You saved $10 on your order.
+          onFailure:
+            type: array
+            description: Blocks evaluated when this block fails or returns false.
+            items:
+              $ref: '#/components/schemas/PromotionBlock'
+          onError:
+            type: object
+            description: Named error handlers evaluated when a specific error occurs.
+            additionalProperties:
+              type: array
+              items:
+                $ref: '#/components/schemas/PromotionBlock'
+    StrikethroughGroupBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: StrikethroughGroupBlock
+        description: A structural combinator block that groups child strikethrough blocks using a logical operator. Evaluates to true when its operator condition is satisfied across all child blocks.
+        required:
+        - operator
+        - blocks
+        properties:
+          operator:
+            type: string
+            enum:
+            - all
+            - atLeastOne
+            - none
+            description: Logical operator applied across child blocks. `all` requires every child to pass, `atLeastOne` requires at least one, `none` requires all to fail.
+          blocks:
+            type: array
+            description: Child blocks evaluated according to the operator.
+            items:
+              $ref: '#/components/schemas/StrikethroughBlock'
+          onFailure:
+            type: array
+            description: Strikethrough blocks evaluated when this block fails or returns false.
+            items:
+              $ref: '#/components/schemas/StrikethroughBlock'
+          onError:
+            type: object
+            description: Named error handlers evaluated when a specific error occurs.
+            additionalProperties:
+              type: array
+              items:
+                $ref: '#/components/schemas/StrikethroughBlock'
+    AwardDiscountAllItemsTarget:
+      type: object
+      title: AwardDiscountAllItemsTarget
+      description: Applies the discount across all cart items.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - allItems
+          description: A target discriminator of type `allItems`.
+        prorated:
+          type: boolean
+          description: Whether to distribute the discount proportionally across the targeted items.
+          example: true
+    BaseCampaign:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Campaign Name
+          description: A user-facing name for this campaign.
+          minLength: 1
+          example: Summer promotions
+        description:
+          type: string
+          title: Campaign Description
+          description: A detailed description of the campaign.
+          example: Campaign for all summer 2021 promotions
+        startTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become active.
+          example: '2021-07-20T22:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          description: Timestamp when the campaign will become inactive.
+          example: '2021-09-22T22:00:00Z'
+        attributes:
+          type: object
+          description: Arbitrary properties associated with this campaign.
+        state:
+          type: string
+          enum:
+          - enabled
+          - disabled
+          - archived
+          default: enabled
+          example: enabled
+          description: 'A disabled or archived campaign is not evaluated for rules or coupons.
 
-              '
-            oneOf:
-            - type: number
-              example: 100
-            - type: string
-              example: '{{$Session.CartTotal * 0.1}}'
-          startDate:
-            description: Timestamp at which point the referral code becomes valid.
-            example: '2024-12-24T14:15:22Z'
-          expiryDate:
-            description: Expiration date of the referral code. Referral code never expires if this is omitted.
-            example: '2024-12-24T14:15:22Z'
-          attributes:
-            description: Custom attributes associated with this referral code.
-          validCharacters:
-            type: string
-            description: Characters used to generate the random parts of a code.
-            example: ABC
-          pattern:
-            type: string
-            description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+            '
+        activeRulesetId:
+          type: integer
+          description: '[ID of Ruleset](https://docs.talon.one/management-api#tag/Campaigns/operation/getRulesets) this
 
-              '
-            example: SUMMER-####-####
+            campaign applies on customer session evaluation.
+
+            '
+          example: 6
+        tags:
+          type: array
+          description: A list of tags for the campaign.
+          example:
+          - summer
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+        reevaluateOnReturn:
+          type: boolean
+          title: Reevaluate on return
+          description: Indicates whether this campaign should be reevaluated when a customer returns an item.
+          example: true
+        features:
+          type: array
+          description: The features enabled in this campaign.
+          example:
+          - coupons
+          - referrals
+          items:
+            type: string
+            enum:
+            - coupons
+            - referrals
+            - loyalty
+            - giveaways
+            - strikethrough
+            - achievements
+            - advancedEvents
+        couponSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        referralSettings:
+          $ref: '#/components/schemas/CodeGeneratorSettings'
+        limits:
+          type: array
+          description: 'The set of [budget limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets) for this campaign.
+
+            '
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+        campaignGroups:
+          type: array
+          description: 'The IDs of the [campaign groups](https://docs.talon.one/docs/product/account/managing-campaign-groups) this campaign belongs to.
+
+            '
+          example:
+          - 1
+          - 3
+          items:
+            type: integer
+        type:
+          type: string
+          title: Type
+          enum:
+          - cartItem
+          - advanced
+          default: advanced
+          example: advanced
+          description: "The campaign type. Possible type values:\n  - `cartItem`: Type of campaign that can apply effects only to cart items.\n  - `advanced`: Type of campaign that can apply effects to customer sessions and cart items.\n"
+        linkedStoreIds:
+          type: array
+          description: 'A list of store IDs that you want to link to the campaign.
+
+
+            **Note:** Campaigns with linked store IDs will only be evaluated when there is a
+
+            [customer session update](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
+
+            that references a linked store.
+
+            '
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        couponAttributes:
+          type: object
+          description: Arbitrary properties associated with coupons in this campaign.
+      required:
+      - name
+      - state
+      - tags
+      - limits
+      - features
+    StrikethroughRuleV2:
+      allOf:
+      - $ref: '#/components/schemas/RuleV2'
+      - type: object
+        title: StrikethroughRuleV2
+        description: A single strikethrough rule.
+        required:
+        - blocks
+        properties:
+          blocks:
+            type: array
+            description: The condition and effect blocks that make up this strikethrough rule.
+            items:
+              $ref: '#/components/schemas/StrikethroughBlock'
+    RulesetV2:
+      type: object
+      title: RulesetV2
+      description: Ruleset in the V2 JSON block format.
+      required:
+      - id
+      - created
+      - userId
+      - promotionRules
+      - strikethroughRules
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+        userId:
+          type: integer
+          format: int64
+          description: The ID of the user that created this ruleset.
+          example: 385
+        campaignId:
+          type: integer
+          format: int64
+          description: The ID of the campaign that owns this entity.
+          example: 320
+        templateId:
+          type: integer
+          format: int64
+          description: The ID of the campaign template that owns this entity.
+          example: 3
+        activatedAt:
+          type: string
+          format: date-time
+          description: Timestamp indicating when this ruleset was activated.
+        promotionRules:
+          type: array
+          description: Set of promotion rules.
+          items:
+            $ref: '#/components/schemas/PromotionRuleV2'
+        strikethroughRules:
+          type: array
+          description: Set of strikethrough rules.
+          items:
+            $ref: '#/components/schemas/StrikethroughRuleV2'
+        selectors:
+          type: array
+          description: Variable bindings of type selector.
+          items:
+            $ref: '#/components/schemas/Selector'
+        bundles:
+          type: array
+          description: Variable bindings of type bundle.
+          items:
+            type: object
+            additionalProperties: true
+        parameters:
+          type: array
+          description: Variable bindings of type template parameter.
+          items:
+            type: object
+            additionalProperties: true
     Binding:
       type: object
       required:
@@ -1486,79 +2391,118 @@ components:
           type: string
           description: Description of the placeholder field and its value in the template. This text can be shown when creating campaigns from this template.
           example: The percentage discount applied to the cart total.
-    MapSelectorStep:
-      type: object
-      title: MapSelectorStep
-      description: Transforms each item using an expression.
-      required:
-      - type
-      - expression
-      properties:
-        type:
-          type: string
-          enum:
-          - map
-          description: A step discriminator of type `map`.
-          example: map
-        expression:
-          type: string
-          description: The attribute path each item is mapped to.
-          example: $Item.Price
-    AwardDiscountAdditionalCostTarget:
-      type: object
-      title: AwardDiscountAdditionalCostTarget
-      description: Applies the discount to an additional cost. The `target` field determines which subset of cart items the additional cost contribution is applied to.
-      required:
-      - type
-      - additionalCost
-      - target
-      properties:
-        type:
-          type: string
-          enum:
-          - additionalCost
-          description: A target discriminator of type `additionalCost`.
-        additionalCost:
-          $ref: '#/components/schemas/AdditionalCostReference'
-        target:
-          description: A subset of cart items whose additional cost the discount applies to. Cannot be another `additionalCost` target.
-          oneOf:
-          - $ref: '#/components/schemas/AwardDiscountCartTarget'
-          - $ref: '#/components/schemas/AwardDiscountAllItemsTarget'
-          - $ref: '#/components/schemas/AwardDiscountGlobalFilterTarget'
-          - $ref: '#/components/schemas/AwardDiscountSelectorTarget'
-          discriminator:
-            propertyName: type
-            mapping:
-              cart: '#/components/schemas/AwardDiscountCartTarget'
-              allItems: '#/components/schemas/AwardDiscountAllItemsTarget'
-              globalFilter: '#/components/schemas/AwardDiscountGlobalFilterTarget'
-              selector: '#/components/schemas/AwardDiscountSelectorTarget'
-    StrikethroughCheckAttributeBlock:
+    CheckAchievementBlock:
       allOf:
-      - $ref: '#/components/schemas/CheckAttributeBlockBase'
+      - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: StrikethroughCheckAttributeBlock
-        description: A `CheckAttributeBlock` valid in a strikethrough rule, where each `onFailure` block must itself be a valid strikethrough block.
+        title: CheckAchievementBlock
+        description: A block that checks the current customer's completion or progress status in an achievement.
+        required:
+        - operator
+        - achievement
         properties:
+          operator:
+            type: string
+            enum:
+            - justCompleted
+            - started
+            - not(started)
+            - inProgress
+            - not(inProgress)
+            - completed
+            - not(completed)
+            description: The comparison operator applied to the achievement.
+            example: justCompleted
+          achievement:
+            type: object
+            description: The achievement to check for.
+            required:
+            - id
+            - title
+            - name
+            - target
+            properties:
+              id:
+                type: integer
+                description: The ID of the achievement.
+                example: 42
+              title:
+                type: string
+                description: The display name for the achievement in the Campaign Manager.
+                example: 50% off on 50th purchase.
+              name:
+                type: string
+                description: The internal name of the achievement used in API requests.
+                example: Order50Discount
+              target:
+                type: number
+                description: The required number of actions or the transactional milestone to complete the achievement.
+                example: 50
           onFailure:
             type: array
-            description: Strikethrough blocks evaluated when this block fails or returns false.
+            description: Promotion blocks evaluated when this block fails or returns false.
             items:
-              $ref: '#/components/schemas/StrikethroughBlock'
-    ReverseSelectorStep:
+              $ref: '#/components/schemas/PromotionBlock'
+    SortSelectorStepField:
       type: object
-      title: ReverseSelectorStep
-      description: Reverses the order of the items.
+      title: SortSelectorStepField
       required:
-      - type
+      - expression
+      - direction
       properties:
-        type:
+        expression:
+          type: string
+          description: The attribute path the items are sorted by.
+          example: $Item.Price
+        direction:
           type: string
           enum:
-          - reverse
-          description: A step discriminator of type `reverse`.
-          example: reverse
+          - asc
+          - desc
+          description: The sort direction for this field.
+          example: asc
+    SelectorValueMapRef:
+      type: object
+      title: SelectorValueMapRef
+      description: A reference to a value map by its internal ID.
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The internal ID of the referenced value map.
+          example: 12
+    AdditionalCostReference:
+      type: object
+      title: AdditionalCostReference
+      description: Identifies an additional cost referenced from a rule.
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The internal identifier of the additional cost.
+          example: 42
+        name:
+          type: string
+          description: The additional cost name as used in API requests.
+          example: shipping
+        title:
+          type: string
+          description: The human-readable title of the additional cost.
+          example: Shipping
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
     CampaignVersions:
       type: object
       properties:
@@ -1606,366 +2550,131 @@ components:
             '
           example: false
           default: false
-    BaseBlock:
-      type: object
-      title: BaseBlock
-      description: Common properties shared by all block types.
-      required:
-      - id
-      - type
-      properties:
-        id:
-          type: string
-          description: Unique identifier for this block.
-          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-        type:
-          type: string
-          description: Identifies the block variant and determines which additional properties are present in it.
-        tags:
-          type: array
-          description: Semantic labels attached to this block.
-          items:
-            type: string
-    UpdateAudienceMembershipBlock:
+    PromotionCheckAttributeBlock:
       allOf:
-      - $ref: '#/components/schemas/BaseBlock'
+      - $ref: '#/components/schemas/CheckAttributeBlockBase'
       - type: object
-        title: UpdateAudienceMembershipBlock
-        description: A block that adds a customer to or removes them from an audience.
-        required:
-        - operator
-        - profile
-        - audience
+        title: PromotionCheckAttributeBlock
+        description: A `CheckAttributeBlock` valid in a promotion rule, where each `onFailure` block must itself be a valid promotion block.
         properties:
-          operator:
-            type: string
-            enum:
-            - add
-            - remove
-            description: The action to perform.
-            example: add
-          profile:
-            type: string
-            enum:
-            - Current
-            - Advocate
-            description: The customer profile to add or remove from the audience. `Current` targets the customer in the current session; `Advocate` targets the person who invited their friend via referral program.
-            example: Current
-          audience:
-            type: object
-            description: The audience to add the customer to or remove them from.
-            required:
-            - id
-            - name
-            properties:
-              id:
-                type: integer
-                description: The ID of the audience.
-                example: 42
-              name:
-                type: string
-                description: The display name of the audience.
-                example: Travel audience
-              integration:
-                type: string
-                description: 'The Talon.One-supported [3rd-party platform](https://docs.talon.one/docs/dev/technology-partners/overview) that this audience was created in.
-
-
-                  For example, `mParticle`, `Segment`, `Shopify`, `Braze`, or `Iterable`.
-
-
-                  **Note:** If you do not integrate with any of these platforms, do not use this property.
-
-                  '
-                example: mparticle
-              integrationId:
-                type: string
-                description: 'The ID of this audience in the third-party integration.
-
-
-                  **Note:** To create an audience that doesn''t come from a 3rd party platform, do not use this property.
-
-                  '
-                example: 382370BKDB946
-    AwardDiscountGlobalFilterTarget:
-      type: object
-      title: AwardDiscountGlobalFilterTarget
-      description: Applies the discount to items matched by a named Application-level cart-item filter.
-      required:
-      - type
-      - name
-      properties:
-        type:
-          type: string
-          enum:
-          - globalFilter
-          description: A target discriminator of type `globalFilter`.
-        name:
-          type: string
-          description: The name of the Application-level cart-item filter the discount targets.
-          example: PremiumItems
-        prorated:
-          type: boolean
-          description: Whether to distribute the discount proportionally across the matched items.
-          example: false
-    ShowNotificationBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: ShowNotificationBlock
-        description: A block that displays a notification to the customer with a configurable type, title, and optional body message.
-        required:
-        - notificationType
-        - title
-        properties:
-          notificationType:
-            type: string
-            description: The type of notification to display.
-            example: Info
-          title:
-            type: string
-            description: The notification heading shown to the customer.
-            example: You earned a reward!
-          body:
-            type: string
-            description: The notification body text. Supports template placeholders (e.g. "{{$Session.Total}}") evaluated at rule execution time.
-            example: You saved $10 on your order.
           onFailure:
             type: array
-            description: Blocks evaluated when this block fails or returns false.
+            description: Promotion blocks evaluated when this block fails or returns false.
             items:
               $ref: '#/components/schemas/PromotionBlock'
-          onError:
-            type: object
-            description: Named error handlers evaluated when a specific error occurs.
-            additionalProperties:
-              type: array
-              items:
-                $ref: '#/components/schemas/PromotionBlock'
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    Ruleset:
+    CampaignAnalytics:
       allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/NewRuleset'
       - type: object
+        required:
+        - date
+        - campaignRevenue
+        - totalCampaignRevenue
+        - campaignRefund
+        - totalCampaignRefund
+        - campaignDiscountCosts
+        - totalCampaignDiscountCosts
+        - campaignRefundedDiscounts
+        - totalCampaignRefundedDiscounts
+        - campaignFreeItems
+        - totalCampaignFreeItems
+        - referralRedemptions
+        - totalReferralRedemptions
+        - couponRedemptions
+        - totalCouponRedemptions
+        - couponRolledbackRedemptions
+        - totalCouponRolledbackRedemptions
+        - couponsCreated
+        - totalCouponsCreated
+        - referralsCreated
+        - totalReferralsCreated
+        - addedLoyaltyPoints
+        - totalAddedLoyaltyPoints
+        - deductedLoyaltyPoints
+        - totalDeductedLoyaltyPoints
         properties:
-          campaignId:
-            type: integer
-            title: Campaign ID
-            description: The ID of the campaign that owns this entity.
-            example: 320
-          templateId:
-            type: integer
-            title: Campaign Template ID
-            description: The ID of the campaign template that owns this entity.
-            example: 3
-          activatedAt:
+          date:
             type: string
             format: date-time
-            description: Timestamp indicating when this Ruleset was activated.
-    FilterAndMapValuesSelectorStep:
-      type: object
-      title: FilterAndMapValuesSelectorStep
-      description: Keeps items that exist in the value map, and attaches each kept item's mapped value.
-      required:
-      - type
-      - valueMap
-      properties:
-        type:
-          type: string
-          enum:
-          - filterAndMapValues
-          description: A step discriminator of type `filterAndMapValues`.
-          example: filterAndMapValues
-        valueMap:
-          $ref: '#/components/schemas/SelectorValueMapRef'
-    SelectorStep:
-      description: A single step in a selector item pipeline. The `type` field determines the step variant.
-      oneOf:
-      - $ref: '#/components/schemas/FilterSelectorStep'
-      - $ref: '#/components/schemas/SortSelectorStep'
-      - $ref: '#/components/schemas/SelectSelectorStep'
-      - $ref: '#/components/schemas/MapSelectorStep'
-      - $ref: '#/components/schemas/ReduceSelectorStep'
-      - $ref: '#/components/schemas/ReverseSelectorStep'
-      - $ref: '#/components/schemas/FilterAndMapValuesSelectorStep'
-      discriminator:
-        propertyName: type
-        mapping:
-          filter: '#/components/schemas/FilterSelectorStep'
-          sort: '#/components/schemas/SortSelectorStep'
-          select: '#/components/schemas/SelectSelectorStep'
-          map: '#/components/schemas/MapSelectorStep'
-          reduce: '#/components/schemas/ReduceSelectorStep'
-          reverse: '#/components/schemas/ReverseSelectorStep'
-          filterAndMapValues: '#/components/schemas/FilterAndMapValuesSelectorStep'
-    Campaign:
-      allOf:
-      - $ref: '#/components/schemas/EntityWithTalangVisibleID'
-      - $ref: '#/components/schemas/ApplicationEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - $ref: '#/components/schemas/BaseCampaign'
-      - $ref: '#/components/schemas/AdditionalCampaignProperties'
-      - $ref: '#/components/schemas/CampaignVersions'
-      - type: object
-        required:
-        - reevaluateOnReturn
-    AwardDiscountCartTarget:
-      type: object
-      title: AwardDiscountCartTarget
-      description: Applies the discount to the entire cart as a single unit.
-      required:
-      - type
-      properties:
-        type:
-          type: string
-          enum:
-          - cart
-          description: A target discriminator of type `cart`.
-    UpdateAttributeValueBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: UpdateAttributeValueBlock
-        description: A block that sets or updates an attribute. The `type` may be empty for [built-in attributes](https://docs.talon.one/docs/dev/concepts/attributes).
-        required:
-        - operator
-        - attribute
-        - target
-        properties:
-          operator:
-            type: string
-            enum:
-            - setTo
-            - increaseBy
-            - decreaseBy
-            - multiplyBy
-            - divideBy
-            - toggle
-            - laterBy
-            - earlierBy
-            description: The update operation applied to the attribute.
-            example: setTo
-          attribute:
-            type: object
-            required:
-            - id
-            - entity
-            - name
-            - title
-            - type
-            description: The attribute being updated.
-            properties:
-              id:
-                type: integer
-                description: The internal ID of the attribute. Reverts to `0` when the attribute is deleted or does not exist.
-                example: 100
-              entity:
-                type: string
-                description: The entity type that owns the attribute. Reverts to an empty string when the attribute is deleted or does not exist.
-                example: profile
-              name:
-                type: string
-                description: The attribute name as used in API requests.
-                example: City
-              title:
-                type: string
-                description: The human-readable name of the attribute.
-                example: City
-              type:
-                type: string
-                description: The data type of the attribute.
-                example: string
-          value:
-            description: The value of the attribute. Omitted when operator is set to `toggle`.
-            example: 10
-          target:
-            type: object
-            required:
-            - type
-            description: The entity or item scope that this effect operates on.
-            properties:
-              type:
-                type: string
-                enum:
-                - session
-                - profile
-                - advocateProfile
-                - coupon
-                - referral
-                - allItems
-                - selector
-                - globalFilter
-                description: Identifies the target scope of the attribute update.
-                example: profile
-              name:
-                type: string
-                description: Identifies the name of the target when its type is set to `selector` or `globalFilter`.
-                example: Filter items by product
-          tags:
-            type: array
-            description: Semantic labels attached to this block.
-            items:
-              type: string
-    AwardGiveawayBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: AwardGiveawayBlock
-        description: A block that awards a giveaway item from a configured giveaway pool to the specified customer profile.
-        required:
-        - giveawayPool
-        - profile
-        properties:
-          giveawayPool:
-            type: object
-            description: The giveaway pool from which an item is awarded.
-            required:
-            - id
-            - name
-            properties:
-              id:
-                type: integer
-                description: The unique identifier of the giveaway pool.
-                example: 42
-              name:
-                type: string
-                description: The display name of the giveaway pool.
-                example: Summer Campaign Pool
-          profile:
-            type: string
-            enum:
-            - Current
-            - Advocate
-            description: The customer profile to award the giveaway to. `Current` targets the customer in the current session; `Advocate` targets the person who invited their friend via referral program.
-            example: Current
-          onFailure:
-            type: array
-            description: Blocks evaluated when this block fails or returns false.
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-          onError:
-            type: object
-            description: Named error handlers evaluated when a specific error occurs.
-            additionalProperties:
-              type: array
-              items:
-                $ref: '#/components/schemas/PromotionBlock'
+            example: '2021-10-12T10:12:42Z'
+          campaignRevenue:
+            type: number
+            description: Amount of revenue in this campaign (for coupon or discount sessions).
+            example: 3539.76
+          totalCampaignRevenue:
+            type: number
+            description: Amount of revenue in this campaign since it began (for coupon or discount sessions).
+            example: 5784.63
+          campaignRefund:
+            type: number
+            description: Amount of refunds in this campaign (for coupon or discount sessions).
+          totalCampaignRefund:
+            type: number
+            description: Amount of refunds in this campaign since it began (for coupon or discount sessions).
+          campaignDiscountCosts:
+            type: number
+            description: Amount of cost caused by discounts given in the campaign.
+          totalCampaignDiscountCosts:
+            type: number
+            description: Amount of cost caused by discounts given in the campaign since it began.
+          campaignRefundedDiscounts:
+            type: number
+            description: Amount of discounts rolledback due to refund in the campaign.
+          totalCampaignRefundedDiscounts:
+            type: number
+            description: Amount of discounts rolledback due to refund in the campaign since it began.
+          campaignFreeItems:
+            type: integer
+            description: Amount of free items given in the campaign.
+          totalCampaignFreeItems:
+            type: integer
+            description: Amount of free items given in the campaign since it began.
+            example: 86
+          couponRedemptions:
+            type: integer
+            description: Number of coupon redemptions in the campaign.
+          totalCouponRedemptions:
+            type: integer
+            description: Number of coupon redemptions in the campaign since it began.
+          couponRolledbackRedemptions:
+            type: integer
+            description: Number of coupon redemptions that have been rolled back (due to canceling closed session) in the campaign.
+          totalCouponRolledbackRedemptions:
+            type: integer
+            description: Number of coupon redemptions that have been rolled back (due to canceling closed session) in the campaign since it began.
+          referralRedemptions:
+            type: integer
+            description: Number of referral redemptions in the campaign.
+          totalReferralRedemptions:
+            type: integer
+            description: Number of referral redemptions in the campaign since it began.
+          couponsCreated:
+            type: integer
+            description: Number of coupons created in the campaign by the rule engine.
+          totalCouponsCreated:
+            type: integer
+            description: Number of coupons created in the campaign by the rule engine since it began.
+          referralsCreated:
+            type: integer
+            description: Number of referrals created in the campaign by the rule engine.
+          totalReferralsCreated:
+            type: integer
+            description: Number of referrals created in the campaign by the rule engine since it began.
+          addedLoyaltyPoints:
+            type: number
+            description: Number of added loyalty points in the campaign in a specific interval.
+            example: 250
+          totalAddedLoyaltyPoints:
+            type: number
+            description: Number of added loyalty points in the campaign since it began.
+            example: 340
+          deductedLoyaltyPoints:
+            type: number
+            description: Number of deducted loyalty points in the campaign in a specific interval.
+            example: 120
+          totalDeductedLoyaltyPoints:
+            type: number
+            description: Number of deducted loyalty points in the campaign since it began.
+            example: 220
     CheckAttributeBlockBase:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
@@ -2059,149 +2768,125 @@ components:
           count:
             description: The count threshold for `containsAtLeast` and `containsExactly` operators.
             example: 2
-    ReserveCouponBlock:
+    ListWithCountCheckAttributeBlock:
+      type: object
+      title: ListWithCountCheckAttributeBlock
+      description: Variant of `CheckAttributeBlock` for operators that test list membership with a minimum or exact count threshold.
+      required:
+      - values
+      - count
+      properties:
+        operator:
+          type: string
+          description: The list membership operator with a count threshold applied to the attribute.
+          enum:
+          - containsAtLeast
+          - containsExactly
+        values:
+          description: The set of values to match against.
+        count:
+          description: The count threshold for this operator.
+          example: 2
+    UpdateAttributeValueBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: ReserveCouponBlock
-        description: A block that reserve a coupon during a customer session.
-    UserEntity:
+        title: UpdateAttributeValueBlock
+        description: A block that sets or updates an attribute. The `type` may be empty for [built-in attributes](https://docs.talon.one/docs/dev/concepts/attributes).
+        required:
+        - operator
+        - attribute
+        - target
+        properties:
+          operator:
+            type: string
+            enum:
+            - setTo
+            - increaseBy
+            - decreaseBy
+            - multiplyBy
+            - divideBy
+            - toggle
+            - laterBy
+            - earlierBy
+            description: The update operation applied to the attribute.
+            example: setTo
+          attribute:
+            type: object
+            required:
+            - id
+            - entity
+            - name
+            - title
+            - type
+            description: The attribute being updated.
+            properties:
+              id:
+                type: integer
+                description: The internal ID of the attribute. Reverts to `0` when the attribute is deleted or does not exist.
+                example: 100
+              entity:
+                type: string
+                description: The entity type that owns the attribute. Reverts to an empty string when the attribute is deleted or does not exist.
+                example: profile
+              name:
+                type: string
+                description: The attribute name as used in API requests.
+                example: City
+              title:
+                type: string
+                description: The human-readable name of the attribute.
+                example: City
+              type:
+                type: string
+                description: The data type of the attribute.
+                example: string
+          value:
+            description: The value of the attribute. Omitted when operator is set to `toggle`.
+            example: 10
+          target:
+            type: object
+            required:
+            - type
+            description: The entity or item scope that this effect operates on.
+            properties:
+              type:
+                type: string
+                enum:
+                - session
+                - profile
+                - advocateProfile
+                - coupon
+                - referral
+                - allItems
+                - selector
+                - globalFilter
+                description: Identifies the target scope of the attribute update.
+                example: profile
+              name:
+                type: string
+                description: Identifies the name of the target when its type is set to `selector` or `globalFilter`.
+                example: Filter items by product
+          tags:
+            type: array
+            description: Semantic labels attached to this block.
+            items:
+              type: string
+    Entity:
       type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    RulesetV2:
-      type: object
-      title: RulesetV2
-      description: Ruleset in the V2 JSON block format.
       required:
       - id
       - created
-      - userId
-      - promotionRules
-      - strikethroughRules
       properties:
         id:
           type: integer
-          format: int64
-          description: Internal ID of this entity.
+          description: The internal ID of this entity.
           example: 6
         created:
           type: string
           format: date-time
           description: The time this entity was created.
-        userId:
-          type: integer
-          format: int64
-          description: The ID of the user that created this ruleset.
-          example: 385
-        campaignId:
-          type: integer
-          format: int64
-          description: The ID of the campaign that owns this entity.
-          example: 320
-        templateId:
-          type: integer
-          format: int64
-          description: The ID of the campaign template that owns this entity.
-          example: 3
-        activatedAt:
-          type: string
-          format: date-time
-          description: Timestamp indicating when this ruleset was activated.
-        promotionRules:
-          type: array
-          description: Set of promotion rules.
-          items:
-            $ref: '#/components/schemas/PromotionRuleV2'
-        strikethroughRules:
-          type: array
-          description: Set of strikethrough rules.
-          items:
-            $ref: '#/components/schemas/StrikethroughRuleV2'
-        selectors:
-          type: array
-          description: Variable bindings of type selector.
-          items:
-            $ref: '#/components/schemas/Selector'
-        bundles:
-          type: array
-          description: Variable bindings of type bundle.
-          items:
-            type: object
-            additionalProperties: true
-        parameters:
-          type: array
-          description: Variable bindings of type template parameter.
-          items:
-            type: object
-            additionalProperties: true
-    CreateCouponBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: CreateCouponBlock
-        description: A block that creates a coupon code.
-        required:
-        - campaignId
-        - recipientId
-        - storeInSession
-        properties:
-          campaignId:
-            description: The ID of the campaign in which the coupon code is created.
-            oneOf:
-            - type: number
-              example: 3
-            - type: string
-              example: '{{$Campaign.Id}}'
-          recipientId:
-            type: string
-            description: The integration ID of the customer that is allowed to redeem this coupon.
-            example: '{{$Profile.IntegrationId}}'
-          storeInSession:
-            type: boolean
-            description: When `true`, the coupon is stored in the session.
-            example: true
-          usageLimit:
-            description: 'The number of times the coupon code can be redeemed. `0` means unlimited redemptions, but any campaign usage limits still apply. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
-
-              '
-            oneOf:
-            - type: number
-              example: 100
-            - type: string
-              example: '{{$Session.CartTotal * 0.1}}'
-          discountLimit:
-            description: 'The total discount value that the code can give. Typically used to represent a gift card value. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
-
-              '
-            oneOf:
-            - type: number
-              example: 30
-            - type: string
-              example: '{{$Session.CartTotal * 0.1}}'
-          startDate:
-            description: Timestamp at which point the coupon becomes valid.
-            example: '2024-12-24T14:15:22Z'
-          expiryDate:
-            description: Expiration date of the coupon. Coupon never expires if this is omitted.
-            example: '2024-12-24T14:15:22Z'
-          attributes:
-            description: Custom attributes associated with this coupon code.
-          validCharacters:
-            type: string
-            description: Characters used to generate the random parts of a code.
-            example: ABC
-          pattern:
-            type: string
-            description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
-
-              '
-            example: SUMMER-####-####
+          example: '2020-06-10T09:05:27.993483Z'
     PromotionGroupBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
@@ -2236,290 +2921,43 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/PromotionBlock'
-    CheckAchievementBlock:
+    TriggerWebhookBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: CheckAchievementBlock
-        description: A block that checks the current customer's completion or progress status in an achievement.
+        title: TriggerWebhookBlock
+        description: A block that triggers a configured webhook and passes its required parameters.
         required:
-        - operator
-        - achievement
+        - webhook
         properties:
-          operator:
-            type: string
-            enum:
-            - justCompleted
-            - started
-            - not(started)
-            - inProgress
-            - not(inProgress)
-            - completed
-            - not(completed)
-            description: The comparison operator applied to the achievement.
-            example: justCompleted
-          achievement:
+          webhook:
             type: object
-            description: The achievement to check for.
+            description: The webhook to trigger.
             required:
             - id
             - title
-            - name
-            - target
             properties:
               id:
                 type: integer
-                description: The ID of the achievement.
-                example: 42
+                description: The unique identifier of the webhook.
+                example: 1
               title:
                 type: string
-                description: The display name for the achievement in the Campaign Manager.
-                example: 50% off on 50th purchase.
-              name:
-                type: string
-                description: The internal name of the achievement used in API requests.
-                example: Order50Discount
-              target:
-                type: number
-                description: The required number of actions or the transactional milestone to complete the achievement.
-                example: 50
-          onFailure:
-            type: array
-            description: Promotion blocks evaluated when this block fails or returns false.
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-    PromotionBlock:
-      description: Describes a part of the logic of the rule.
-      oneOf:
-      - $ref: '#/components/schemas/PromotionGroupBlock'
-      - $ref: '#/components/schemas/AwardDiscountBlock'
-      - $ref: '#/components/schemas/PassthroughBlock'
-      - $ref: '#/components/schemas/ShowNotificationBlock'
-      - $ref: '#/components/schemas/AwardItemBlock'
-      - $ref: '#/components/schemas/AwardGiveawayBlock'
-      - $ref: '#/components/schemas/PromotionCheckAttributeBlock'
-      - $ref: '#/components/schemas/CheckAudienceBlock'
-      - $ref: '#/components/schemas/CheckLoyaltyBalanceBlock'
-      - $ref: '#/components/schemas/CheckCouponBlock'
-      - $ref: '#/components/schemas/CheckReferralBlock'
-      - $ref: '#/components/schemas/UpdateAudienceMembershipBlock'
-      - $ref: '#/components/schemas/UpdateAchievementProgressBlock'
-      - $ref: '#/components/schemas/UpdateAttributeValueBlock'
-      - $ref: '#/components/schemas/TriggerWebhookBlock'
-      - $ref: '#/components/schemas/TriggerCustomEffectBlock'
-      - $ref: '#/components/schemas/CheckEventBlock'
-      - $ref: '#/components/schemas/CheckAchievementBlock'
-      - $ref: '#/components/schemas/CheckBudgetBlock'
-      - $ref: '#/components/schemas/CreateCouponBlock'
-      - $ref: '#/components/schemas/CreateReferralBlock'
-      - $ref: '#/components/schemas/ReserveCouponBlock'
-      discriminator:
-        propertyName: type
-        mapping:
-          group: '#/components/schemas/PromotionGroupBlock'
-          awardDiscount: '#/components/schemas/AwardDiscountBlock'
-          passthrough: '#/components/schemas/PassthroughBlock'
-          showNotification: '#/components/schemas/ShowNotificationBlock'
-          awardItem: '#/components/schemas/AwardItemBlock'
-          awardGiveaway: '#/components/schemas/AwardGiveawayBlock'
-          triggerWebhook: '#/components/schemas/TriggerWebhookBlock'
-          checkAttribute: '#/components/schemas/PromotionCheckAttributeBlock'
-          checkAudience: '#/components/schemas/CheckAudienceBlock'
-          checkLoyaltyBalance: '#/components/schemas/CheckLoyaltyBalanceBlock'
-          checkCoupon: '#/components/schemas/CheckCouponBlock'
-          checkReferral: '#/components/schemas/CheckReferralBlock'
-          updateAudienceMembership: '#/components/schemas/UpdateAudienceMembershipBlock'
-          updateAchievementProgress: '#/components/schemas/UpdateAchievementProgressBlock'
-          updateAttributeValue: '#/components/schemas/UpdateAttributeValueBlock'
-          triggerCustomEffect: '#/components/schemas/TriggerCustomEffectBlock'
-          checkEvent: '#/components/schemas/CheckEventBlock'
-          checkAchievement: '#/components/schemas/CheckAchievementBlock'
-          checkBudget: '#/components/schemas/CheckBudgetBlock'
-          createCoupon: '#/components/schemas/CreateCouponBlock'
-          createReferral: '#/components/schemas/CreateReferralBlock'
-          reserveCoupon: '#/components/schemas/ReserveCouponBlock'
-    AwardDiscountBundleItemByAttribute:
-      type: object
-      title: AwardDiscountBundleItemByAttribute
-      description: Identifies a bundle slot by ranking items by a per-item attribute expression and picking the highest- or lowest-ranked one.
-      required:
-      - type
-      - attribute
-      - direction
-      properties:
-        type:
-          type: string
-          enum:
-          - byAttribute
-          description: A bundle-item selector of type `byAttribute`.
-        attribute:
-          type: string
-          description: A per-item attribute expression used to rank bundle items.
-          example: '{{$Item.Price}}'
-        direction:
-          type: string
-          enum:
-          - highest
-          - lowest
-          description: Ranking direction. `highest` picks the item with the largest attribute value, `lowest` the smallest.
-          example: highest
-    CampaignCopy:
-      type: object
-      required:
-      - applicationIds
-      properties:
-        name:
-          type: string
-          description: Name of the copied campaign (Defaults to "Copy of original campaign name").
-          example: Copy of Summer promotions
-        applicationIds:
-          type: array
-          description: Application IDs of the applications to which a campaign should be copied to.
-          items:
-            type: integer
-          example:
-          - 1
-          - 2
-          - 3
-        description:
-          type: string
-          title: Campaign Description
-          description: A detailed description of the campaign.
-          example: Campaign for all summer 2021 promotions
-        startTime:
-          type: string
-          format: date-time
-          description: Timestamp when the campaign will become active.
-          example: '2021-06-01T09:00:27.993483Z'
-        endTime:
-          type: string
-          format: date-time
-          description: Timestamp when the campaign will become inactive.
-          example: '2021-09-10T01:00:00.993483Z'
-        tags:
-          type: array
-          description: A list of tags for the campaign.
-          maxItems: 50
-          items:
-            type: string
-            minLength: 1
-            maxLength: 50
-          example:
-          - Summer
-          - Shoes
-        evaluationGroupId:
-          type: integer
-          example: 2
-          description: The ID of the campaign evaluation group the campaign belongs to.
-    ListCheckAttributeBlock:
-      type: object
-      title: ListCheckAttributeBlock
-      description: Variant of `CheckAttributeBlock` for operators that test list membership against a set of values.
-      required:
-      - values
-      properties:
-        operator:
-          type: string
-          description: The list membership operator applied to the attribute.
-          enum:
-          - containsOneOf
-          - containsNoneOf
-          - containsAllOf
-        values:
-          description: The set of values to match against.
-    StrikethroughBlock:
-      description: A block valid in a strikethrough rule. The `type` field identifies the concrete block type.
-      oneOf:
-      - $ref: '#/components/schemas/StrikethroughGroupBlock'
-      - $ref: '#/components/schemas/AwardDiscountBlock'
-      - $ref: '#/components/schemas/PassthroughBlock'
-      - $ref: '#/components/schemas/StrikethroughCheckAttributeBlock'
-      discriminator:
-        propertyName: type
-        mapping:
-          group: '#/components/schemas/StrikethroughGroupBlock'
-          awardDiscount: '#/components/schemas/AwardDiscountBlock'
-          passthrough: '#/components/schemas/PassthroughBlock'
-          checkAttribute: '#/components/schemas/StrikethroughCheckAttributeBlock'
-    CodeGeneratorSettings:
-      type: object
-      properties:
-        validCharacters:
-          type: array
-          description: 'List of characters used to generate the random parts of a code.
-
-            '
-          example:
-          - A
-          - B
-          - C
-          - D
-          - E
-          - F
-          - G
-          - H
-          - I
-          - J
-          - K
-          - L
-          - M
-          - N
-          - O
-          - P
-          - Q
-          - R
-          - S
-          - T
-          - U
-          - V
-          - W
-          - X
-          - Y
-          - Z
-          - '0'
-          - '1'
-          - '2'
-          - '3'
-          - '4'
-          - '5'
-          - '6'
-          - '7'
-          - '8'
-          - '9'
-          items:
-            type: string
-        couponPattern:
-          type: string
-          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
-
-            '
-          maxLength: 100
-          minLength: 3
-          pattern: ^[A-Za-z0-9._%+@#-]+$
-          example: SUMMER-####-####
-      additionalProperties: false
-      required:
-      - couponPattern
-      - validCharacters
-    ListWithCountCheckAttributeBlock:
-      type: object
-      title: ListWithCountCheckAttributeBlock
-      description: Variant of `CheckAttributeBlock` for operators that test list membership with a minimum or exact count threshold.
-      required:
-      - values
-      - count
-      properties:
-        operator:
-          type: string
-          description: The list membership operator with a count threshold applied to the attribute.
-          enum:
-          - containsAtLeast
-          - containsExactly
-        values:
-          description: The set of values to match against.
-        count:
-          description: The count threshold for this operator.
-          example: 2
+                description: The display name of the webhook.
+                example: Thank you for your order.
+          params:
+            type: object
+            additionalProperties: true
+            description: The webhook's parameters, in configured order. Each property name is the parameter's title, lowercased with spaces replaced by underscores (for example, `Order ID` becomes `order_id`); falls back to `param_0`, `param_1`, and so on if a title is blank or collides with another.
+            example:
+              order_id: ORD-10293
+          onError:
+            type: object
+            description: Named error handlers evaluated when a specific error occurs.
+            additionalProperties:
+              type: array
+              items:
+                $ref: '#/components/schemas/PromotionBlock'
     CheckReferralBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
@@ -2538,178 +2976,101 @@ components:
             description: Promotion blocks evaluated when this block fails or returns false.
             items:
               $ref: '#/components/schemas/PromotionBlock'
-    ReduceSelectorStep:
-      type: object
-      title: ReduceSelectorStep
-      description: Aggregates items into a single value.
-      required:
-      - type
-      - operator
-      properties:
-        type:
-          type: string
-          enum:
-          - reduce
-          description: A step discriminator of type `reduce`.
-          example: reduce
-        operator:
-          type: string
-          enum:
-          - max
-          - min
-          - sum
-          - count
-          - empty
-          description: 'The aggregation operator applied to the items produced by the preceding step:
-
-            - `max`, `min`, and `sum` operate on numeric values.
-
-            - `count` returns the number of items.
-
-            - `empty` reports whether the list is empty.
-
-            '
-          example: sum
-    FilterSelectorStep:
-      type: object
-      title: FilterSelectorStep
-      description: Filters only items that match a predicate block.
-      required:
-      - type
-      - predicate
-      properties:
-        type:
-          type: string
-          enum:
-          - filter
-          description: A step discriminator of type `filter`.
-          example: filter
-        predicate:
-          $ref: '#/components/schemas/SelectorBlock'
-    StrikethroughRuleV2:
+    AwardItemBlock:
       allOf:
-      - $ref: '#/components/schemas/RuleV2'
+      - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: StrikethroughRuleV2
-        description: A single strikethrough rule.
+        title: AwardItemBlock
+        description: A block that awards a free cart item to the customer. The item is identified by SKU and name and has a configurable quantity.
         required:
-        - blocks
+        - sku
+        - name
+        - quantity
         properties:
-          blocks:
+          sku:
+            type: string
+            description: The stock keeping unit of the item to award.
+            example: SKU1241028
+          name:
+            type: string
+            description: The display name of the item to award.
+            example: Free Tote Bag
+          quantity:
+            type: string
+            description: The number of items to award. Supports template placeholders (e.g. "{{$Session.Total / 2}}") for dynamic quantities.
+            example: '1'
+          partial:
+            type: boolean
+            description: When set to `true`, applies a partial item reward if the remaining budget is insufficient to award the full reward.
+            example: false
+          onFailure:
             type: array
-            description: The condition and effect blocks that make up this strikethrough rule.
+            description: Blocks evaluated when this block fails or returns false.
             items:
-              $ref: '#/components/schemas/StrikethroughBlock'
-    RuleV2:
+              $ref: '#/components/schemas/PromotionBlock'
+          onError:
+            type: object
+            description: Named error handlers evaluated when a specific error occurs.
+            additionalProperties:
+              type: array
+              items:
+                $ref: '#/components/schemas/PromotionBlock'
+    Rule:
       type: object
-      title: RuleV2
-      description: Shared fields common to all V2 rule types.
       required:
       - title
+      - condition
+      - effects
       properties:
         id:
           type: string
-          description: Unique identifier of the rule.
-          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          format: uuid
+          description: A unique identifier for the rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
         parentId:
           type: string
-          description: ID of the parent rule, if any.
+          format: uuid
+          description: The ID of the rule that was copied to create this rule.
+          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
         title:
           type: string
           description: A short description of the rule.
-          example: 10% off for loyalty members
+          example: Give discount via coupon
         description:
           type: string
-          description: A longer description of the rule.
-    CampaignBudget:
-      type: object
-      required:
-      - action
-      - limit
-      - counter
-      properties:
-        action:
-          type: string
-          description: 'The limitable action to which this limit applies. For example:
-
-            - `setDiscount`
-
-            - `setDiscountEffect`
-
-            - `redeemCoupon`
-
-            - `createCoupon`
-
-            '
-          example: createCoupon
-        limit:
-          type: number
-          minimum: 0
-          example: 1000
-          description: The value to set for the limit.
-        counter:
-          type: number
-          minimum: 0
-          example: 42
-          description: The number of occurrences of the limited action in the context of the campaign.
-    PromotionRuleV2:
-      allOf:
-      - $ref: '#/components/schemas/RuleV2'
-      - type: object
-        title: PromotionRuleV2
-        description: A single promotion rule in V2 block format.
-        required:
-        - blocks
-        properties:
-          blocks:
-            type: array
-            description: The condition and effect blocks that make up this promotion rule.
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-    UnaryCheckAttributeBlock:
-      type: object
-      title: UnaryCheckAttributeBlock
-      description: Variant of `CheckAttributeBlock` for operators that test a property of the attribute itself with no comparison value.
-      properties:
-        operator:
-          type: string
-          description: The unary operator applied to the attribute. These operators require no comparison value.
-          enum:
-          - empty
-          - not(empty)
-          - exists
-          - not(exists)
-          - isTrue
-          - isFalse
-    Selector:
-      type: object
-      title: Selector
-      description: A named pipeline of steps (filter, sort, map, etc.) that filters or transforms a list of cart items. Replaces `cartItemFilter` [bindings](https://docs.talon.one/management-api#tag/Campaigns/operation/getRuleset.responses.200.bindings) in V1 rulesets.
-      required:
-      - name
-      - type
-      - source
-      - steps
-      properties:
-        name:
-          type: string
-          description: The name of the selector binding.
-          example: discountedCartItems
-        type:
-          type: string
-          enum:
-          - selector
-          description: A binding of type `selector`.
-          example: selector
-        source:
-          type: string
-          description: The attribute path the pipeline draws items from.
-          example: $Session.CartItems
-        steps:
+          description: A longer, more detailed description of the rule.
+          example: Creates a discount when a coupon is valid
+        bindings:
           type: array
-          description: Ordered pipeline steps applied to the source items.
+          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
           items:
-            $ref: '#/components/schemas/SelectorStep'
+            $ref: '#/components/schemas/Binding'
+        condition:
+          type: array
+          description: A Talang expression that will be evaluated in the context of the given event.
+          minItems: 1
+          example:
+          - and
+          - - couponValid
+          items: {}
+        effects:
+          type: array
+          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
+          items:
+            type: array
+            items: {}
+          example:
+          - catch
+          - - noop
+          - - setDiscount
+            - 10% off
+            - - '*'
+              - - .
+                - Session
+                - Total
+              - - /
+                - 10
+                - 100
     LimitConfig:
       type: object
       required:
@@ -2759,6 +3120,82 @@ components:
             - Identifier
             - Store
             - Session
+    AwardDiscountBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: AwardDiscountBlock
+        description: A block that grants a discount when its rule conditions evaluate to `true`. The `target` field determines what the discount applies to (the whole cart, a subset of items, a bundle, an additional cost, etc.); the `value` field is the discount amount.
+        required:
+        - name
+        - value
+        - target
+        - partial
+        properties:
+          name:
+            type: string
+            description: The human-readable label attached to the discount.
+            example: 10% Off
+          value:
+            description: Discount amount. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
+            oneOf:
+            - type: number
+              example: 10
+            - type: string
+              example: '{{$Session.CartTotal * 0.1}}'
+          partial:
+            type: boolean
+            description: Whether to apply a partial discount when the requested value exceeds the configured budget.
+            example: false
+          target:
+            $ref: '#/components/schemas/AwardDiscountTarget'
+    WithinCheckAttributeBlock:
+      type: object
+      title: WithinCheckAttributeBlock
+      description: Variant of `CheckAttributeBlock` for the `within` and `not(within)` operators, which require both a start and end value.
+      required:
+      - start
+      - end
+      properties:
+        operator:
+          type: string
+          description: The range comparison operator. Must be `within` or `not(within)`.
+          enum:
+          - within
+          - not(within)
+        start:
+          description: The start value for the `within` operator.
+          example: '2021-09-22T22:00:00Z'
+        end:
+          description: The end value for the `within` operator.
+          example: '2021-09-22T22:00:00Z'
+        startInclusive:
+          type: boolean
+          description: When `true`, the `start` value is included in the range for the `within` operator.
+          example: true
+        endInclusive:
+          type: boolean
+          description: When `true`, the `end` value is included in the range for the `within` operator.
+          example: true
+        timezoneInsensitive:
+          type: boolean
+          description: Indicates whether the `within` operator ignores time zones and compares the wall-clock time only. When `false`, time zones are taken into account.
+          example: false
+    EntityWithTalangVisibleID:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: Unique ID for this entity.
+          example: 4
+        created:
+          type: string
+          format: date-time
+          description: The exact moment this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
     UpdateCampaign:
       type: object
       properties:
@@ -2902,552 +3339,141 @@ components:
       - tags
       - limits
       - features
-    SelectorBlock:
-      description: A predicate block valid inside a selector filter step. The `type` field determines the block variant.
-      oneOf:
-      - $ref: '#/components/schemas/CheckAttributeBlock'
-      - $ref: '#/components/schemas/SelectorGroupBlock'
-      - $ref: '#/components/schemas/PassthroughBlock'
-      discriminator:
-        propertyName: type
-        mapping:
-          checkAttribute: '#/components/schemas/CheckAttributeBlock'
-          group: '#/components/schemas/SelectorGroupBlock'
-          passthrough: '#/components/schemas/PassthroughBlock'
-    SelectSelectorStep:
+    Selector:
       type: object
-      title: SelectSelectorStep
-      description: 'Picks a subset of the items by count, range, or exact position. The `operator` determines which additional fields are required: - `many` selects items from `from` (`start` or `end`) and is limited by `count`. - `between` selects items between integer indices `from` and `to`. - `one` selects the single item at `index`.'
+      title: Selector
+      description: A named pipeline of steps (filter, sort, map, etc.) that filters or transforms a list of cart items. Replaces `cartItemFilter` [bindings](https://docs.talon.one/management-api#tag/Campaigns/operation/getRuleset.responses.200.bindings) in V1 rulesets.
       required:
+      - name
       - type
-      - operator
+      - source
+      - steps
       properties:
+        name:
+          type: string
+          description: The name of the selector binding.
+          example: discountedCartItems
         type:
           type: string
           enum:
-          - select
-          description: A step discriminator of type `select`.
-          example: select
+          - selector
+          description: A binding of type `selector`.
+          example: selector
+        source:
+          type: string
+          description: The attribute path the pipeline draws items from.
+          example: $Session.CartItems
+        steps:
+          type: array
+          description: Ordered pipeline steps applied to the source items.
+          items:
+            $ref: '#/components/schemas/SelectorStep'
+    ListCheckAttributeBlock:
+      type: object
+      title: ListCheckAttributeBlock
+      description: Variant of `CheckAttributeBlock` for operators that test list membership against a set of values.
+      required:
+      - values
+      properties:
         operator:
           type: string
+          description: The list membership operator applied to the attribute.
           enum:
-          - many
-          - between
-          - one
-          description: The selection operator applied to the items.
-          example: many
-        from:
-          description: The starting value of the selection. For the `many` operator this is the string `start` or `end`; for the `between` operator this is an integer start index. No discriminator is needed since the string and integer branches are distinguishable by JSON type alone.
-          oneOf:
-          - type: string
-            enum:
-            - start
-            - end
-            example: start
-          - type: integer
-            format: int32
-            example: 2
-        to:
-          type: integer
-          format: int32
-          description: The end index for the `between` operator. The item at this index is not included.
-          example: 7
-        count:
-          type: integer
-          format: int32
-          description: The maximum number of items to select for the `many` operator.
-          example: 5
-        index:
-          type: integer
-          format: int32
-          description: The exact position of the item to select for the `one` operator.
-          example: 0
-        partial:
-          type: boolean
-          description: Indicates if the step returns fewer items than requested when the source list is shorter than the range needs. Always `true` for the `many` and `between` operators; not present for `one`, which fails instead of returning a partial result.
-          example: true
-    TriggerCustomEffectBlock:
+          - containsOneOf
+          - containsNoneOf
+          - containsAllOf
+        values:
+          description: The set of values to match against.
+    CreateReferralBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: TriggerCustomEffectBlock
-        description: A block that triggers a configured custom effect and passes its required parameters.
+        title: CreateReferralBlock
+        description: A block that creates a referral code.
         required:
-        - customEffect
-        - target
+        - campaignId
+        - friendId
+        - storeInSession
         properties:
-          customEffect:
-            type: object
-            description: The custom effect to trigger.
-            required:
-            - id
-            - name
-            - title
-            properties:
-              id:
-                type: integer
-                description: The unique identifier of the custom effect.
-                example: 1
-              name:
-                type: string
-                description: The name of the custom effect, as used in API requests.
-                example: sendEmail
-              title:
-                type: string
-                description: The display name of the custom effect.
-                example: Send email
-          params:
-            type: object
-            additionalProperties: true
-            description: The custom effect's parameters, in configured order. Each property name is the parameter's title, lowercased with spaces replaced by underscores (for example, `Order ID` becomes `order_id`); falls back to `param_0`, `param_1`, and so on if a title is blank or collides with another.
-            example:
-              template_id: TPL-10293
-          target:
-            type: object
-            required:
-            - type
-            description: The target scope of this effect.
-            properties:
-              type:
-                type: string
-                enum:
-                - cart
-                - allItems
-                - selector
-                - globalFilter
-                - bundle
-                description: 'The scope the custom effect applies to: - `cart` applies once to the whole cart. - `allItems` applies once per cart item. - `selector` applies once per item matched by the named selector. - `globalFilter` applies once per item matched by the named global item filter. - `bundle` applies once per item in the named bundle.'
-                example: cart
-              name:
-                type: string
-                description: The name of the targeted selector or bundle. Only set when `type` is `selector`, `globalFilter`, or `bundle`.
-                example: giftBundle
-          onError:
-            type: object
-            description: Named error handlers evaluated when a specific error occurs.
-            additionalProperties:
-              type: array
-              items:
-                $ref: '#/components/schemas/PromotionBlock'
-    AwardDiscountAllItemsTarget:
-      type: object
-      title: AwardDiscountAllItemsTarget
-      description: Applies the discount across all cart items.
-      required:
-      - type
-      properties:
-        type:
-          type: string
-          enum:
-          - allItems
-          description: A target discriminator of type `allItems`.
-        prorated:
-          type: boolean
-          description: Whether to distribute the discount proportionally across the targeted items.
-          example: true
-    CheckBudgetBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: CheckBudgetBlock
-        description: A block that verifies if a specific budget has sufficient limit available, and whether this limit meets or exceeds a specific value.
-        required:
-        - operator
-        - action
-        properties:
-          operator:
-            type: string
-            enum:
-            - available
-            - enoughFor
-            description: The comparison operator applied to the limit. `available` checks if there is budget available for a given limitable action; `enoughFor` checks if the available budget meets or exceeds a specific value limit.
-            example: available
-          action:
-            type: string
-            enum:
-            - redeemCoupon
-            - redeemReferral
-            - setDiscount
-            - createCoupon
-            - createReferral
-            - setDiscountEffect
-            - createLoyaltyPoints
-            - createLoyaltyPointsEffect
-            - redeemLoyaltyPoints
-            - redeemLoyaltyPointsEffect
-            - awardGiveaway
-            - addFreeItemEffect
-            - customEffect
-            - callApi
-            description: The limitable action to check.
-            example: setDiscount
-          value:
-            type: number
-            description: The value to check against when using the `enoughFor` operator.
-            example: 5
-          onFailure:
-            type: array
-            description: Promotion blocks evaluated when this block fails or returns false.
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-    AwardDiscountBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: AwardDiscountBlock
-        description: A block that grants a discount when its rule conditions evaluate to `true`. The `target` field determines what the discount applies to (the whole cart, a subset of items, a bundle, an additional cost, etc.); the `value` field is the discount amount.
-        required:
-        - name
-        - value
-        - target
-        - partial
-        properties:
-          name:
-            type: string
-            description: The human-readable label attached to the discount.
-            example: 10% Off
-          value:
-            description: Discount amount. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
+          campaignId:
+            description: The ID of the campaign in which the referral code is created. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
             oneOf:
             - type: number
-              example: 10
+              example: 3
+            - type: string
+              example: '{{$Campaign.Id}}'
+          friendId:
+            type: string
+            description: An optional integration ID of the friend's profile.
+            example: '{{$Profile.IntegrationId}}'
+          storeInSession:
+            type: boolean
+            description: When `true`, the referral code is stored in the session.
+            example: true
+          usageLimit:
+            description: 'The number of times the referral code code can be redeemed. `0` means unlimited redemptions, but any campaign usage limits still apply. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
+
+              '
+            oneOf:
+            - type: number
+              example: 100
             - type: string
               example: '{{$Session.CartTotal * 0.1}}'
-          partial:
-            type: boolean
-            description: Whether to apply a partial discount when the requested value exceeds the configured budget.
-            example: false
-          target:
-            $ref: '#/components/schemas/AwardDiscountTarget'
-    StrikethroughGroupBlock:
+          startDate:
+            description: Timestamp at which point the referral code becomes valid.
+            example: '2024-12-24T14:15:22Z'
+          expiryDate:
+            description: Expiration date of the referral code. Referral code never expires if this is omitted.
+            example: '2024-12-24T14:15:22Z'
+          attributes:
+            description: Custom attributes associated with this referral code.
+          validCharacters:
+            type: string
+            description: Characters used to generate the random parts of a code.
+            example: ABC
+          pattern:
+            type: string
+            description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+              '
+            example: SUMMER-####-####
+    AwardGiveawayBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: StrikethroughGroupBlock
-        description: A structural combinator block that groups child strikethrough blocks using a logical operator. Evaluates to true when its operator condition is satisfied across all child blocks.
+        title: AwardGiveawayBlock
+        description: A block that awards a giveaway item from a configured giveaway pool to the specified customer profile.
         required:
-        - operator
-        - blocks
+        - giveawayPool
+        - profile
         properties:
-          operator:
-            type: string
-            enum:
-            - all
-            - atLeastOne
-            - none
-            description: Logical operator applied across child blocks. `all` requires every child to pass, `atLeastOne` requires at least one, `none` requires all to fail.
-          blocks:
-            type: array
-            description: Child blocks evaluated according to the operator.
-            items:
-              $ref: '#/components/schemas/StrikethroughBlock'
-          onFailure:
-            type: array
-            description: Strikethrough blocks evaluated when this block fails or returns false.
-            items:
-              $ref: '#/components/schemas/StrikethroughBlock'
-          onError:
+          giveawayPool:
             type: object
-            description: Named error handlers evaluated when a specific error occurs.
-            additionalProperties:
-              type: array
-              items:
-                $ref: '#/components/schemas/StrikethroughBlock'
-    SelectorValueMapRef:
-      type: object
-      title: SelectorValueMapRef
-      description: A reference to a value map by its internal ID.
-      required:
-      - id
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: The internal ID of the referenced value map.
-          example: 12
-    CampaignAnalytics:
-      allOf:
-      - type: object
-        required:
-        - date
-        - campaignRevenue
-        - totalCampaignRevenue
-        - campaignRefund
-        - totalCampaignRefund
-        - campaignDiscountCosts
-        - totalCampaignDiscountCosts
-        - campaignRefundedDiscounts
-        - totalCampaignRefundedDiscounts
-        - campaignFreeItems
-        - totalCampaignFreeItems
-        - referralRedemptions
-        - totalReferralRedemptions
-        - couponRedemptions
-        - totalCouponRedemptions
-        - couponRolledbackRedemptions
-        - totalCouponRolledbackRedemptions
-        - couponsCreated
-        - totalCouponsCreated
-        - referralsCreated
-        - totalReferralsCreated
-        - addedLoyaltyPoints
-        - totalAddedLoyaltyPoints
-        - deductedLoyaltyPoints
-        - totalDeductedLoyaltyPoints
-        properties:
-          date:
-            type: string
-            format: date-time
-            example: '2021-10-12T10:12:42Z'
-          campaignRevenue:
-            type: number
-            description: Amount of revenue in this campaign (for coupon or discount sessions).
-            example: 3539.76
-          totalCampaignRevenue:
-            type: number
-            description: Amount of revenue in this campaign since it began (for coupon or discount sessions).
-            example: 5784.63
-          campaignRefund:
-            type: number
-            description: Amount of refunds in this campaign (for coupon or discount sessions).
-          totalCampaignRefund:
-            type: number
-            description: Amount of refunds in this campaign since it began (for coupon or discount sessions).
-          campaignDiscountCosts:
-            type: number
-            description: Amount of cost caused by discounts given in the campaign.
-          totalCampaignDiscountCosts:
-            type: number
-            description: Amount of cost caused by discounts given in the campaign since it began.
-          campaignRefundedDiscounts:
-            type: number
-            description: Amount of discounts rolledback due to refund in the campaign.
-          totalCampaignRefundedDiscounts:
-            type: number
-            description: Amount of discounts rolledback due to refund in the campaign since it began.
-          campaignFreeItems:
-            type: integer
-            description: Amount of free items given in the campaign.
-          totalCampaignFreeItems:
-            type: integer
-            description: Amount of free items given in the campaign since it began.
-            example: 86
-          couponRedemptions:
-            type: integer
-            description: Number of coupon redemptions in the campaign.
-          totalCouponRedemptions:
-            type: integer
-            description: Number of coupon redemptions in the campaign since it began.
-          couponRolledbackRedemptions:
-            type: integer
-            description: Number of coupon redemptions that have been rolled back (due to canceling closed session) in the campaign.
-          totalCouponRolledbackRedemptions:
-            type: integer
-            description: Number of coupon redemptions that have been rolled back (due to canceling closed session) in the campaign since it began.
-          referralRedemptions:
-            type: integer
-            description: Number of referral redemptions in the campaign.
-          totalReferralRedemptions:
-            type: integer
-            description: Number of referral redemptions in the campaign since it began.
-          couponsCreated:
-            type: integer
-            description: Number of coupons created in the campaign by the rule engine.
-          totalCouponsCreated:
-            type: integer
-            description: Number of coupons created in the campaign by the rule engine since it began.
-          referralsCreated:
-            type: integer
-            description: Number of referrals created in the campaign by the rule engine.
-          totalReferralsCreated:
-            type: integer
-            description: Number of referrals created in the campaign by the rule engine since it began.
-          addedLoyaltyPoints:
-            type: number
-            description: Number of added loyalty points in the campaign in a specific interval.
-            example: 250
-          totalAddedLoyaltyPoints:
-            type: number
-            description: Number of added loyalty points in the campaign since it began.
-            example: 340
-          deductedLoyaltyPoints:
-            type: number
-            description: Number of deducted loyalty points in the campaign in a specific interval.
-            example: 120
-          totalDeductedLoyaltyPoints:
-            type: number
-            description: Number of deducted loyalty points in the campaign since it began.
-            example: 220
-    AwardDiscountTarget:
-      description: Identifies the scope a discount applies to. The `type` field selects the concrete target variant.
-      oneOf:
-      - $ref: '#/components/schemas/AwardDiscountCartTarget'
-      - $ref: '#/components/schemas/AwardDiscountAllItemsTarget'
-      - $ref: '#/components/schemas/AwardDiscountGlobalFilterTarget'
-      - $ref: '#/components/schemas/AwardDiscountSelectorTarget'
-      - $ref: '#/components/schemas/AwardDiscountBundleTarget'
-      - $ref: '#/components/schemas/AwardDiscountAdditionalCostTarget'
-      discriminator:
-        propertyName: type
-        mapping:
-          cart: '#/components/schemas/AwardDiscountCartTarget'
-          allItems: '#/components/schemas/AwardDiscountAllItemsTarget'
-          globalFilter: '#/components/schemas/AwardDiscountGlobalFilterTarget'
-          selector: '#/components/schemas/AwardDiscountSelectorTarget'
-          bundle: '#/components/schemas/AwardDiscountBundleTarget'
-          additionalCost: '#/components/schemas/AwardDiscountAdditionalCostTarget'
-    UpdateAchievementProgressBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: UpdateAchievementProgressBlock
-        description: A block that updates the progress of a customer in an achievement.
-        required:
-        - operator
-        - value
-        - achievement
-        properties:
-          operator:
-            type: string
-            enum:
-            - increaseBy
-            example: increaseBy
-          value:
-            type: string
-            description: The value to update the progress by. Supports template placeholders (e.g. "{{$Session.Total / 2}}") for dynamic quantities.
-            example: '10'
-          achievement:
-            type: object
-            description: The achievement to update.
+            description: The giveaway pool from which an item is awarded.
             required:
             - id
             - name
-            - title
-            - target
             properties:
               id:
                 type: integer
-                description: The ID of the achievement.
+                description: The unique identifier of the giveaway pool.
                 example: 42
               name:
                 type: string
-                description: The internal name of the achievement used in API requests.
-                example: Order50Discount
-              title:
-                type: string
-                description: The display name of the achievement in the Campaign Manager.
-                example: 50% off on 50th purchase.
-              target:
-                type: number
-                description: The required number of actions or the transactional milestone to complete the achievement.
-                example: 50
-    CheckAttributeBlock:
-      allOf:
-      - $ref: '#/components/schemas/CheckAttributeBlockBase'
-      oneOf:
-      - $ref: '#/components/schemas/ScalarCheckAttributeBlock'
-      - $ref: '#/components/schemas/BetweenCheckAttributeBlock'
-      - $ref: '#/components/schemas/ListCheckAttributeBlock'
-      - $ref: '#/components/schemas/ListWithCountCheckAttributeBlock'
-      - $ref: '#/components/schemas/UnaryCheckAttributeBlock'
-      - $ref: '#/components/schemas/WithinCheckAttributeBlock'
-      discriminator:
-        propertyName: operator
-        mapping:
-          equals: '#/components/schemas/ScalarCheckAttributeBlock'
-          not(equals): '#/components/schemas/ScalarCheckAttributeBlock'
-          lessThan: '#/components/schemas/ScalarCheckAttributeBlock'
-          lessThanOrEqual: '#/components/schemas/ScalarCheckAttributeBlock'
-          greaterThan: '#/components/schemas/ScalarCheckAttributeBlock'
-          greaterThanOrEqual: '#/components/schemas/ScalarCheckAttributeBlock'
-          contains: '#/components/schemas/ScalarCheckAttributeBlock'
-          not(contains): '#/components/schemas/ScalarCheckAttributeBlock'
-          matchesRegexp: '#/components/schemas/ScalarCheckAttributeBlock'
-          startsWith: '#/components/schemas/ScalarCheckAttributeBlock'
-          endsWith: '#/components/schemas/ScalarCheckAttributeBlock'
-          oneOf: '#/components/schemas/ScalarCheckAttributeBlock'
-          not(oneOf): '#/components/schemas/ScalarCheckAttributeBlock'
-          inCollection: '#/components/schemas/ScalarCheckAttributeBlock'
-          not(inCollection): '#/components/schemas/ScalarCheckAttributeBlock'
-          between: '#/components/schemas/BetweenCheckAttributeBlock'
-          containsOneOf: '#/components/schemas/ListCheckAttributeBlock'
-          containsNoneOf: '#/components/schemas/ListCheckAttributeBlock'
-          containsAllOf: '#/components/schemas/ListCheckAttributeBlock'
-          containsAtLeast: '#/components/schemas/ListWithCountCheckAttributeBlock'
-          containsExactly: '#/components/schemas/ListWithCountCheckAttributeBlock'
-          empty: '#/components/schemas/UnaryCheckAttributeBlock'
-          not(empty): '#/components/schemas/UnaryCheckAttributeBlock'
-          exists: '#/components/schemas/UnaryCheckAttributeBlock'
-          not(exists): '#/components/schemas/UnaryCheckAttributeBlock'
-          isTrue: '#/components/schemas/UnaryCheckAttributeBlock'
-          isFalse: '#/components/schemas/UnaryCheckAttributeBlock'
-          after: '#/components/schemas/ScalarCheckAttributeBlock'
-          before: '#/components/schemas/ScalarCheckAttributeBlock'
-          within: '#/components/schemas/WithinCheckAttributeBlock'
-          not(within): '#/components/schemas/WithinCheckAttributeBlock'
-    EntityWithTalangVisibleID:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: Unique ID for this entity.
-          example: 4
-        created:
-          type: string
-          format: date-time
-          description: The exact moment this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    CheckCouponBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: CheckCouponBlock
-        description: A block that validates the coupon code value and date.
-        required:
-        - redeem
-        properties:
-          redeem:
-            type: boolean
-            description: When `true`, the coupon code is redeemed.
-            example: true
+                description: The display name of the giveaway pool.
+                example: Summer Campaign Pool
+          profile:
+            type: string
+            enum:
+            - Current
+            - Advocate
+            description: The customer profile to award the giveaway to. `Current` targets the customer in the current session; `Advocate` targets the person who invited their friend via referral program.
+            example: Current
           onFailure:
             type: array
-            description: Promotion blocks evaluated when this block fails or returns false.
+            description: Blocks evaluated when this block fails or returns false.
             items:
               $ref: '#/components/schemas/PromotionBlock'
-    TriggerWebhookBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: TriggerWebhookBlock
-        description: A block that triggers a configured webhook and passes its required parameters.
-        required:
-        - webhook
-        properties:
-          webhook:
-            type: object
-            description: The webhook to trigger.
-            required:
-            - id
-            - title
-            properties:
-              id:
-                type: integer
-                description: The unique identifier of the webhook.
-                example: 1
-              title:
-                type: string
-                description: The display name of the webhook.
-                example: Thank you for your order.
-          params:
-            type: object
-            additionalProperties: true
-            description: The webhook's parameters, in configured order. Each property name is the parameter's title, lowercased with spaces replaced by underscores (for example, `Order ID` becomes `order_id`); falls back to `param_0`, `param_1`, and so on if a title is blank or collides with another.
-            example:
-              order_id: ORD-10293
           onError:
             type: object
             description: Named error handlers evaluated when a specific error occurs.
@@ -3455,36 +3481,29 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/PromotionBlock'
-    PromotionCheckAttributeBlock:
-      allOf:
-      - $ref: '#/components/schemas/CheckAttributeBlockBase'
-      - type: object
-        title: PromotionCheckAttributeBlock
-        description: A `CheckAttributeBlock` valid in a promotion rule, where each `onFailure` block must itself be a valid promotion block.
-        properties:
-          onFailure:
-            type: array
-            description: Promotion blocks evaluated when this block fails or returns false.
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-    SortSelectorStepField:
+    AwardDiscountBundleTarget:
       type: object
-      title: SortSelectorStepField
+      title: AwardDiscountBundleTarget
+      description: Applies the discount to items belonging to a named bundle.
       required:
-      - expression
-      - direction
+      - type
+      - name
       properties:
-        expression:
-          type: string
-          description: The attribute path the items are sorted by.
-          example: $Item.Price
-        direction:
+        type:
           type: string
           enum:
-          - asc
-          - desc
-          description: The sort direction for this field.
-          example: asc
+          - bundle
+          description: A target discriminator of type `bundle`.
+        name:
+          type: string
+          description: Name of the bundle binding the discount targets.
+          example: BogoBundle
+        item:
+          $ref: '#/components/schemas/AwardDiscountBundleItem'
+        prorated:
+          type: boolean
+          description: Whether to distribute the discount proportionally across the bundle's items.
+          example: false
     ScalarCheckAttributeBlock:
       type: object
       title: ScalarCheckAttributeBlock
@@ -3516,48 +3535,6 @@ components:
         value:
           description: The comparison value for this operator.
           example: 100
-    WithinCheckAttributeBlock:
-      type: object
-      title: WithinCheckAttributeBlock
-      description: Variant of `CheckAttributeBlock` for the `within` and `not(within)` operators, which require both a start and end value.
-      required:
-      - start
-      - end
-      properties:
-        operator:
-          type: string
-          description: The range comparison operator. Must be `within` or `not(within)`.
-          enum:
-          - within
-          - not(within)
-        start:
-          description: The start value for the `within` operator.
-          example: '2021-09-22T22:00:00Z'
-        end:
-          description: The end value for the `within` operator.
-          example: '2021-09-22T22:00:00Z'
-        startInclusive:
-          type: boolean
-          description: When `true`, the `start` value is included in the range for the `within` operator.
-          example: true
-        endInclusive:
-          type: boolean
-          description: When `true`, the `end` value is included in the range for the `within` operator.
-          example: true
-        timezoneInsensitive:
-          type: boolean
-          description: Indicates whether the `within` operator ignores time zones and compares the wall-clock time only. When `false`, time zones are taken into account.
-          example: false
-    AwardDiscountBundleItem:
-      description: Selects which slot inside a bundle a discount applies to. The `type` field picks the selection mode.
-      oneOf:
-      - $ref: '#/components/schemas/AwardDiscountBundleItemByIndex'
-      - $ref: '#/components/schemas/AwardDiscountBundleItemByAttribute'
-      discriminator:
-        propertyName: type
-        mapping:
-          byIndex: '#/components/schemas/AwardDiscountBundleItemByIndex'
-          byAttribute: '#/components/schemas/AwardDiscountBundleItemByAttribute'
     CheckLoyaltyBalanceBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
@@ -3624,256 +3601,237 @@ components:
             description: Promotion blocks evaluated when this block fails or returns false.
             items:
               $ref: '#/components/schemas/PromotionBlock'
-    AdditionalCostReference:
+    CodeGeneratorSettings:
       type: object
-      title: AdditionalCostReference
-      description: Identifies an additional cost referenced from a rule.
-      required:
-      - id
-      - name
       properties:
-        id:
-          type: integer
-          format: int64
-          description: The internal identifier of the additional cost.
-          example: 42
-        name:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
           type: string
-          description: The additional cost name as used in API requests.
-          example: shipping
-        title:
-          type: string
-          description: The human-readable title of the additional cost.
-          example: Shipping
-    Rule:
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+      required:
+      - couponPattern
+      - validCharacters
+    FilterSelectorStep:
       type: object
+      title: FilterSelectorStep
+      description: Filters only items that match a predicate block.
       required:
-      - title
-      - condition
-      - effects
+      - type
+      - predicate
       properties:
-        id:
+        type:
           type: string
-          format: uuid
-          description: A unique identifier for the rule.
-          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
-        parentId:
-          type: string
-          format: uuid
-          description: The ID of the rule that was copied to create this rule.
-          example: 7fa800a8-ac8d-4792-85dc-c4650dcc8f23
-        title:
-          type: string
-          description: A short description of the rule.
-          example: Give discount via coupon
-        description:
-          type: string
-          description: A longer, more detailed description of the rule.
-          example: Creates a discount when a coupon is valid
-        bindings:
-          type: array
-          description: An array that provides objects with variable names (name) and talang expressions to whose result they are bound (expression) during rule evaluation. The order of the evaluation is decided by the position in the array.
-          items:
-            $ref: '#/components/schemas/Binding'
-        condition:
-          type: array
-          description: A Talang expression that will be evaluated in the context of the given event.
-          minItems: 1
-          example:
-          - and
-          - - couponValid
-          items: {}
-        effects:
-          type: array
-          description: An array of effectful Talang expressions in arrays that will be evaluated when a rule matches.
-          items:
-            type: array
-            items: {}
-          example:
-          - catch
-          - - noop
-          - - setDiscount
-            - 10% off
-            - - '*'
-              - - .
-                - Session
-                - Total
-              - - /
-                - 10
-                - 100
-    AwardItemBlock:
+          enum:
+          - filter
+          description: A step discriminator of type `filter`.
+          example: filter
+        predicate:
+          $ref: '#/components/schemas/SelectorBlock'
+    CheckEventBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
       - type: object
-        title: AwardItemBlock
-        description: A block that awards a free cart item to the customer. The item is identified by SKU and name and has a configurable quantity.
+        title: CheckEventBlock
+        description: A block that validates the event type.
         required:
-        - sku
-        - name
-        - quantity
+        - eventType
         properties:
-          sku:
+          eventType:
             type: string
-            description: The stock keeping unit of the item to award.
-            example: SKU1241028
-          name:
-            type: string
-            description: The display name of the item to award.
-            example: Free Tote Bag
-          quantity:
-            type: string
-            description: The number of items to award. Supports template placeholders (e.g. "{{$Session.Total / 2}}") for dynamic quantities.
-            example: '1'
-          partial:
-            type: boolean
-            description: When set to `true`, applies a partial item reward if the remaining budget is insufficient to award the full reward.
-            example: false
-          onFailure:
+            description: The event type to check against.
+            example: profileCreated
+          matchers:
             type: array
-            description: Blocks evaluated when this block fails or returns false.
             items:
               $ref: '#/components/schemas/PromotionBlock'
-          onError:
-            type: object
-            description: Named error handlers evaluated when a specific error occurs.
-            additionalProperties:
-              type: array
-              items:
-                $ref: '#/components/schemas/PromotionBlock'
-    BaseCampaign:
+          onFailure:
+            type: array
+            description: Promotion blocks evaluated when this block fails or returns false.
+            items:
+              $ref: '#/components/schemas/PromotionBlock'
+    CreateCouponBlock:
+      allOf:
+      - $ref: '#/components/schemas/BaseBlock'
+      - type: object
+        title: CreateCouponBlock
+        description: A block that creates a coupon code.
+        required:
+        - campaignId
+        - recipientId
+        - storeInSession
+        properties:
+          campaignId:
+            description: The ID of the campaign in which the coupon code is created.
+            oneOf:
+            - type: number
+              example: 3
+            - type: string
+              example: '{{$Campaign.Id}}'
+          recipientId:
+            type: string
+            description: The integration ID of the customer that is allowed to redeem this coupon.
+            example: '{{$Profile.IntegrationId}}'
+          storeInSession:
+            type: boolean
+            description: When `true`, the coupon is stored in the session.
+            example: true
+          usageLimit:
+            description: 'The number of times the coupon code can be redeemed. `0` means unlimited redemptions, but any campaign usage limits still apply. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
+
+              '
+            oneOf:
+            - type: number
+              example: 100
+            - type: string
+              example: '{{$Session.CartTotal * 0.1}}'
+          discountLimit:
+            description: 'The total discount value that the code can give. Typically used to represent a gift card value. Either a numeric scalar or a `{{expression}}` string that resolves to a number at evaluation time.
+
+              '
+            oneOf:
+            - type: number
+              example: 30
+            - type: string
+              example: '{{$Session.CartTotal * 0.1}}'
+          startDate:
+            description: Timestamp at which point the coupon becomes valid.
+            example: '2024-12-24T14:15:22Z'
+          expiryDate:
+            description: Expiration date of the coupon. Coupon never expires if this is omitted.
+            example: '2024-12-24T14:15:22Z'
+          attributes:
+            description: Custom attributes associated with this coupon code.
+          validCharacters:
+            type: string
+            description: Characters used to generate the random parts of a code.
+            example: ABC
+          pattern:
+            type: string
+            description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+              '
+            example: SUMMER-####-####
+    SelectSelectorStep:
       type: object
+      title: SelectSelectorStep
+      description: 'Picks a subset of the items by count, range, or exact position. The `operator` determines which additional fields are required: - `many` selects items from `from` (`start` or `end`) and is limited by `count`. - `between` selects items between integer indices `from` and `to`. - `one` selects the single item at `index`.'
+      required:
+      - type
+      - operator
       properties:
-        name:
-          type: string
-          title: Campaign Name
-          description: A user-facing name for this campaign.
-          minLength: 1
-          example: Summer promotions
-        description:
-          type: string
-          title: Campaign Description
-          description: A detailed description of the campaign.
-          example: Campaign for all summer 2021 promotions
-        startTime:
-          type: string
-          format: date-time
-          description: Timestamp when the campaign will become active.
-          example: '2021-07-20T22:00:00Z'
-        endTime:
-          type: string
-          format: date-time
-          description: Timestamp when the campaign will become inactive.
-          example: '2021-09-22T22:00:00Z'
-        attributes:
-          type: object
-          description: Arbitrary properties associated with this campaign.
-        state:
-          type: string
-          enum:
-          - enabled
-          - disabled
-          - archived
-          default: enabled
-          example: enabled
-          description: 'A disabled or archived campaign is not evaluated for rules or coupons.
-
-            '
-        activeRulesetId:
-          type: integer
-          description: '[ID of Ruleset](https://docs.talon.one/management-api#tag/Campaigns/operation/getRulesets) this
-
-            campaign applies on customer session evaluation.
-
-            '
-          example: 6
-        tags:
-          type: array
-          description: A list of tags for the campaign.
-          example:
-          - summer
-          maxItems: 50
-          items:
-            type: string
-            minLength: 1
-            maxLength: 50
-        reevaluateOnReturn:
-          type: boolean
-          title: Reevaluate on return
-          description: Indicates whether this campaign should be reevaluated when a customer returns an item.
-          example: true
-        features:
-          type: array
-          description: The features enabled in this campaign.
-          example:
-          - coupons
-          - referrals
-          items:
-            type: string
-            enum:
-            - coupons
-            - referrals
-            - loyalty
-            - giveaways
-            - strikethrough
-            - achievements
-            - advancedEvents
-        couponSettings:
-          $ref: '#/components/schemas/CodeGeneratorSettings'
-        referralSettings:
-          $ref: '#/components/schemas/CodeGeneratorSettings'
-        limits:
-          type: array
-          description: 'The set of [budget limits](https://docs.talon.one/docs/product/campaigns/settings/managing-campaign-budgets) for this campaign.
-
-            '
-          items:
-            $ref: '#/components/schemas/LimitConfig'
-        campaignGroups:
-          type: array
-          description: 'The IDs of the [campaign groups](https://docs.talon.one/docs/product/account/managing-campaign-groups) this campaign belongs to.
-
-            '
-          example:
-          - 1
-          - 3
-          items:
-            type: integer
         type:
           type: string
-          title: Type
           enum:
-          - cartItem
-          - advanced
-          default: advanced
-          example: advanced
-          description: "The campaign type. Possible type values:\n  - `cartItem`: Type of campaign that can apply effects only to cart items.\n  - `advanced`: Type of campaign that can apply effects to customer sessions and cart items.\n"
-        linkedStoreIds:
-          type: array
-          description: 'A list of store IDs that you want to link to the campaign.
-
-
-            **Note:** Campaigns with linked store IDs will only be evaluated when there is a
-
-            [customer session update](https://docs.talon.one/integration-api#tag/Customer-sessions/operation/updateCustomerSessionV2)
-
-            that references a linked store.
-
-            '
-          items:
-            type: integer
-          example:
-          - 1
-          - 2
-          - 3
-        couponAttributes:
-          type: object
-          description: Arbitrary properties associated with coupons in this campaign.
+          - select
+          description: A step discriminator of type `select`.
+          example: select
+        operator:
+          type: string
+          enum:
+          - many
+          - between
+          - one
+          description: The selection operator applied to the items.
+          example: many
+        from:
+          description: The starting value of the selection. For the `many` operator this is the string `start` or `end`; for the `between` operator this is an integer start index. No discriminator is needed since the string and integer branches are distinguishable by JSON type alone.
+          oneOf:
+          - type: string
+            enum:
+            - start
+            - end
+            example: start
+          - type: integer
+            format: int32
+            example: 2
+        to:
+          type: integer
+          format: int32
+          description: The end index for the `between` operator. The item at this index is not included.
+          example: 7
+        count:
+          type: integer
+          format: int32
+          description: The maximum number of items to select for the `many` operator.
+          example: 5
+        index:
+          type: integer
+          format: int32
+          description: The exact position of the item to select for the `one` operator.
+          example: 0
+        partial:
+          type: boolean
+          description: Indicates if the step returns fewer items than requested when the source list is shorter than the range needs. Always `true` for the `many` and `between` operators; not present for `one`, which fails instead of returning a partial result.
+          example: true
+    SortSelectorStep:
+      type: object
+      title: SortSelectorStep
+      description: Sorts items by one or more field expressions.
       required:
-      - name
-      - state
-      - tags
-      - limits
-      - features
+      - type
+      - fields
+      properties:
+        type:
+          type: string
+          enum:
+          - sort
+          description: A step discriminator of type `sort`.
+          example: sort
+        fields:
+          type: array
+          description: One or more fields to sort by, applied in order. Each field has its own direction.
+          items:
+            $ref: '#/components/schemas/SortSelectorStepField'
     CheckAudienceBlock:
       allOf:
       - $ref: '#/components/schemas/BaseBlock'
@@ -3942,55 +3900,97 @@ components:
             description: Promotion blocks evaluated when this block fails or returns false.
             items:
               $ref: '#/components/schemas/PromotionBlock'
-    CampaignSearch:
+    RuleV2:
       type: object
+      title: RuleV2
+      description: Shared fields common to all V2 rule types.
       required:
-      - attributes
+      - title
       properties:
-        attributes:
-          type: object
-          description: Properties to match against a campaign. All provided attributes will be exactly matched against campaign attributes.
-    CheckEventBlock:
-      allOf:
-      - $ref: '#/components/schemas/BaseBlock'
-      - type: object
-        title: CheckEventBlock
-        description: A block that validates the event type.
-        required:
-        - eventType
-        properties:
-          eventType:
-            type: string
-            description: The event type to check against.
-            example: profileCreated
-          matchers:
-            type: array
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-          onFailure:
-            type: array
-            description: Promotion blocks evaluated when this block fails or returns false.
-            items:
-              $ref: '#/components/schemas/PromotionBlock'
-    SortSelectorStep:
+        id:
+          type: string
+          description: Unique identifier of the rule.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        parentId:
+          type: string
+          description: ID of the parent rule, if any.
+        title:
+          type: string
+          description: A short description of the rule.
+          example: 10% off for loyalty members
+        description:
+          type: string
+          description: A longer description of the rule.
+    ReduceSelectorStep:
       type: object
-      title: SortSelectorStep
-      description: Sorts items by one or more field expressions.
+      title: ReduceSelectorStep
+      description: Aggregates items into a single value.
       required:
       - type
-      - fields
+      - operator
       properties:
         type:
           type: string
           enum:
-          - sort
-          description: A step discriminator of type `sort`.
-          example: sort
-        fields:
+          - reduce
+          description: A step discriminator of type `reduce`.
+          example: reduce
+        operator:
+          type: string
+          enum:
+          - max
+          - min
+          - sum
+          - count
+          - empty
+          description: 'The aggregation operator applied to the items produced by the preceding step:
+
+            - `max`, `min`, and `sum` operate on numeric values.
+
+            - `count` returns the number of items.
+
+            - `empty` reports whether the list is empty.
+
+            '
+          example: sum
+    BaseBlock:
+      type: object
+      title: BaseBlock
+      description: Common properties shared by all block types.
+      required:
+      - id
+      - type
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this block.
+          example: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        type:
+          type: string
+          description: Identifies the block variant and determines which additional properties are present in it.
+        tags:
           type: array
-          description: One or more fields to sort by, applied in order. Each field has its own direction.
+          description: Semantic labels attached to this block.
           items:
-            $ref: '#/components/schemas/SortSelectorStepField'
+            type: string
+    AwardDiscountTarget:
+      description: Identifies the scope a discount applies to. The `type` field selects the concrete target variant.
+      oneOf:
+      - $ref: '#/components/schemas/AwardDiscountCartTarget'
+      - $ref: '#/components/schemas/AwardDiscountAllItemsTarget'
+      - $ref: '#/components/schemas/AwardDiscountGlobalFilterTarget'
+      - $ref: '#/components/schemas/AwardDiscountSelectorTarget'
+      - $ref: '#/components/schemas/AwardDiscountBundleTarget'
+      - $ref: '#/components/schemas/AwardDiscountAdditionalCostTarget'
+      discriminator:
+        propertyName: type
+        mapping:
+          cart: '#/components/schemas/AwardDiscountCartTarget'
+          allItems: '#/components/schemas/AwardDiscountAllItemsTarget'
+          globalFilter: '#/components/schemas/AwardDiscountGlobalFilterTarget'
+          selector: '#/components/schemas/AwardDiscountSelectorTarget'
+          bundle: '#/components/schemas/AwardDiscountBundleTarget'
+          additionalCost: '#/components/schemas/AwardDiscountAdditionalCostTarget'
   parameters:
     skip:
       name: skip
@@ -4021,14 +4021,6 @@ components:
       example: name
       schema:
         type: string
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
     pageSize:
       name: pageSize
       in: query
@@ -4040,6 +4032,14 @@ components:
         minimum: 1
         maximum: 1000
         default: 1000
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
+      schema:
+        type: integer
   securitySchemes:
     api_key_v1:
       type: apiKey

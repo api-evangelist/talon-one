@@ -86,6 +86,17 @@ components:
           format: email
           example: john.doe@example.com
           description: The email address associated with the user profile.
+    LoginParams:
+      allOf:
+      - $ref: '#/components/schemas/EmailEntity'
+      - type: object
+        properties:
+          password:
+            type: string
+            description: The password for your account.
+            example: admin123456
+        required:
+        - password
     Session:
       type: object
       properties:
@@ -106,17 +117,6 @@ components:
       - userId
       - token
       - created
-    LoginParams:
-      allOf:
-      - $ref: '#/components/schemas/EmailEntity'
-      - type: object
-        properties:
-          password:
-            type: string
-            description: The password for your account.
-            example: admin123456
-        required:
-        - password
   securitySchemes:
     manager_auth:
       type: apiKey

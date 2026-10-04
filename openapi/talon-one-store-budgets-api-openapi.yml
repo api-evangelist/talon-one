@@ -378,54 +378,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
     NewCampaignStoreBudgetStoreLimit:
       type: object
       required:
@@ -481,21 +433,22 @@ components:
           type: integer
         imported:
           type: boolean
-    Entity:
+    ListCampaignStoreBudgets:
       type: object
       required:
-      - id
-      - created
+      - store
+      - limit
+      - action
       properties:
-        id:
+        store:
+          $ref: '#/components/schemas/ListCampaignStoreBudgetsStore'
+          type: object
+        limit:
           type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
+        action:
           type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
+        period:
+          type: string
     NewCampaignStoreBudget:
       type: object
       required:
@@ -527,6 +480,19 @@ components:
           type: integer
           description: The ID of the user associated with this entity.
           example: 388
+    ErrorResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: A message describing the error.
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
     APIError:
       type: object
       required:
@@ -541,19 +507,36 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
-    ErrorResponse:
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
+    AccountEntity:
       type: object
       required:
-      - message
+      - accountId
       properties:
-        message:
-          type: string
-          description: A message describing the error.
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
     ListCampaignStoreBudgetsStore:
       type: object
       required:
@@ -567,37 +550,54 @@ components:
           type: string
         name:
           type: string
-    ListCampaignStoreBudgets:
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    Entity:
       type: object
       required:
-      - store
-      - limit
-      - action
+      - id
+      - created
       properties:
-        store:
-          $ref: '#/components/schemas/ListCampaignStoreBudgetsStore'
-          type: object
-        limit:
+        id:
           type: integer
-        action:
+          description: The internal ID of this entity.
+          example: 6
+        created:
           type: string
-        period:
-          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
   parameters:
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
     campaignId:
       name: campaignId
       in: path
       description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
       example: 18
       required: true
+      schema:
+        type: integer
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
       schema:
         type: integer
   securitySchemes:

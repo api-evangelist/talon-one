@@ -2768,6 +2768,35 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
+    LoyaltyBalance:
+      type: object
+      description: Point balance of a ledger in the Loyalty Program.
+      properties:
+        activePoints:
+          type: number
+          title: Current Balance
+          description: Total amount of points awarded to this customer and available to spend.
+          example: 286
+        pendingPoints:
+          type: number
+          title: Total pending points
+          description: Total amount of points awarded to this customer but not available until their start date.
+          example: 50
+        spentPoints:
+          type: number
+          title: Total spent points
+          description: Total amount of points already spent by this customer.
+          example: 150
+        expiredPoints:
+          type: number
+          title: Total expired points
+          description: Total amount of points awarded but never redeemed. They cannot be used anymore.
+          example: 286
+        negativePoints:
+          type: number
+          title: Current negative balance
+          description: Total amount of negative points. This implies that `activePoints` is `0`.
+          example: 286
     LedgerTransactionLogEntryIntegrationAPI:
       type: object
       description: Log entry for a given loyalty profile transaction.
@@ -2862,19 +2891,74 @@ components:
 
             '
           example: 30D
-    ErrorResponseWithStatus:
+    LedgerPointsEntryIntegrationAPI:
       type: object
+      description: Loyalty profile points with start and expiry dates.
+      required:
+      - id
+      - transactionUUID
+      - created
+      - programId
+      - name
+      - startDate
+      - expiryDate
+      - subledgerId
+      - amount
       properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
+        id:
           type: integer
-          description: The error code
+          description: ID of the transaction that adds loyalty points.
+          example: 123
+        transactionUUID:
+          type: string
+          description: Unique identifier of the transaction in the UUID format.
+          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
+        created:
+          type: string
+          format: date-time
+          description: Date and time the loyalty points were added.
+          example: 2022-01-02T15:04:05Z07:00
+        programId:
+          type: integer
+          description: ID of the loyalty program.
+          example: 324
+        customerSessionId:
+          type: string
+          description: ID of the customer session where points were added.
+          maxLength: 255
+          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
+        name:
+          type: string
+          description: Name or reason of the transaction that adds loyalty points.
+          maxLength: 255
+          example: Reward 10% points of a purchase's current total
+        startDate:
+          type: string
+          description: "When points become active. Possible values:\n  - `immediate`: Points are active immediately.\n  - `timestamp value`: Points become active at a given date and time.\n"
+          maxLength: 64
+          example: 2022-01-02T15:04:05Z07:00
+        expiryDate:
+          type: string
+          description: "Date when points expire. Possible values are:\n  - `unlimited`: Points have no expiration date.\n  - `timestamp value`: Points expire on the given date and time.\n"
+          example: 2022-08-02T15:04:05Z07:00
+        subledgerId:
+          type: string
+          description: ID of the subledger.
+          maxLength: 64
+          example: sub-123
+        amount:
+          type: number
+          description: Amount of loyalty points added in the transaction.
+          example: 10.25
+        validityDuration:
+          type: string
+          description: 'The duration for which the points remain active, relative to the  activation date.
+
+
+            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
+
+            '
+          example: 30D
     LoyaltyBalanceWithTier:
       allOf:
       - $ref: '#/components/schemas/LoyaltyBalance'
@@ -2903,6 +2987,82 @@ components:
 
               '
             example: Silver
+    ProjectedTier:
+      type: object
+      required:
+      - projectedActivePoints
+      properties:
+        projectedActivePoints:
+          type: number
+          description: The active points of the customer when their current tier expires.
+          example: 198
+        stayInTierPoints:
+          type: number
+          description: 'The number of points the customer needs to stay in the current tier.
+
+
+            **Note**: This is included in the response when the customer is projected to be downgraded.
+
+            '
+          example: 2
+        projectedTierName:
+          type: string
+          description: The name of the tier the user will enter once their current tier expires.
+          example: Tier 1
+    ActivateLoyaltyPointsResponse:
+      type: object
+      properties:
+        ledgerEntries:
+          type: array
+          description: Updated ledger entries after activation.
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+    LoyaltyBalancesWithTiers:
+      type: object
+      description: List of loyalty balances for a ledger and its subledgers.
+      properties:
+        balance:
+          $ref: '#/components/schemas/LoyaltyBalanceWithTier'
+          title: Loyalty points balance of a ledger
+        subledgerBalances:
+          type: object
+          description: Map of the loyalty balances of the subledgers of a ledger.
+          additionalProperties:
+            $ref: '#/components/schemas/LoyaltyBalanceWithTier'
+          example:
+            mysubledger:
+              activePoints: 286
+              pendingPoints: 50
+              spentPoints: 150
+              expiredPoints: 25
+              negativePoints: 0
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
     LoyaltyLedgerEntry:
       type: object
       description: A single row of the ledger, describing one addition or deduction.
@@ -2986,132 +3146,6 @@ components:
 
             '
           example: 30D
-    ActivateLoyaltyPointsResponse:
-      type: object
-      properties:
-        ledgerEntries:
-          type: array
-          description: Updated ledger entries after activation.
-          items:
-            $ref: '#/components/schemas/LoyaltyLedgerEntry'
-    Tier:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id:
-          type: integer
-          description: The internal ID of the tier.
-          example: 11
-        name:
-          type: string
-          description: The name of the tier.
-          example: bronze
-        startDate:
-          type: string
-          format: date-time
-          description: Date and time when the customer moved to this tier. This value uses the loyalty program's time zone setting.
-          example: 2021-05-03T12:32:00Z07:00
-        expiryDate:
-          type: string
-          format: date-time
-          description: Date when tier level expires in the RFC3339 format (in the Loyalty Program's timezone).
-          example: 2022-08-02T15:04:05Z07:00
-        downgradePolicy:
-          type: string
-          enum:
-          - one_down
-          - balance_based
-          description: "The policy that defines how customer tiers are downgraded in the loyalty program after tier reevaluation.\n - `one_down`: If the customer doesn't have enough points to stay in the current tier, they are downgraded by one tier.\n - `balance_based`: The customer's tier is reevaluated based on the amount of active points they have at the moment.\n"
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    ProjectedTier:
-      type: object
-      required:
-      - projectedActivePoints
-      properties:
-        projectedActivePoints:
-          type: number
-          description: The active points of the customer when their current tier expires.
-          example: 198
-        stayInTierPoints:
-          type: number
-          description: 'The number of points the customer needs to stay in the current tier.
-
-
-            **Note**: This is included in the response when the customer is projected to be downgraded.
-
-            '
-          example: 2
-        projectedTierName:
-          type: string
-          description: The name of the tier the user will enter once their current tier expires.
-          example: Tier 1
-    LoyaltyBalance:
-      type: object
-      description: Point balance of a ledger in the Loyalty Program.
-      properties:
-        activePoints:
-          type: number
-          title: Current Balance
-          description: Total amount of points awarded to this customer and available to spend.
-          example: 286
-        pendingPoints:
-          type: number
-          title: Total pending points
-          description: Total amount of points awarded to this customer but not available until their start date.
-          example: 50
-        spentPoints:
-          type: number
-          title: Total spent points
-          description: Total amount of points already spent by this customer.
-          example: 150
-        expiredPoints:
-          type: number
-          title: Total expired points
-          description: Total amount of points awarded but never redeemed. They cannot be used anymore.
-          example: 286
-        negativePoints:
-          type: number
-          title: Current negative balance
-          description: Total amount of negative points. This implies that `activePoints` is `0`.
-          example: 286
-    LoyaltyBalancesWithTiers:
-      type: object
-      description: List of loyalty balances for a ledger and its subledgers.
-      properties:
-        balance:
-          $ref: '#/components/schemas/LoyaltyBalanceWithTier'
-          title: Loyalty points balance of a ledger
-        subledgerBalances:
-          type: object
-          description: Map of the loyalty balances of the subledgers of a ledger.
-          additionalProperties:
-            $ref: '#/components/schemas/LoyaltyBalanceWithTier'
-          example:
-            mysubledger:
-              activePoints: 286
-              pendingPoints: 50
-              spentPoints: 150
-              expiredPoints: 25
-              negativePoints: 0
     ActivateLoyaltyPoints:
       type: object
       description: Activate loyalty points
@@ -3143,20 +3177,43 @@ components:
 
             '
           example: ac08cc3c43470426591ad75b2d685ec04_v2
-    APIError:
+    LoyaltyLedgerEntryFlags:
+      type: object
+      description: A map of flags providing additional details about the entry.
+      properties:
+        createsNegativeBalance:
+          type: boolean
+          description: Set to true if the entry creates negative balance.
+    Tier:
       type: object
       required:
-      - source
-      - title
+      - id
+      - name
       properties:
-        title:
+        id:
+          type: integer
+          description: The internal ID of the tier.
+          example: 11
+        name:
           type: string
-          description: Short description of the problem.
-        details:
+          description: The name of the tier.
+          example: bronze
+        startDate:
           type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
+          format: date-time
+          description: Date and time when the customer moved to this tier. This value uses the loyalty program's time zone setting.
+          example: 2021-05-03T12:32:00Z07:00
+        expiryDate:
+          type: string
+          format: date-time
+          description: Date when tier level expires in the RFC3339 format (in the Loyalty Program's timezone).
+          example: 2022-08-02T15:04:05Z07:00
+        downgradePolicy:
+          type: string
+          enum:
+          - one_down
+          - balance_based
+          description: "The policy that defines how customer tiers are downgraded in the loyalty program after tier reevaluation.\n - `one_down`: If the customer doesn't have enough points to stay in the current tier, they are downgraded by one tier.\n - `balance_based`: The customer's tier is reevaluated based on the amount of active points they have at the moment.\n"
     DeleteLoyaltyTransactionsRequest:
       type: object
       description: Request to delete transactions based on the specified scope.
@@ -3191,151 +3248,24 @@ components:
           example:
           - subledger1
           - subledger2
-    LedgerPointsEntryIntegrationAPI:
+    ErrorSource:
       type: object
-      description: Loyalty profile points with start and expiry dates.
-      required:
-      - id
-      - transactionUUID
-      - created
-      - programId
-      - name
-      - startDate
-      - expiryDate
-      - subledgerId
-      - amount
-      properties:
-        id:
-          type: integer
-          description: ID of the transaction that adds loyalty points.
-          example: 123
-        transactionUUID:
-          type: string
-          description: Unique identifier of the transaction in the UUID format.
-          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
-        created:
-          type: string
-          format: date-time
-          description: Date and time the loyalty points were added.
-          example: 2022-01-02T15:04:05Z07:00
-        programId:
-          type: integer
-          description: ID of the loyalty program.
-          example: 324
-        customerSessionId:
-          type: string
-          description: ID of the customer session where points were added.
-          maxLength: 255
-          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
-        name:
-          type: string
-          description: Name or reason of the transaction that adds loyalty points.
-          maxLength: 255
-          example: Reward 10% points of a purchase's current total
-        startDate:
-          type: string
-          description: "When points become active. Possible values:\n  - `immediate`: Points are active immediately.\n  - `timestamp value`: Points become active at a given date and time.\n"
-          maxLength: 64
-          example: 2022-01-02T15:04:05Z07:00
-        expiryDate:
-          type: string
-          description: "Date when points expire. Possible values are:\n  - `unlimited`: Points have no expiration date.\n  - `timestamp value`: Points expire on the given date and time.\n"
-          example: 2022-08-02T15:04:05Z07:00
-        subledgerId:
-          type: string
-          description: ID of the subledger.
-          maxLength: 64
-          example: sub-123
-        amount:
-          type: number
-          description: Amount of loyalty points added in the transaction.
-          example: 10.25
-        validityDuration:
-          type: string
-          description: 'The duration for which the points remain active, relative to the  activation date.
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
 
-
-            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
-
-            '
-          example: 30D
-    LoyaltyLedgerEntryFlags:
-      type: object
-      description: A map of flags providing additional details about the entry.
+        '
       properties:
-        createsNegativeBalance:
-          type: boolean
-          description: Set to true if the entry creates negative balance.
-    LoyaltyDashboardData:
-      type: object
-      description: Datapoint for the graphs and cards on a loyalty program dashboard.
-      required:
-      - date
-      - totalActivePoints
-      - totalPendingPoints
-      - totalSpentPoints
-      - totalExpiredPoints
-      - totalNegativePoints
-      - totalMembers
-      - newMembers
-      - spentPoints
-      - earnedPoints
-      properties:
-        date:
+        pointer:
           type: string
-          format: date-time
-          description: Date at which data point was collected.
-        totalActivePoints:
-          type: number
-          description: Total of active points for this loyalty program.
-          example: 9756
-        totalPendingPoints:
-          type: number
-          description: Total of pending points for this loyalty program.
-          example: 548
-        totalSpentPoints:
-          type: number
-          description: Total of spent points for this loyalty program.
-          example: 25668
-        totalExpiredPoints:
-          type: number
-          description: Total of expired points for this loyalty program.
-          example: 1156
-        totalNegativePoints:
-          type: number
-          description: Total of negative points for this loyalty program.
-          example: 32
-        totalMembers:
-          type: number
-          description: Number of loyalty program members.
-          example: 2582
-        newMembers:
-          type: number
-          description: Number of members who joined on this day.
-          example: 3
-        spentPoints:
-          $ref: '#/components/schemas/LoyaltyDashboardPointsBreakdown'
-          description: Points spent on this day.
-        earnedPoints:
-          $ref: '#/components/schemas/LoyaltyDashboardPointsBreakdown'
-          description: Points that were earned on this day.
-    LoyaltyProgramEntity:
-      type: object
-      required:
-      - programID
-      properties:
-        programID:
-          type: integer
-          description: The ID of the loyalty program that owns this entity.
-          example: 125
-        programName:
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
           type: string
-          description: The integration name of the loyalty program that owns this entity.
-          example: Loyalty_program
-        programTitle:
+          description: Query parameter that caused this error.
+        line:
           type: string
-          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
-          example: Loyalty program
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
     UserEntity:
       type: object
       required:
@@ -3354,6 +3284,62 @@ components:
       minLength: 4
       pattern: ^[A-Za-z0-9._%+@-]+$
       example: summer-loyalty-card-0543
+    LoyaltyLedger:
+      type: object
+      description: Ledger of Balance in Loyalty Program for a Customer.
+      required:
+      - ledger
+      properties:
+        ledger:
+          $ref: '#/components/schemas/LoyaltySubLedger'
+          title: Customer's current loyalty program balance.
+          description: The balance of the main ledger in the loyalty program.
+        subLedgers:
+          type: object
+          description: A map containing a list of all loyalty subledger balances.
+          additionalProperties:
+            $ref: '#/components/schemas/LoyaltySubLedger'
+          example:
+            mysubledger:
+              total: 0
+              totalActivePoints: 286
+              totalPendingPoints: 50
+              totalSpentPoints: 150
+              totalExpiredPoints: 25
+              totalNegativePoints: 0
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    DeductLoyaltyPoints:
+      type: object
+      description: Points to deduct.
+      required:
+      - points
+      properties:
+        points:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 999999999999.99
+          description: Amount of loyalty points.
+          example: 300
+        name:
+          type: string
+          description: Name / reason for the point deduction.
+          example: Penalty
+        subledgerId:
+          type: string
+          description: ID of the subledger the points are deducted from.
+          example: sub-123
+        applicationId:
+          type: integer
+          description: ID of the Application that is connected to the loyalty program.
+          example: 322
     AddLoyaltyPoints:
       type: object
       description: Points to add.
@@ -3480,354 +3466,59 @@ components:
           type: integer
           description: ID of the Application that is connected to the loyalty program. It is displayed in your Talon.One deployment URL.
           example: 322
-    LoyaltyProgramTransaction:
+    LoyaltyDashboardData:
       type: object
+      description: Datapoint for the graphs and cards on a loyalty program dashboard.
       required:
-      - id
-      - transactionUUID
-      - created
-      - programId
-      - type
-      - amount
-      - name
-      - subledgerId
-      - startDate
-      - expiryDate
-      properties:
-        id:
-          type: integer
-          description: ID of the loyalty ledger transaction.
-          example: 123
-        transactionUUID:
-          type: string
-          description: Unique identifier of the transaction in the UUID format.
-          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
-        programId:
-          type: integer
-          description: ID of the loyalty program.
-          example: 324
-        campaignId:
-          type: integer
-          description: ID of the campaign.
-          example: 324
-        created:
-          type: string
-          format: date-time
-          description: Date and time the loyalty transaction occurred.
-          example: 2022-01-02T15:04:05Z07:00
-        type:
-          type: string
-          enum:
-          - addition
-          - subtraction
-          description: "Type of transaction. Possible values:\n  - `addition`: Signifies added points.\n  - `subtraction`: Signifies deducted points.\n"
-          maxLength: 255
-          example: addition
-        amount:
-          type: number
-          description: Amount of loyalty points added or deducted in the transaction.
-          example: 10.25
-        name:
-          type: string
-          description: Name or reason for the loyalty ledger transaction.
-          maxLength: 255
-          example: Reward 50 points for each $500 purchase
-        startDate:
-          type: string
-          description: "When points become active. Possible values:\n  - `immediate`: Points are immediately active.\n  - `on_action`: Points become active based on the customer's action.\n  - a timestamp value: Points become active at a given date and time.\n"
-          maxLength: 64
-          example: 2022-01-02T15:04:05Z07:00
-        expiryDate:
-          type: string
-          description: "When points expire. Possible values:\n  - `unlimited`: Points have no expiration date.\n  - a timestamp value: Points expire at a given date and time.\n"
-          example: 2022-01-02T15:04:05Z07:00
-        customerProfileId:
-          type: string
-          description: Customer profile integration ID used in the loyalty program.
-          maxLength: 255
-          example: kda0fajs0-fad9f-fd9dfsa9-fd9dasjf9
-        cardIdentifier:
-          $ref: '#/components/schemas/LoyaltyCardIdentifier'
-        subledgerId:
-          type: string
-          description: ID of the subledger.
-          maxLength: 64
-          example: sub-123
-        customerSessionId:
-          type: string
-          description: ID of the customer session where the transaction occurred.
-          maxLength: 255
-          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
-        importId:
-          type: integer
-          description: ID of the import where the transaction occurred.
-          example: 4
-        userId:
-          type: integer
-          description: ID of the user who manually added or deducted points. Applies only to manual transactions.
-          example: 5
-        userEmail:
-          type: string
-          description: The email of the Campaign Manager account that manually added or deducted points. Applies only to manual transactions.
-          example: john.doe@example.com
-        rulesetId:
-          type: integer
-          description: ID of the ruleset containing the rule that triggered the effect. Applies only for transactions that resulted from a customer session.
-          example: 11
-        ruleName:
-          type: string
-          description: Name of the rule that triggered the effect. Applies only for transactions that resulted from a customer session.
-          example: 10 points for every $100 spent
-        flags:
-          $ref: '#/components/schemas/LoyaltyLedgerEntryFlags'
-          description: The flags of the transaction, when applicable. The `createsNegativeBalance`  flag indicates whether the transaction results in a negative balance.
-        validityDuration:
-          type: string
-          description: 'The duration for which the points remain active, relative to the  activation date.
-
-
-            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
-
-            '
-          example: 30D
-    LoyaltyLedger:
-      type: object
-      description: Ledger of Balance in Loyalty Program for a Customer.
-      required:
-      - ledger
-      properties:
-        ledger:
-          $ref: '#/components/schemas/LoyaltySubLedger'
-          title: Customer's current loyalty program balance.
-          description: The balance of the main ledger in the loyalty program.
-        subLedgers:
-          type: object
-          description: A map containing a list of all loyalty subledger balances.
-          additionalProperties:
-            $ref: '#/components/schemas/LoyaltySubLedger'
-          example:
-            mysubledger:
-              total: 0
-              totalActivePoints: 286
-              totalPendingPoints: 50
-              totalSpentPoints: 150
-              totalExpiredPoints: 25
-              totalNegativePoints: 0
-    LoyaltySubLedger:
-      type: object
-      description: Ledger of Balance in Loyalty Program for a Customer.
-      required:
-      - total
+      - date
       - totalActivePoints
       - totalPendingPoints
       - totalSpentPoints
       - totalExpiredPoints
       - totalNegativePoints
+      - totalMembers
+      - newMembers
+      - spentPoints
+      - earnedPoints
       properties:
-        total:
-          type: number
-          deprecated: true
-          title: Current Balance (Deprecated)
-          description: '**DEPRECATED** Use `totalActivePoints` property instead. Total amount of currently active and available points in the customer''s balance.
-
-            '
-        totalActivePoints:
-          type: number
-          title: Current Balance
-          description: Total amount of currently active and available points in the customer's balance.
-        totalPendingPoints:
-          type: number
-          title: Total pending points
-          description: Total amount of pending points, which are not active yet but will become active in the future.
-        totalSpentPoints:
-          type: number
-          title: Total spent points
-          description: Total amount of points already spent by this customer.
-        totalExpiredPoints:
-          type: number
-          title: Total expired points
-          description: Total amount of points, that expired without ever being spent.
-        totalNegativePoints:
-          type: number
-          title: Total negative points
-          description: Total amount of negative points. This implies that `totalActivePoints` is `0`.
-        transactions:
-          description: List of all events that have happened such as additions, subtractions and expiries.
-          type: array
-          items:
-            $ref: '#/components/schemas/LoyaltyLedgerEntry'
-        expiringPoints:
-          description: List of all points that will expire.
-          type: array
-          items:
-            $ref: '#/components/schemas/LoyaltyLedgerEntry'
-        activePoints:
-          description: List of all currently active points.
-          type: array
-          items:
-            $ref: '#/components/schemas/LoyaltyLedgerEntry'
-        pendingPoints:
-          description: List of all points pending activation.
-          type: array
-          items:
-            $ref: '#/components/schemas/LoyaltyLedgerEntry'
-        expiredPoints:
-          description: List of expired points.
-          type: array
-          items:
-            $ref: '#/components/schemas/LoyaltyLedgerEntry'
-        currentTier:
-          $ref: '#/components/schemas/Tier'
-          description: Tier for which the ledger is eligible.
-    LoyaltyDashboardPointsBreakdown:
-      type: object
-      required:
-      - createdManually
-      - createdViaRuleEngine
-      properties:
-        createdManually:
-          type: number
-          example: 125
-        createdViaRuleEngine:
-          type: number
-          example: 9631
-    DeductLoyaltyPoints:
-      type: object
-      description: Points to deduct.
-      required:
-      - points
-      properties:
-        points:
-          type: number
-          exclusiveMinimum: 0
-          maximum: 999999999999.99
-          description: Amount of loyalty points.
-          example: 300
-        name:
-          type: string
-          description: Name / reason for the point deduction.
-          example: Penalty
-        subledgerId:
-          type: string
-          description: ID of the subledger the points are deducted from.
-          example: sub-123
-        applicationId:
-          type: integer
-          description: ID of the Application that is connected to the loyalty program.
-          example: 322
-    CodeGeneratorSettings:
-      type: object
-      properties:
-        validCharacters:
-          type: array
-          description: 'List of characters used to generate the random parts of a code.
-
-            '
-          example:
-          - A
-          - B
-          - C
-          - D
-          - E
-          - F
-          - G
-          - H
-          - I
-          - J
-          - K
-          - L
-          - M
-          - N
-          - O
-          - P
-          - Q
-          - R
-          - S
-          - T
-          - U
-          - V
-          - W
-          - X
-          - Y
-          - Z
-          - '0'
-          - '1'
-          - '2'
-          - '3'
-          - '4'
-          - '5'
-          - '6'
-          - '7'
-          - '8'
-          - '9'
-          items:
-            type: string
-        couponPattern:
-          type: string
-          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
-
-            '
-          maxLength: 100
-          minLength: 3
-          pattern: ^[A-Za-z0-9._%+@#-]+$
-          example: SUMMER-####-####
-      additionalProperties: false
-      required:
-      - couponPattern
-      - validCharacters
-    Import:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UserEntity'
-      - type: object
-        required:
-        - amount
-        - entity
-        properties:
-          entity:
-            type: string
-            example: AttributeAllowedList
-            description: 'The name of the entity that was imported.
-
-              '
-          amount:
-            type: integer
-            minimum: 0
-            example: 10
-            description: The number of values that were imported.
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
+        date:
           type: string
           format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    NewLoyaltyTier:
-      type: object
-      description: A tier in a loyalty program.
-      required:
-      - name
-      - minPoints
-      properties:
-        name:
-          type: string
-          description: The name of the tier.
-          example: Gold
-        minPoints:
+          description: Date at which data point was collected.
+        totalActivePoints:
           type: number
-          minimum: 0
-          maximum: 999999999999.99
-          description: The minimum amount of points required to enter the tier.
-          example: 300
+          description: Total of active points for this loyalty program.
+          example: 9756
+        totalPendingPoints:
+          type: number
+          description: Total of pending points for this loyalty program.
+          example: 548
+        totalSpentPoints:
+          type: number
+          description: Total of spent points for this loyalty program.
+          example: 25668
+        totalExpiredPoints:
+          type: number
+          description: Total of expired points for this loyalty program.
+          example: 1156
+        totalNegativePoints:
+          type: number
+          description: Total of negative points for this loyalty program.
+          example: 32
+        totalMembers:
+          type: number
+          description: Number of loyalty program members.
+          example: 2582
+        newMembers:
+          type: number
+          description: Number of members who joined on this day.
+          example: 3
+        spentPoints:
+          $ref: '#/components/schemas/LoyaltyDashboardPointsBreakdown'
+          description: Points spent on this day.
+        earnedPoints:
+          $ref: '#/components/schemas/LoyaltyDashboardPointsBreakdown'
+          description: Points that were earned on this day.
     LoyaltyProgram:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -3924,11 +3615,181 @@ components:
               '
             default: false
             example: true
-    LoyaltyTier:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/LoyaltyProgramEntity'
-      - $ref: '#/components/schemas/NewLoyaltyTier'
+    LoyaltyProgramEntity:
+      type: object
+      required:
+      - programID
+      properties:
+        programID:
+          type: integer
+          description: The ID of the loyalty program that owns this entity.
+          example: 125
+        programName:
+          type: string
+          description: The integration name of the loyalty program that owns this entity.
+          example: Loyalty_program
+        programTitle:
+          type: string
+          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
+          example: Loyalty program
+    CodeGeneratorSettings:
+      type: object
+      properties:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
+          type: string
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+      required:
+      - couponPattern
+      - validCharacters
+    NewLoyaltyTier:
+      type: object
+      description: A tier in a loyalty program.
+      required:
+      - name
+      - minPoints
+      properties:
+        name:
+          type: string
+          description: The name of the tier.
+          example: Gold
+        minPoints:
+          type: number
+          minimum: 0
+          maximum: 999999999999.99
+          description: The minimum amount of points required to enter the tier.
+          example: 300
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    LoyaltySubLedger:
+      type: object
+      description: Ledger of Balance in Loyalty Program for a Customer.
+      required:
+      - total
+      - totalActivePoints
+      - totalPendingPoints
+      - totalSpentPoints
+      - totalExpiredPoints
+      - totalNegativePoints
+      properties:
+        total:
+          type: number
+          deprecated: true
+          title: Current Balance (Deprecated)
+          description: '**DEPRECATED** Use `totalActivePoints` property instead. Total amount of currently active and available points in the customer''s balance.
+
+            '
+        totalActivePoints:
+          type: number
+          title: Current Balance
+          description: Total amount of currently active and available points in the customer's balance.
+        totalPendingPoints:
+          type: number
+          title: Total pending points
+          description: Total amount of pending points, which are not active yet but will become active in the future.
+        totalSpentPoints:
+          type: number
+          title: Total spent points
+          description: Total amount of points already spent by this customer.
+        totalExpiredPoints:
+          type: number
+          title: Total expired points
+          description: Total amount of points, that expired without ever being spent.
+        totalNegativePoints:
+          type: number
+          title: Total negative points
+          description: Total amount of negative points. This implies that `totalActivePoints` is `0`.
+        transactions:
+          description: List of all events that have happened such as additions, subtractions and expiries.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        expiringPoints:
+          description: List of all points that will expire.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        activePoints:
+          description: List of all currently active points.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        pendingPoints:
+          description: List of all points pending activation.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        expiredPoints:
+          description: List of expired points.
+          type: array
+          items:
+            $ref: '#/components/schemas/LoyaltyLedgerEntry'
+        currentTier:
+          $ref: '#/components/schemas/Tier'
+          description: Tier for which the ledger is eligible.
     BaseLoyaltyProgram:
       type: object
       properties:
@@ -4074,15 +3935,154 @@ components:
             - `unlimited`: Allows negative balance without any limit.
 
             '
-    AccountEntity:
+    LoyaltyTier:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/LoyaltyProgramEntity'
+      - $ref: '#/components/schemas/NewLoyaltyTier'
+    LoyaltyDashboardPointsBreakdown:
       type: object
       required:
-      - accountId
+      - createdManually
+      - createdViaRuleEngine
       properties:
-        accountId:
+        createdManually:
+          type: number
+          example: 125
+        createdViaRuleEngine:
+          type: number
+          example: 9631
+    LoyaltyProgramTransaction:
+      type: object
+      required:
+      - id
+      - transactionUUID
+      - created
+      - programId
+      - type
+      - amount
+      - name
+      - subledgerId
+      - startDate
+      - expiryDate
+      properties:
+        id:
           type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
+          description: ID of the loyalty ledger transaction.
+          example: 123
+        transactionUUID:
+          type: string
+          description: Unique identifier of the transaction in the UUID format.
+          example: ce59f12a-f53b-4014-a745-636d93f2bd3f
+        programId:
+          type: integer
+          description: ID of the loyalty program.
+          example: 324
+        campaignId:
+          type: integer
+          description: ID of the campaign.
+          example: 324
+        created:
+          type: string
+          format: date-time
+          description: Date and time the loyalty transaction occurred.
+          example: 2022-01-02T15:04:05Z07:00
+        type:
+          type: string
+          enum:
+          - addition
+          - subtraction
+          description: "Type of transaction. Possible values:\n  - `addition`: Signifies added points.\n  - `subtraction`: Signifies deducted points.\n"
+          maxLength: 255
+          example: addition
+        amount:
+          type: number
+          description: Amount of loyalty points added or deducted in the transaction.
+          example: 10.25
+        name:
+          type: string
+          description: Name or reason for the loyalty ledger transaction.
+          maxLength: 255
+          example: Reward 50 points for each $500 purchase
+        startDate:
+          type: string
+          description: "When points become active. Possible values:\n  - `immediate`: Points are immediately active.\n  - `on_action`: Points become active based on the customer's action.\n  - a timestamp value: Points become active at a given date and time.\n"
+          maxLength: 64
+          example: 2022-01-02T15:04:05Z07:00
+        expiryDate:
+          type: string
+          description: "When points expire. Possible values:\n  - `unlimited`: Points have no expiration date.\n  - a timestamp value: Points expire at a given date and time.\n"
+          example: 2022-01-02T15:04:05Z07:00
+        customerProfileId:
+          type: string
+          description: Customer profile integration ID used in the loyalty program.
+          maxLength: 255
+          example: kda0fajs0-fad9f-fd9dfsa9-fd9dasjf9
+        cardIdentifier:
+          $ref: '#/components/schemas/LoyaltyCardIdentifier'
+        subledgerId:
+          type: string
+          description: ID of the subledger.
+          maxLength: 64
+          example: sub-123
+        customerSessionId:
+          type: string
+          description: ID of the customer session where the transaction occurred.
+          maxLength: 255
+          example: 05c2da0d-48fa-4aa1-b629-898f58f1584d
+        importId:
+          type: integer
+          description: ID of the import where the transaction occurred.
+          example: 4
+        userId:
+          type: integer
+          description: ID of the user who manually added or deducted points. Applies only to manual transactions.
+          example: 5
+        userEmail:
+          type: string
+          description: The email of the Campaign Manager account that manually added or deducted points. Applies only to manual transactions.
+          example: john.doe@example.com
+        rulesetId:
+          type: integer
+          description: ID of the ruleset containing the rule that triggered the effect. Applies only for transactions that resulted from a customer session.
+          example: 11
+        ruleName:
+          type: string
+          description: Name of the rule that triggered the effect. Applies only for transactions that resulted from a customer session.
+          example: 10 points for every $100 spent
+        flags:
+          $ref: '#/components/schemas/LoyaltyLedgerEntryFlags'
+          description: The flags of the transaction, when applicable. The `createsNegativeBalance`  flag indicates whether the transaction results in a negative balance.
+        validityDuration:
+          type: string
+          description: 'The duration for which the points remain active, relative to the  activation date.
+
+
+            **Note**: This only applies to points for which `awaitsActivation` is `true` and `expiryDate` is not set.
+
+            '
+          example: 30D
+    Import:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UserEntity'
+      - type: object
+        required:
+        - amount
+        - entity
+        properties:
+          entity:
+            type: string
+            example: AttributeAllowedList
+            description: 'The name of the entity that was imported.
+
+              '
+          amount:
+            type: integer
+            minimum: 0
+            example: 10
+            description: The number of values that were imported.
   parameters:
     skip:
       name: skip

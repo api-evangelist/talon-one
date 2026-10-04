@@ -124,26 +124,6 @@ paths:
                 $ref: '#/components/schemas/Webhook'
 components:
   schemas:
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    Webhook:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/NewWebhook'
     NewWebhook:
       type: object
       required:
@@ -229,30 +209,6 @@ components:
           format: date-time
           description: The time this entity was last modified.
           example: '2021-09-12T10:12:42Z'
-    TemplateArgDef:
-      allOf:
-      - $ref: '#/components/schemas/FuncArgDef'
-      - type: object
-        required:
-        - ui
-        - title
-        properties:
-          title:
-            type: string
-            description: A campaigner friendly name for the argument, this will be shown in the rule editor.
-            minLength: 1
-          ui:
-            type: object
-            description: Arbitrary metadata that may be used to render an input for this argument.
-          key:
-            type: string
-            description: The identifier for the associated value within the JSON object.
-          picklistID:
-            type: integer
-            description: ID of the picklist linked to a template.
-          restrictedByPicklist:
-            type: boolean
-            description: Whether or not this attribute's value is restricted by picklist (`picklist` property)
     FuncArgDef:
       type: object
       required:
@@ -289,15 +245,51 @@ components:
             type: string
             description: Name of the outgoing integration.
             example: Braze
+    Webhook:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewWebhook'
+    TemplateArgDef:
+      allOf:
+      - $ref: '#/components/schemas/FuncArgDef'
+      - type: object
+        required:
+        - ui
+        - title
+        properties:
+          title:
+            type: string
+            description: A campaigner friendly name for the argument, this will be shown in the rule editor.
+            minLength: 1
+          ui:
+            type: object
+            description: Arbitrary metadata that may be used to render an input for this argument.
+          key:
+            type: string
+            description: The identifier for the associated value within the JSON object.
+          picklistID:
+            type: integer
+            description: ID of the picklist linked to a template.
+          restrictedByPicklist:
+            type: boolean
+            description: Whether or not this attribute's value is restricted by picklist (`picklist` property)
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
   parameters:
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     sort:
       name: sort
       in: query
@@ -311,6 +303,14 @@ components:
       example: name
       schema:
         type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     pageSize:
       name: pageSize
       in: query

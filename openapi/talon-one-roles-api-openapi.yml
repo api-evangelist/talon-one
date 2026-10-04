@@ -113,6 +113,37 @@ paths:
                 $ref: '#/components/schemas/RoleV2'
 components:
   schemas:
+    RoleV2:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/RoleV2Base'
+      - $ref: '#/components/schemas/RoleV2Readonly'
+    RoleV2PermissionSet:
+      type: object
+      required:
+      - name
+      - logicalOperations
+      properties:
+        name:
+          type: string
+          description: Name of the permission set.
+          example: Campaign manager permission set
+        logicalOperations:
+          type: array
+          maxItems: 1000
+          description: 'List of logical operations in the permission set.
+
+            Each logical operation must be shown under the `x-permission` tag on an endpoint level.
+
+            '
+          items:
+            type: string
+          example:
+          - createCampaignOperations
+          - getCampaignOperations
+          - deleteCampaignOperations
     RoleV2Base:
       type: object
       properties:
@@ -183,47 +214,6 @@ components:
           description: Support user limits for actions that require admin approval within the given application.
           items:
             $ref: '#/components/schemas/RolesV2Thresholds'
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    RoleV2LoyaltyGroup:
-      type: object
-      description: A map of the link between the loyalty program-related permission set and the Application ID the permissions apply to.
-      additionalProperties:
-        type: string
-        description: Name of the loyalty program-related permission set.
-      example:
-        '10': Loyalty program manager permission set
-    RoleV2CampaignAccessGroup:
-      type: object
-      description: A map of the link between the campaign access group-related permission set and the Application ID the permissions apply to.
-      additionalProperties:
-        type: string
-        description: Name of the campaign access group-related permission set.
-      example:
-        '5': Campaign access group manager permission set
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
     RoleV2Application:
       type: object
       description: A map of the link between the Application, campaign, or draft campaign-related permission set and the Application ID the permissions apply to.
@@ -239,45 +229,6 @@ components:
           draftCampaign: Campaign read-only permission set
         '5':
           tools: Tools permission set
-    RoleV2RolesGroup:
-      type: object
-      properties:
-        applications:
-          $ref: '#/components/schemas/RoleV2Application'
-          type: object
-        loyaltyPrograms:
-          $ref: '#/components/schemas/RoleV2LoyaltyGroup'
-          type: object
-        campaignAccessGroups:
-          $ref: '#/components/schemas/RoleV2CampaignAccessGroup'
-          type: object
-        account:
-          type: string
-          description: Name of the account-level permission set
-    RoleV2PermissionSet:
-      type: object
-      required:
-      - name
-      - logicalOperations
-      properties:
-        name:
-          type: string
-          description: Name of the permission set.
-          example: Campaign manager permission set
-        logicalOperations:
-          type: array
-          maxItems: 1000
-          description: 'List of logical operations in the permission set.
-
-            Each logical operation must be shown under the `x-permission` tag on an endpoint level.
-
-            '
-          items:
-            type: string
-          example:
-          - createCampaignOperations
-          - getCampaignOperations
-          - deleteCampaignOperations
     RoleV2ApplicationDetails:
       type: object
       properties:
@@ -294,13 +245,16 @@ components:
           type: string
           description: Name of the tools-related permission set.
           example: Tools permission set
-    RoleV2:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/RoleV2Base'
-      - $ref: '#/components/schemas/RoleV2Readonly'
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
     RolesV2Thresholds:
       type: object
       properties:
@@ -312,6 +266,29 @@ components:
           type: integer
           description: Maximum number of loyalty points a support user can award without approval.
           example: 100
+    RoleV2RolesGroup:
+      type: object
+      properties:
+        applications:
+          $ref: '#/components/schemas/RoleV2Application'
+          type: object
+        loyaltyPrograms:
+          $ref: '#/components/schemas/RoleV2LoyaltyGroup'
+          type: object
+        campaignAccessGroups:
+          $ref: '#/components/schemas/RoleV2CampaignAccessGroup'
+          type: object
+        account:
+          type: string
+          description: Name of the account-level permission set
+    RoleV2CampaignAccessGroup:
+      type: object
+      description: A map of the link between the campaign access group-related permission set and the Application ID the permissions apply to.
+      additionalProperties:
+        type: string
+        description: Name of the campaign access group-related permission set.
+      example:
+        '5': Campaign access group manager permission set
     AccountEntity:
       type: object
       required:
@@ -321,6 +298,29 @@ components:
           type: integer
           description: The ID of the account that owns this entity.
           example: 3886
+    RoleV2LoyaltyGroup:
+      type: object
+      description: A map of the link between the loyalty program-related permission set and the Application ID the permissions apply to.
+      additionalProperties:
+        type: string
+        description: Name of the loyalty program-related permission set.
+      example:
+        '10': Loyalty program manager permission set
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
   securitySchemes:
     manager_auth:
       type: apiKey

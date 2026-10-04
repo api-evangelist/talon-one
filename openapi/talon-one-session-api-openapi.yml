@@ -94,21 +94,6 @@ paths:
                     message: Internal Server Error
 components:
   schemas:
-    UpsertSessionResponse:
-      type: object
-    ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: Indicates if the request was unsuccessful.
-        message:
-          type: string
-          description: A human-readable message describing the error.
-      required:
-      - success
-      - message
     UpsertSessionRequest:
       type: object
       required:
@@ -156,6 +141,21 @@ components:
         attributes:
           type: object
           description: Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session.
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Indicates if the request was unsuccessful.
+        message:
+          type: string
+          description: A human-readable message describing the error.
+      required:
+      - success
+      - message
+    UpsertSessionResponse:
+      type: object
   parameters:
     ShopifyShopDomain:
       name: X-Shopify-Shop-Domain

@@ -123,23 +123,37 @@ webhooks:
         required: true
 components:
   schemas:
-    ExpiringCardPointsNotification:
+    AddedDeductedPointsBalancesAction:
       type: object
       properties:
-        TotalResultSize:
-          type: integer
-          example: 1
-        Data:
-          type: array
-          description: The array of expiring points.
-          maxLength: 1000
-          items:
-            $ref: '#/components/schemas/ExpiringCardPointsData'
-        NotificationType:
+        Amount:
+          type: number
+          description: The amount of added or deducted loyalty points.
+          example: 10.99
+        Reason:
           type: string
-          description: The type of notification.
+          description: The reason for the points addition or deduction.
+          example: Compensation
+        Operation:
+          type: string
+          description: The action (addition or subtraction) made with loyalty points.
           enum:
-          - LoyaltyCardPointsExpiring
+          - addition
+          - subtraction
+        StartDate:
+          type: string
+          format: date-time
+          description: The start date for loyalty points.
+          example: '2023-01-24T14:15:22Z'
+        ExpiryDate:
+          type: string
+          format: date-time
+          description: The expiration date for loyalty points.
+          example: '2024-01-24T14:15:22Z'
+        TransactionUUID:
+          type: string
+          format: uuid
+          description: The identifier of the transaction in the loyalty ledger.
     CardAddedDeductedPointsBalancesNotification:
       type: object
       properties:
@@ -210,6 +224,23 @@ components:
           type: number
           description: The current points balance.
           example: 10.99
+    ExpiringCardPointsNotification:
+      type: object
+      properties:
+        TotalResultSize:
+          type: integer
+          example: 1
+        Data:
+          type: array
+          description: The array of expiring points.
+          maxLength: 1000
+          items:
+            $ref: '#/components/schemas/ExpiringCardPointsData'
+        NotificationType:
+          type: string
+          description: The type of notification.
+          enum:
+          - LoyaltyCardPointsExpiring
     ExpiringCardPointsData:
       type: object
       properties:
@@ -339,37 +370,6 @@ components:
           format: date-time
           description: The start date for loyalty points.
           example: '2023-01-24T14:15:22Z'
-        TransactionUUID:
-          type: string
-          format: uuid
-          description: The identifier of the transaction in the loyalty ledger.
-    AddedDeductedPointsBalancesAction:
-      type: object
-      properties:
-        Amount:
-          type: number
-          description: The amount of added or deducted loyalty points.
-          example: 10.99
-        Reason:
-          type: string
-          description: The reason for the points addition or deduction.
-          example: Compensation
-        Operation:
-          type: string
-          description: The action (addition or subtraction) made with loyalty points.
-          enum:
-          - addition
-          - subtraction
-        StartDate:
-          type: string
-          format: date-time
-          description: The start date for loyalty points.
-          example: '2023-01-24T14:15:22Z'
-        ExpiryDate:
-          type: string
-          format: date-time
-          description: The expiration date for loyalty points.
-          example: '2024-01-24T14:15:22Z'
         TransactionUUID:
           type: string
           format: uuid

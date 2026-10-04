@@ -189,6 +189,47 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApplicationCIFExpression'
 components:
+  parameters:
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
+    applicationId:
+      name: applicationId
+      in: path
+      required: true
+      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
+      example: 42
+      schema:
+        type: integer
   schemas:
     AttributesMandatory:
       type: object
@@ -204,239 +245,6 @@ components:
           items:
             type: string
           description: List of mandatory attributes for campaigns.
-    LoyaltyProgramEntity:
-      type: object
-      required:
-      - programID
-      properties:
-        programID:
-          type: integer
-          description: The ID of the loyalty program that owns this entity.
-          example: 125
-        programName:
-          type: string
-          description: The integration name of the loyalty program that owns this entity.
-          example: Loyalty_program
-        programTitle:
-          type: string
-          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
-          example: Loyalty program
-    ApplicationApiHealth:
-      type: object
-      description: Report of health of the API connection of an application.
-      required:
-      - summary
-      - lastUsed
-      properties:
-        summary:
-          type: string
-          description: 'One-word summary of the health of the API connection of an application. Possible values are:
-
-            - `OK`: The Application has received only successful API requests in the last 5 minutes.
-
-            - `WARNING`: The Application received at least one failed request in the last 5 minutes.
-
-            - `ERROR`: More than 50% of received requests failed.
-
-            - `CRITICAL`: All received requests failed.
-
-            - `NONE`: During the last 5 minutes, the Application hasn''t recorded any integration API requests.
-
-            '
-          enum:
-          - OK
-          - WARNING
-          - ERROR
-          - CRITICAL
-          - NONE
-        lastUsed:
-          type: string
-          format: date-time
-          description: time of last request relevant to the API health test.
-          example: '2021-09-12T10:12:42Z'
-    UpdateApplication:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of this application.
-          minLength: 1
-          example: My Application
-        description:
-          type: string
-          description: A longer description of the application.
-          example: A test Application
-        timezone:
-          type: string
-          description: A string containing an IANA timezone descriptor.
-          minLength: 1
-          example: Europe/Berlin
-        currency:
-          type: string
-          description: The default currency for new customer sessions.
-          minLength: 1
-          example: EUR
-        caseSensitivity:
-          type: string
-          enum:
-          - sensitive
-          - insensitive-uppercase
-          - insensitive-lowercase
-          description: The case sensitivity behavior to check coupon codes in the campaigns of this Application.
-          example: sensitive
-        attributes:
-          type: object
-          description: Arbitrary properties associated with this campaign.
-        limits:
-          type: array
-          description: Default limits for campaigns created in this application.
-          items:
-            $ref: '#/components/schemas/LimitConfig'
-        defaultDiscountScope:
-          type: string
-          example: sessionTotal
-          description: 'The default scope to apply `setDiscount` effects on if no scope was provided with the effect.
-
-            '
-          enum:
-          - sessionTotal
-          - cartItems
-          - additionalCosts
-        enableCascadingDiscounts:
-          type: boolean
-          description: Indicates if discounts should cascade for this Application.
-          example: true
-        enableFlattenedCartItems:
-          type: boolean
-          example: true
-          description: 'Indicates if cart items of quantity larger than one should be separated into different items of quantity one.
-
-            '
-        attributesSettings:
-          $ref: '#/components/schemas/AttributesSettings'
-        sandbox:
-          type: boolean
-          description: Indicates if this is a live or sandbox Application.
-          example: true
-        enablePartialDiscounts:
-          type: boolean
-          description: Indicates if this Application supports partial discounts.
-          example: false
-        defaultDiscountAdditionalCostPerItemScope:
-          type: string
-          description: 'The default scope to apply `setDiscountPerItem` effects on if no scope was provided with the effect.
-
-            '
-          example: price
-          enum:
-          - price
-          - itemTotal
-          - additionalCosts
-        defaultEvaluationGroupId:
-          type: integer
-          description: The ID of the default campaign evaluation group to which new campaigns will be added unless a different group is selected when creating the campaign.
-          example: 3
-        defaultCartItemFilterId:
-          type: integer
-          description: The ID of the default Cart-Item-Filter for this application.
-          example: 3
-        enableCampaignStateManagement:
-          type: boolean
-          description: 'Indicates whether the campaign staging and revisions feature is enabled for the Application.
-
-
-            **Important:** After this feature is enabled, it cannot be disabled.
-
-            '
-          example: false
-        bestPriorPriceSettings:
-          $ref: '#/components/schemas/BestPriorPriceSettings'
-      required:
-      - name
-      - timezone
-      - currency
-    ApplicationCIFExpression:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/NewApplicationCIFExpression'
-      - type: object
-        required:
-        - applicationId
-        properties:
-          applicationId:
-            type: integer
-            description: The ID of the Application that owns this entity.
-            example: 322
-    AttributesSettings:
-      type: object
-      description: Arbitrary settings associated with attributes.
-      properties:
-        mandatory:
-          $ref: '#/components/schemas/AttributesMandatory'
-    Application:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/UpdateApplication'
-      - type: object
-        required:
-        - loyaltyPrograms
-        properties:
-          loyaltyPrograms:
-            type: array
-            description: An array containing all the loyalty programs to which this application is subscribed.
-            items:
-              $ref: '#/components/schemas/LoyaltyProgram'
-    LimitConfig:
-      type: object
-      required:
-      - action
-      - limit
-      - entities
-      properties:
-        action:
-          type: string
-          description: 'The limitable action to which this limit applies. For example:
-
-            - `setDiscount`
-
-            - `setDiscountEffect`
-
-            - `redeemCoupon`
-
-            - `createCoupon`
-
-            '
-          example: createCoupon
-        limit:
-          type: number
-          minimum: 0
-          example: 1000
-          description: The value to set for the limit.
-        period:
-          description: The period on which the budget limit recurs.
-          type: string
-          enum:
-          - daily
-          - weekly
-          - monthly
-          - yearly
-          example: yearly
-        entities:
-          type: array
-          description: The entity that this limit applies to.
-          example:
-          - Coupon
-          items:
-            type: string
-            enum:
-            - Coupon
-            - Referral
-            - Profile
-            - Identifier
-            - Store
-            - Session
     NewApplicationCIFExpression:
       type: object
       properties:
@@ -466,157 +274,15 @@ components:
                     - Category
                   - Kitchen
           items: {}
-    CodeGeneratorSettings:
-      type: object
-      properties:
-        validCharacters:
-          type: array
-          description: 'List of characters used to generate the random parts of a code.
-
-            '
-          example:
-          - A
-          - B
-          - C
-          - D
-          - E
-          - F
-          - G
-          - H
-          - I
-          - J
-          - K
-          - L
-          - M
-          - N
-          - O
-          - P
-          - Q
-          - R
-          - S
-          - T
-          - U
-          - V
-          - W
-          - X
-          - Y
-          - Z
-          - '0'
-          - '1'
-          - '2'
-          - '3'
-          - '4'
-          - '5'
-          - '6'
-          - '7'
-          - '8'
-          - '9'
-          items:
-            type: string
-        couponPattern:
-          type: string
-          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
-
-            '
-          maxLength: 100
-          minLength: 3
-          pattern: ^[A-Za-z0-9._%+@#-]+$
-          example: SUMMER-####-####
-      additionalProperties: false
-      required:
-      - couponPattern
-      - validCharacters
-    BestPriorPriceSettings:
-      type: object
-      description: The best prior price settings for this Application.
-      properties:
-        enableBestPriorPrice:
-          type: boolean
-          description: When set to `true`, the best prior price feature is enabled in this Application and its [price history](https://docs.talon.one/management-api#tag/Catalogs/operation/priceHistory) is recorded.
-          example: true
-    Entity:
+    AccountEntity:
       type: object
       required:
-      - id
-      - created
+      - accountId
       properties:
-        id:
+        accountId:
           type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    ApplicationCIF:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/NewApplicationCIF'
-      - type: object
-        required:
-        - applicationId
-        properties:
-          applicationId:
-            type: integer
-            description: The ID of the Application that owns this entity.
-            example: 322
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
-    NewApplicationCIF:
-      type: object
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          description: The name of the Application cart item filter used in API requests.
-          example: Filter items by product
-        description:
-          type: string
-          description: A short description of the Application cart item filter.
-          example: This filter allows filtering by shoes
-        activeExpressionId:
-          type: integer
-          description: The ID of the expression that the Application cart item filter uses.
-          example: 1
-        modifiedBy:
-          type: integer
-          description: The ID of the user who last updated the Application cart item filter.
-          example: 334
-        createdBy:
-          type: integer
-          description: The ID of the user who created the Application cart item filter.
-          example: 216
-        modified:
-          type: string
-          format: date-time
-          description: Timestamp of the most recent update to the Application cart item filter.
-    NewLoyaltyTier:
-      type: object
-      description: A tier in a loyalty program.
-      required:
-      - name
-      - minPoints
-      properties:
-        name:
-          type: string
-          description: The name of the tier.
-          example: Gold
-        minPoints:
-          type: number
-          minimum: 0
-          maximum: 999999999999.99
-          description: The minimum amount of points required to enter the tier.
-          example: 300
+          description: The ID of the account that owns this entity.
+          example: 3886
     LoyaltyProgram:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -713,6 +379,173 @@ components:
               '
             default: false
             example: true
+    NewApplicationCIF:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          description: The name of the Application cart item filter used in API requests.
+          example: Filter items by product
+        description:
+          type: string
+          description: A short description of the Application cart item filter.
+          example: This filter allows filtering by shoes
+        activeExpressionId:
+          type: integer
+          description: The ID of the expression that the Application cart item filter uses.
+          example: 1
+        modifiedBy:
+          type: integer
+          description: The ID of the user who last updated the Application cart item filter.
+          example: 334
+        createdBy:
+          type: integer
+          description: The ID of the user who created the Application cart item filter.
+          example: 216
+        modified:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent update to the Application cart item filter.
+    LoyaltyProgramEntity:
+      type: object
+      required:
+      - programID
+      properties:
+        programID:
+          type: integer
+          description: The ID of the loyalty program that owns this entity.
+          example: 125
+        programName:
+          type: string
+          description: The integration name of the loyalty program that owns this entity.
+          example: Loyalty_program
+        programTitle:
+          type: string
+          description: The Campaign Manager-displayed name of the loyalty program that owns this entity.
+          example: Loyalty program
+    CodeGeneratorSettings:
+      type: object
+      properties:
+        validCharacters:
+          type: array
+          description: 'List of characters used to generate the random parts of a code.
+
+            '
+          example:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - F
+          - G
+          - H
+          - I
+          - J
+          - K
+          - L
+          - M
+          - N
+          - O
+          - P
+          - Q
+          - R
+          - S
+          - T
+          - U
+          - V
+          - W
+          - X
+          - Y
+          - Z
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          items:
+            type: string
+        couponPattern:
+          type: string
+          description: 'The pattern used to generate codes, such as coupon codes, referral codes, and loyalty cards. The character `#` is a placeholder and is replaced by a random character from the `validCharacters` set.
+
+            '
+          maxLength: 100
+          minLength: 3
+          pattern: ^[A-Za-z0-9._%+@#-]+$
+          example: SUMMER-####-####
+      additionalProperties: false
+      required:
+      - couponPattern
+      - validCharacters
+    NewLoyaltyTier:
+      type: object
+      description: A tier in a loyalty program.
+      required:
+      - name
+      - minPoints
+      properties:
+        name:
+          type: string
+          description: The name of the tier.
+          example: Gold
+        minPoints:
+          type: number
+          minimum: 0
+          maximum: 999999999999.99
+          description: The minimum amount of points required to enter the tier.
+          example: 300
+    Application:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/UpdateApplication'
+      - type: object
+        required:
+        - loyaltyPrograms
+        properties:
+          loyaltyPrograms:
+            type: array
+            description: An array containing all the loyalty programs to which this application is subscribed.
+            items:
+              $ref: '#/components/schemas/LoyaltyProgram'
+    BestPriorPriceSettings:
+      type: object
+      description: The best prior price settings for this Application.
+      properties:
+        enableBestPriorPrice:
+          type: boolean
+          description: When set to `true`, the best prior price feature is enabled in this Application and its [price history](https://docs.talon.one/management-api#tag/Catalogs/operation/priceHistory) is recorded.
+          example: true
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    AttributesSettings:
+      type: object
+      description: Arbitrary settings associated with attributes.
+      properties:
+        mandatory:
+          $ref: '#/components/schemas/AttributesMandatory'
     LoyaltyTier:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -863,56 +696,223 @@ components:
             - `unlimited`: Allows negative balance without any limit.
 
             '
-    AccountEntity:
+    ApplicationApiHealth:
+      type: object
+      description: Report of health of the API connection of an application.
+      required:
+      - summary
+      - lastUsed
+      properties:
+        summary:
+          type: string
+          description: 'One-word summary of the health of the API connection of an application. Possible values are:
+
+            - `OK`: The Application has received only successful API requests in the last 5 minutes.
+
+            - `WARNING`: The Application received at least one failed request in the last 5 minutes.
+
+            - `ERROR`: More than 50% of received requests failed.
+
+            - `CRITICAL`: All received requests failed.
+
+            - `NONE`: During the last 5 minutes, the Application hasn''t recorded any integration API requests.
+
+            '
+          enum:
+          - OK
+          - WARNING
+          - ERROR
+          - CRITICAL
+          - NONE
+        lastUsed:
+          type: string
+          format: date-time
+          description: time of last request relevant to the API health test.
+          example: '2021-09-12T10:12:42Z'
+    MutableEntity:
       type: object
       required:
-      - accountId
+      - modified
       properties:
-        accountId:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    UpdateApplication:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of this application.
+          minLength: 1
+          example: My Application
+        description:
+          type: string
+          description: A longer description of the application.
+          example: A test Application
+        timezone:
+          type: string
+          description: A string containing an IANA timezone descriptor.
+          minLength: 1
+          example: Europe/Berlin
+        currency:
+          type: string
+          description: The default currency for new customer sessions.
+          minLength: 1
+          example: EUR
+        caseSensitivity:
+          type: string
+          enum:
+          - sensitive
+          - insensitive-uppercase
+          - insensitive-lowercase
+          description: The case sensitivity behavior to check coupon codes in the campaigns of this Application.
+          example: sensitive
+        attributes:
+          type: object
+          description: Arbitrary properties associated with this campaign.
+        limits:
+          type: array
+          description: Default limits for campaigns created in this application.
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+        defaultDiscountScope:
+          type: string
+          example: sessionTotal
+          description: 'The default scope to apply `setDiscount` effects on if no scope was provided with the effect.
+
+            '
+          enum:
+          - sessionTotal
+          - cartItems
+          - additionalCosts
+        enableCascadingDiscounts:
+          type: boolean
+          description: Indicates if discounts should cascade for this Application.
+          example: true
+        enableFlattenedCartItems:
+          type: boolean
+          example: true
+          description: 'Indicates if cart items of quantity larger than one should be separated into different items of quantity one.
+
+            '
+        attributesSettings:
+          $ref: '#/components/schemas/AttributesSettings'
+        sandbox:
+          type: boolean
+          description: Indicates if this is a live or sandbox Application.
+          example: true
+        enablePartialDiscounts:
+          type: boolean
+          description: Indicates if this Application supports partial discounts.
+          example: false
+        defaultDiscountAdditionalCostPerItemScope:
+          type: string
+          description: 'The default scope to apply `setDiscountPerItem` effects on if no scope was provided with the effect.
+
+            '
+          example: price
+          enum:
+          - price
+          - itemTotal
+          - additionalCosts
+        defaultEvaluationGroupId:
           type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-  parameters:
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    applicationId:
-      name: applicationId
-      in: path
-      required: true
-      description: The ID of the Application. It is displayed in your Talon.One deployment URL.
-      example: 42
-      schema:
-        type: integer
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+          description: The ID of the default campaign evaluation group to which new campaigns will be added unless a different group is selected when creating the campaign.
+          example: 3
+        defaultCartItemFilterId:
+          type: integer
+          description: The ID of the default Cart-Item-Filter for this application.
+          example: 3
+        enableCampaignStateManagement:
+          type: boolean
+          description: 'Indicates whether the campaign staging and revisions feature is enabled for the Application.
 
 
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+            **Important:** After this feature is enabled, it cannot be disabled.
 
-        '
-      example: name
-      schema:
-        type: string
+            '
+          example: false
+        bestPriorPriceSettings:
+          $ref: '#/components/schemas/BestPriorPriceSettings'
+      required:
+      - name
+      - timezone
+      - currency
+    ApplicationCIFExpression:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/NewApplicationCIFExpression'
+      - type: object
+        required:
+        - applicationId
+        properties:
+          applicationId:
+            type: integer
+            description: The ID of the Application that owns this entity.
+            example: 322
+    LimitConfig:
+      type: object
+      required:
+      - action
+      - limit
+      - entities
+      properties:
+        action:
+          type: string
+          description: 'The limitable action to which this limit applies. For example:
+
+            - `setDiscount`
+
+            - `setDiscountEffect`
+
+            - `redeemCoupon`
+
+            - `createCoupon`
+
+            '
+          example: createCoupon
+        limit:
+          type: number
+          minimum: 0
+          example: 1000
+          description: The value to set for the limit.
+        period:
+          description: The period on which the budget limit recurs.
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          - yearly
+          example: yearly
+        entities:
+          type: array
+          description: The entity that this limit applies to.
+          example:
+          - Coupon
+          items:
+            type: string
+            enum:
+            - Coupon
+            - Referral
+            - Profile
+            - Identifier
+            - Store
+            - Session
+    ApplicationCIF:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/NewApplicationCIF'
+      - type: object
+        required:
+        - applicationId
+        properties:
+          applicationId:
+            type: integer
+            description: The ID of the Application that owns this entity.
+            example: 322
   securitySchemes:
     manager_auth:
       type: apiKey

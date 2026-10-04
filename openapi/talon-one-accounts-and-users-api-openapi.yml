@@ -745,116 +745,6 @@ paths:
                 $ref: '#/components/schemas/AccountAnalytics'
 components:
   schemas:
-    ScimUser:
-      type: object
-      description: Schema definition for users that have been provisioned using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.
-      allOf:
-      - $ref: '#/components/schemas/ScimNewUser'
-      - type: object
-        required:
-        - id
-        properties:
-          id:
-            type: string
-            description: ID of the user.
-            example: '359'
-    ScimBaseGroup:
-      type: object
-      description: Define the schema for base fields in a group using the SCIM provisioning protocol. Talon.One uses this schema to create roles.
-      properties:
-        displayName:
-          type: string
-          description: Display name of the group (Talon.One role).
-          example: Manager
-        members:
-          type: array
-          description: List of members to assign to the new Talon.One role.
-          items:
-            $ref: '#/components/schemas/ScimGroupMember'
-    ScimGroup:
-      type: object
-      description: 'Define the schema for groups created using the SCIM provisioning protocol.
-
-        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
-      allOf:
-      - $ref: '#/components/schemas/ScimBaseGroup'
-      - type: object
-        required:
-        - id
-        properties:
-          id:
-            type: string
-            description: ID of the group.
-            example: '359'
-    ScimPatchOperation:
-      type: object
-      description: Patch operation that is used to update the information.
-      required:
-      - op
-      properties:
-        op:
-          type: string
-          enum:
-          - add
-          - remove
-          - replace
-          description: The method that should be used in the operation.
-        path:
-          type: string
-          description: The path specifying the attribute that should be updated.
-        value:
-          type: string
-          description: The value that should be updated. Required if `op` is `add` or `replace`.
-      example:
-        op: add
-        path: nickName
-        value: John
-    NewAccount:
-      type: object
-      required:
-      - companyName
-      properties:
-        companyName:
-          type: string
-          minLength: 1
-    ScimResourceTypesListResponse:
-      type: object
-      description: List of resource types supported by the SCIM provisioning protocol.
-      required:
-      - Resources
-      properties:
-        Resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScimResource'
-    NewInvitation:
-      type: object
-      description: Parameters for inviting a new user.
-      required:
-      - email
-      properties:
-        name:
-          type: string
-          description: Name of the user.
-          example: John Doe
-        email:
-          type: string
-          format: email
-          description: Email address of the user.
-          example: john.doe@example.com
-        isAdmin:
-          type: boolean
-          description: Indicates whether the user is an `admin`.
-          example: false
-        roles:
-          type: array
-          description: A list of the IDs of the roles assigned to the user.
-          items:
-            type: integer
-            example: 13
-        acl:
-          type: string
-          description: Indicates the access level of the user.
     NewPasswordEmail:
       type: object
       required:
@@ -864,21 +754,26 @@ components:
           type: string
           format: email
           minLength: 1
-    NewInviteEmail:
+    DeactivateUserRequest:
+      allOf:
+      - $ref: '#/components/schemas/EmailEntity'
+    DeleteUserRequest:
+      allOf:
+      - $ref: '#/components/schemas/EmailEntity'
+    NewPassword:
       type: object
       required:
-      - email
-      - token
+      - password
+      - resetToken
       properties:
-        email:
+        password:
           type: string
-          description: Email address of the user.
-          format: email
-          example: john.doe@example.com
-        token:
+          description: The new password for your account.
+          example: Admin&12943!7
+        resetToken:
           type: string
-          description: Invitation token of the user.
-          example: Gy9b8w1irmQtEPo5RmbMmSPheL5h4
+          minLength: 1
+          example: Z2VgacVNkexLKBUIzsRDDZSGxnIkC53y
     ScimServiceProviderConfigResponse:
       type: object
       description: Service provider configuration details.
@@ -952,20 +847,93 @@ components:
         - urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig
         x-sort:
           supported: false
-    NewPassword:
+    AccountEntity:
       type: object
       required:
-      - password
-      - resetToken
+      - accountId
       properties:
-        password:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    ScimNewUser:
+      type: object
+      description: Payload for users that are created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+      required:
+      - userName
+      allOf:
+      - $ref: '#/components/schemas/ScimBaseUser'
+      - type: object
+        description: Additional user properties, that are not processed by Talon.One, but only stored and returned in the User response.
+    ScimPatchOperation:
+      type: object
+      description: Patch operation that is used to update the information.
+      required:
+      - op
+      properties:
+        op:
           type: string
-          description: The new password for your account.
-          example: Admin&12943!7
-        resetToken:
+          enum:
+          - add
+          - remove
+          - replace
+          description: The method that should be used in the operation.
+        path:
           type: string
-          minLength: 1
-          example: Z2VgacVNkexLKBUIzsRDDZSGxnIkC53y
+          description: The path specifying the attribute that should be updated.
+        value:
+          type: string
+          description: The value that should be updated. Required if `op` is `add` or `replace`.
+      example:
+        op: add
+        path: nickName
+        value: John
+    ScimResourceTypesListResponse:
+      type: object
+      description: List of resource types supported by the SCIM provisioning protocol.
+      required:
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimResource'
+    ScimGroupsListResponse:
+      type: object
+      description: 'List of groups created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+
+        In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
+      required:
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimGroup'
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          description: Number of results in the response.
+      example:
+        Resources:
+        - displayName: Manager Role
+          id: '283'
+          meta:
+            resourceType: Group
+            created: '2024-06-25T17:43:46+02:00'
+          members:
+          - value: '15'
+            display: john.doe@example.com
+          schemas:
+          - urn:ietf:params:scim:schemas:core:2.0:Group
+        schemas:
+        - urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults: 1
     EmailEntity:
       type: object
       required:
@@ -1080,45 +1048,50 @@ components:
           format: date-time
           description: The point in time when the analytics numbers were updated last.
           example: '2022-12-12T12:12:12Z'
-    ActivateUserRequest:
-      allOf:
-      - $ref: '#/components/schemas/EmailEntity'
-    ScimGroupsListResponse:
+    ScimGroup:
       type: object
-      description: 'List of groups created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+      description: 'Define the schema for groups created using the SCIM provisioning protocol.
 
         In Talon.One, a `Group` corresponds to a [role](https://docs.talon.one/docs/product/account/account-settings/managing-roles), and `members` are the [users](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to that role.'
-      required:
-      - Resources
-      properties:
-        Resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScimGroup'
-        schemas:
-          type: array
-          description: SCIM schema for the given resource.
-          items:
+      allOf:
+      - $ref: '#/components/schemas/ScimBaseGroup'
+      - type: object
+        required:
+        - id
+        properties:
+          id:
             type: string
-            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
-        totalResults:
-          type: integer
-          description: Number of results in the response.
+            description: ID of the group.
+            example: '359'
+    ScimSchemaResource:
+      type: object
+      description: Resource schema definition for the SCIM provisioning protocol.
+      properties:
+        id:
+          type: string
+          description: ID of the resource.
+        name:
+          type: string
+          description: Name of the resource.
+        description:
+          type: string
+          description: Human-readable description of the schema resource.
+        attributes:
+          type: array
+          items:
+            type: object
+            description: Key-value attributes of the resource.
       example:
-        Resources:
-        - displayName: Manager Role
-          id: '283'
-          meta:
-            resourceType: Group
-            created: '2024-06-25T17:43:46+02:00'
-          members:
-          - value: '15'
-            display: john.doe@example.com
-          schemas:
-          - urn:ietf:params:scim:schemas:core:2.0:Group
-        schemas:
-        - urn:ietf:params:scim:api:messages:2.0:ListResponse
-        totalResults: 1
+        id: urn:ietf:params:scim:schemas:core:2.0:User
+        name: User
+        description: User Account
+        attributes:
+        - name: userName
+          required: true
+          mutability: readWrite
+        - name: profileUrl
+          required: false
+          mutability: readWrite
     ScimUsersListResponse:
       type: object
       description: List of users that have been provisioned using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.
@@ -1153,6 +1126,106 @@ components:
         schemas:
         - urn:ietf:params:scim:api:messages:2.0:ListResponse
         totalResults: 1
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    NewInvitation:
+      type: object
+      description: Parameters for inviting a new user.
+      required:
+      - email
+      properties:
+        name:
+          type: string
+          description: Name of the user.
+          example: John Doe
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+          example: john.doe@example.com
+        isAdmin:
+          type: boolean
+          description: Indicates whether the user is an `admin`.
+          example: false
+        roles:
+          type: array
+          description: A list of the IDs of the roles assigned to the user.
+          items:
+            type: integer
+            example: 13
+        acl:
+          type: string
+          description: Indicates the access level of the user.
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    ScimBaseGroup:
+      type: object
+      description: Define the schema for base fields in a group using the SCIM provisioning protocol. Talon.One uses this schema to create roles.
+      properties:
+        displayName:
+          type: string
+          description: Display name of the group (Talon.One role).
+          example: Manager
+        members:
+          type: array
+          description: List of members to assign to the new Talon.One role.
+          items:
+            $ref: '#/components/schemas/ScimGroupMember'
+    ScimPatchRequest:
+      type: object
+      description: SCIM Patch request
+      required:
+      - Operations
+      properties:
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:PatchOp
+        Operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimPatchOperation'
+      example:
+        Operations:
+        - op: replace
+          path: active
+          value: test
+        - op: add
+          path: nickName
+          value: johndoe
+        schemas:
+        - urn:ietf:params:scim:api:messages:2.0:PatchOp
+    NewAccount:
+      type: object
+      required:
+      - companyName
+      properties:
+        companyName:
+          type: string
+          minLength: 1
     NewExternalInvitation:
       type: object
       description: Parameters for inviting a new user from an external identity provider.
@@ -1183,38 +1256,126 @@ components:
           format: email
           description: Email address of the user.
           example: john.doe@example.com
-    ScimSchemaResource:
+    NewInviteEmail:
       type: object
-      description: Resource schema definition for the SCIM provisioning protocol.
+      required:
+      - email
+      - token
       properties:
-        id:
+        email:
           type: string
-          description: ID of the resource.
-        name:
+          description: Email address of the user.
+          format: email
+          example: john.doe@example.com
+        token:
           type: string
-          description: Name of the resource.
-        description:
-          type: string
-          description: Human-readable description of the schema resource.
-        attributes:
-          type: array
-          items:
-            type: object
-            description: Key-value attributes of the resource.
-      example:
-        id: urn:ietf:params:scim:schemas:core:2.0:User
-        name: User
-        description: User Account
-        attributes:
-        - name: userName
-          required: true
-          mutability: readWrite
-        - name: profileUrl
-          required: false
-          mutability: readWrite
-    DeleteUserRequest:
+          description: Invitation token of the user.
+          example: Gy9b8w1irmQtEPo5RmbMmSPheL5h4
+    ActivateUserRequest:
       allOf:
       - $ref: '#/components/schemas/EmailEntity'
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the user.
+          example: John Doe
+        state:
+          type: string
+          enum:
+          - deactivated
+          - active
+          description: "The state of the user.\n  - `deactivated`: The user has been deactivated.\n  - `active`: The user is active.\n\n**Note**: Only `admin` users can update the state of another user.\n"
+          example: deactivated
+        isAdmin:
+          type: boolean
+          description: Indicates whether the user is an `admin`.
+          example: false
+        policy:
+          type: string
+          description: Indicates the access level of the user.
+          example:
+            Role: 127
+            Applications: null
+        roles:
+          type: array
+          items:
+            type: integer
+          description: 'A list of the IDs of the roles assigned to the user.
+
+
+            **Note**: To find the ID of a role, use the [List roles](/management-api#tag/Roles/operation/listAllRolesV2) endpoint.
+
+            '
+          example:
+          - 1
+          - 3
+        applicationNotificationSubscriptions:
+          type: object
+          description: Application notifications that the user is subscribed to.
+    Account:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewAccount'
+      - type: object
+        required:
+        - domainName
+        - state
+        - billingEmail
+        - applicationCount
+        - userCount
+        - campaignsActiveCount
+        - campaignsInactiveCount
+        properties:
+          domainName:
+            type: string
+            description: Subdomain Name for yourcompany.talon.one.
+          state:
+            type: string
+            enum:
+            - active
+            - deactivated
+            description: State of the account (active, deactivated).
+          billingEmail:
+            type: string
+            format: email
+            description: The billing email address associated with your company account.
+          planName:
+            type: string
+            description: The name of your booked plan.
+          planExpires:
+            type: string
+            format: date-time
+            description: The point in time at which your current plan expires.
+          applicationLimit:
+            type: integer
+            description: The maximum number of Applications covered by your plan.
+          userLimit:
+            type: integer
+            description: The maximum number of Campaign Manager Users covered by your plan.
+          campaignLimit:
+            type: integer
+            description: The maximum number of Campaigns covered by your plan.
+          apiLimit:
+            type: integer
+            description: The maximum number of Integration API calls covered by your plan per billing period.
+          applicationCount:
+            type: integer
+            description: The current number of Applications in your account.
+          userCount:
+            type: integer
+            description: The current number of Campaign Manager Users in your account.
+          campaignsActiveCount:
+            type: integer
+            description: The current number of active Campaigns in your account.
+          campaignsInactiveCount:
+            type: integer
+            description: The current number of inactive Campaigns in your account.
+          attributes:
+            type: object
+            description: Arbitrary properties associated with this campaign.
     User:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -1294,18 +1455,67 @@ components:
             type: object
             description: Additional user attributes, created and used by external identity providers.
             example: {}
-    ScimNewUser:
+    ScimSchemasListResponse:
       type: object
-      description: Payload for users that are created using the SCIM provisioning protocol with an identity provider, for example, Microsoft Entra ID.
+      description: List of resource schemas supported by the SCIM provisioning protocol.
       required:
-      - userName
+      - Resources
+      properties:
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimSchemaResource'
+        schemas:
+          type: array
+          description: SCIM schema for the given resource.
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          description: Number of total results in the response.
+    ScimResource:
+      type: object
+      description: Resource definition for the SCIM provisioning protocol.
+      properties:
+        id:
+          type: string
+          description: ID of the resource.
+        name:
+          type: string
+          description: Name of the resource.
+        description:
+          type: string
+          description: Human-readable description of the resource.
+      example:
+        id: User
+        name: User
+        description: User Account
+    ScimUser:
+      type: object
+      description: Schema definition for users that have been provisioned using the SCIM protocol with an identity provider, for example, Microsoft Entra ID.
       allOf:
-      - $ref: '#/components/schemas/ScimBaseUser'
+      - $ref: '#/components/schemas/ScimNewUser'
       - type: object
-        description: Additional user properties, that are not processed by Talon.One, but only stored and returned in the User response.
-    DeactivateUserRequest:
-      allOf:
-      - $ref: '#/components/schemas/EmailEntity'
+        required:
+        - id
+        properties:
+          id:
+            type: string
+            description: ID of the user.
+            example: '359'
+    ScimGroupMember:
+      type: object
+      description: Member of the SCIM group. In Talon.One, the member is a [user](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to a specific role.
+      properties:
+        value:
+          type: string
+          description: Unique identifier of the member.
+          example: '258'
+        display:
+          type: string
+          description: Identifier of the user. This is usually an email address.
+          example: john.doe@example.com
     ScimBaseUser:
       type: object
       description: Schema definition for base user fields, provisioned using the SCIM protocol and used by Talon.One.
@@ -1330,217 +1540,20 @@ components:
               type: string
               description: The full name, including all middle names, titles, and suffixes as appropriate, formatted for display.
               example: Mr. John J Doe
-    Account:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/NewAccount'
-      - type: object
-        required:
-        - domainName
-        - state
-        - billingEmail
-        - applicationCount
-        - userCount
-        - campaignsActiveCount
-        - campaignsInactiveCount
-        properties:
-          domainName:
-            type: string
-            description: Subdomain Name for yourcompany.talon.one.
-          state:
-            type: string
-            enum:
-            - active
-            - deactivated
-            description: State of the account (active, deactivated).
-          billingEmail:
-            type: string
-            format: email
-            description: The billing email address associated with your company account.
-          planName:
-            type: string
-            description: The name of your booked plan.
-          planExpires:
-            type: string
-            format: date-time
-            description: The point in time at which your current plan expires.
-          applicationLimit:
-            type: integer
-            description: The maximum number of Applications covered by your plan.
-          userLimit:
-            type: integer
-            description: The maximum number of Campaign Manager Users covered by your plan.
-          campaignLimit:
-            type: integer
-            description: The maximum number of Campaigns covered by your plan.
-          apiLimit:
-            type: integer
-            description: The maximum number of Integration API calls covered by your plan per billing period.
-          applicationCount:
-            type: integer
-            description: The current number of Applications in your account.
-          userCount:
-            type: integer
-            description: The current number of Campaign Manager Users in your account.
-          campaignsActiveCount:
-            type: integer
-            description: The current number of active Campaigns in your account.
-          campaignsInactiveCount:
-            type: integer
-            description: The current number of inactive Campaigns in your account.
-          attributes:
-            type: object
-            description: Arbitrary properties associated with this campaign.
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    ScimSchemasListResponse:
-      type: object
-      description: List of resource schemas supported by the SCIM provisioning protocol.
-      required:
-      - Resources
-      properties:
-        Resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScimSchemaResource'
-        schemas:
-          type: array
-          description: SCIM schema for the given resource.
-          items:
-            type: string
-            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
-        totalResults:
-          type: integer
-          description: Number of total results in the response.
-    ScimPatchRequest:
-      type: object
-      description: SCIM Patch request
-      required:
-      - Operations
-      properties:
-        schemas:
-          type: array
-          description: SCIM schema for the given resource.
-          items:
-            type: string
-            example: urn:ietf:params:scim:api:messages:2.0:PatchOp
-        Operations:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScimPatchOperation'
-      example:
-        Operations:
-        - op: replace
-          path: active
-          value: test
-        - op: add
-          path: nickName
-          value: johndoe
-        schemas:
-        - urn:ietf:params:scim:api:messages:2.0:PatchOp
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
-    ScimGroupMember:
-      type: object
-      description: Member of the SCIM group. In Talon.One, the member is a [user](https://docs.talon.one/docs/product/account/account-settings/managing-users) assigned to a specific role.
-      properties:
-        value:
-          type: string
-          description: Unique identifier of the member.
-          example: '258'
-        display:
-          type: string
-          description: Identifier of the user. This is usually an email address.
-          example: john.doe@example.com
-    ScimResource:
-      type: object
-      description: Resource definition for the SCIM provisioning protocol.
-      properties:
-        id:
-          type: string
-          description: ID of the resource.
-        name:
-          type: string
-          description: Name of the resource.
-        description:
-          type: string
-          description: Human-readable description of the resource.
-      example:
-        id: User
-        name: User
-        description: User Account
-    UpdateUser:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the user.
-          example: John Doe
-        state:
-          type: string
-          enum:
-          - deactivated
-          - active
-          description: "The state of the user.\n  - `deactivated`: The user has been deactivated.\n  - `active`: The user is active.\n\n**Note**: Only `admin` users can update the state of another user.\n"
-          example: deactivated
-        isAdmin:
-          type: boolean
-          description: Indicates whether the user is an `admin`.
-          example: false
-        policy:
-          type: string
-          description: Indicates the access level of the user.
-          example:
-            Role: 127
-            Applications: null
-        roles:
-          type: array
-          items:
-            type: integer
-          description: 'A list of the IDs of the roles assigned to the user.
-
-
-            **Note**: To find the ID of a role, use the [List roles](/management-api#tag/Roles/operation/listAllRolesV2) endpoint.
-
-            '
-          example:
-          - 1
-          - 3
-        applicationNotificationSubscriptions:
-          type: object
-          description: Application notifications that the user is subscribed to.
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
   parameters:
+    sort:
+      name: sort
+      in: query
+      required: false
+      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
+
+
+        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
+
+        '
+      example: name
+      schema:
+        type: string
     skip:
       name: skip
       in: query
@@ -1560,19 +1573,6 @@ components:
         minimum: 1
         maximum: 1000
         default: 1000
-    sort:
-      name: sort
-      in: query
-      required: false
-      description: 'The field by which results should be sorted. By default, results are sorted in ascending order. To sort them in descending order, prefix the field name with `-`.
-
-
-        **Note:** You may not be able to use all fields for sorting. This is due to performance limitations.
-
-        '
-      example: name
-      schema:
-        type: string
   requestBodies:
     ScimNewGroup:
       content:
