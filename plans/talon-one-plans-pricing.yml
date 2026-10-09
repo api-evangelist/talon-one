@@ -136,3 +136,36 @@ tier_features_published:
   - Instant troubleshooting and response
   - Unlimited users & webhooks
   - Customized SLAs
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - subscription
+  units:
+  - negotiated
+  - transaction
+  plans:
+  - name: Starter
+    access: other
+    model: subscription
+    model_how: stated
+    units:
+    - transaction
+    periods:
+    - month
+  - name: Professional
+    access: other
+    model: subscription
+    model_how: stated
+    units:
+    - transaction
+    periods:
+    - month
+  - name: Enterprise
+    access: enterprise
+    model: subscription
+    model_how: derived
+    units:
+    - negotiated
+    periods:
+    - year
