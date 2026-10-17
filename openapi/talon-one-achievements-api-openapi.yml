@@ -990,159 +990,6 @@ paths:
     - url: https://yourbaseurl.talon.one
 components:
   schemas:
-    CreateAchievement:
-      allOf:
-      - $ref: '#/components/schemas/AchievementBase'
-      - type: object
-        required:
-        - name
-        - title
-        - description
-        - target
-    TimePoint:
-      type: object
-      required:
-      - hour
-      - minute
-      - second
-      description: 'The absolute duration after which the achievement ends and resets for a particular customer profile.
-
-
-        **Note**: The duration follows the time zone of the Application this achievement belongs to.
-
-        '
-      properties:
-        month:
-          type: integer
-          minimum: 1
-          maximum: 12
-          description: 'The achievement ends and resets in this month.
-
-
-            **Note**: Only applicable if the period is set to `Y`.
-
-            '
-          example: 11
-        dayOfMonth:
-          type: integer
-          minimum: 1
-          maximum: 31
-          description: 'The achievement ends and resets on this day of the month.
-
-
-            **Note**: Only applicable if the period is set to `Y` or `M`.
-
-            '
-          example: 23
-        dayOfWeek:
-          type: integer
-          minimum: 1
-          maximum: 7
-          description: 'The achievement ends and resets on this day of the week. `1` represents `Monday` and `7` represents `Sunday`.
-
-
-            **Note**: Only applicable if the period is set to `W`.
-
-            '
-        hour:
-          type: integer
-          description: The achievement ends and resets at this hour.
-          example: 23
-        minute:
-          type: integer
-          description: The achievement ends and resets at this minute.
-          example: 59
-        second:
-          type: integer
-          description: The achievement ends and resets at this second.
-          example: 59
-      example:
-        month: 11
-        dayOfMonth: 23
-        hour: 23
-        minute: 59
-        second: 59
-    AchievementProgress:
-      type: object
-      description: The current progress of the customer in the achievement.
-      required:
-      - status
-      - progress
-      properties:
-        status:
-          type: string
-          enum:
-          - inprogress
-          - completed
-          - expired
-          - not_started
-          example: completed
-          description: The status of the achievement.
-        progress:
-          type: number
-          example: 10
-          description: The current progress of the customer in the achievement.
-        startDate:
-          format: date-time
-          description: Timestamp at which the customer started the achievement.
-          type: string
-          example: 2024-01-01T15:04:05Z07:00
-        completionDate:
-          format: date-time
-          description: Timestamp at which point the customer completed the achievement.
-          type: string
-          example: 2024-01-15T15:04:05Z07:00
-        endDate:
-          format: date-time
-          description: Timestamp at which point the achievement ends and resets for the customer.
-          type: string
-          example: 2024-02-01T15:04:05Z07:00
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
-    AchievementStatusEntry:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/CreateAchievement'
-      - type: object
-        properties:
-          campaignId:
-            type: integer
-            description: The ID of the campaign the achievement belongs to.
-            example: 1
-          status:
-            type: string
-            enum:
-            - active
-            - scheduled
-            example: active
-            description: The status of the achievement.
-          currentProgress:
-            $ref: '#/components/schemas/AchievementProgress'
     AchievementBase:
       type: object
       properties:
@@ -1274,6 +1121,150 @@ components:
           type: boolean
           description: When `true`, customer progress can be rolled back in completed achievements.
           example: false
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    TimePoint:
+      type: object
+      required:
+      - hour
+      - minute
+      - second
+      description: 'The absolute duration after which the achievement ends and resets for a particular customer profile.
+
+
+        **Note**: The duration follows the time zone of the Application this achievement belongs to.
+
+        '
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: 'The achievement ends and resets in this month.
+
+
+            **Note**: Only applicable if the period is set to `Y`.
+
+            '
+          example: 11
+        dayOfMonth:
+          type: integer
+          minimum: 1
+          maximum: 31
+          description: 'The achievement ends and resets on this day of the month.
+
+
+            **Note**: Only applicable if the period is set to `Y` or `M`.
+
+            '
+          example: 23
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: 'The achievement ends and resets on this day of the week. `1` represents `Monday` and `7` represents `Sunday`.
+
+
+            **Note**: Only applicable if the period is set to `W`.
+
+            '
+        hour:
+          type: integer
+          description: The achievement ends and resets at this hour.
+          example: 23
+        minute:
+          type: integer
+          description: The achievement ends and resets at this minute.
+          example: 59
+        second:
+          type: integer
+          description: The achievement ends and resets at this second.
+          example: 59
+      example:
+        month: 11
+        dayOfMonth: 23
+        hour: 23
+        minute: 59
+        second: 59
+    AchievementStatusEntry:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/CreateAchievement'
+      - type: object
+        properties:
+          campaignId:
+            type: integer
+            description: The ID of the campaign the achievement belongs to.
+            example: 1
+          status:
+            type: string
+            enum:
+            - active
+            - scheduled
+            example: active
+            description: The status of the achievement.
+          currentProgress:
+            $ref: '#/components/schemas/AchievementProgress'
+    AchievementProgress:
+      type: object
+      description: The current progress of the customer in the achievement.
+      required:
+      - status
+      - progress
+      properties:
+        status:
+          type: string
+          enum:
+          - inprogress
+          - completed
+          - expired
+          - not_started
+          example: completed
+          description: The status of the achievement.
+        progress:
+          type: number
+          example: 10
+          description: The current progress of the customer in the achievement.
+        startDate:
+          format: date-time
+          description: Timestamp at which the customer started the achievement.
+          type: string
+          example: 2024-01-01T15:04:05Z07:00
+        completionDate:
+          format: date-time
+          description: Timestamp at which point the customer completed the achievement.
+          type: string
+          example: 2024-01-15T15:04:05Z07:00
+        endDate:
+          format: date-time
+          description: Timestamp at which point the achievement ends and resets for the customer.
+          type: string
+          example: 2024-02-01T15:04:05Z07:00
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
     ErrorSource:
       type: object
       description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
@@ -1292,6 +1283,15 @@ components:
         resource:
           type: string
           description: Pointer to the resource that caused this error.
+    CreateAchievement:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBase'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
     Entity:
       type: object
       required:
@@ -1307,237 +1307,12 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
-    AchievementV2:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AchievementBaseV2'
-      - $ref: '#/components/schemas/AchievementAdditionalPropertiesV2'
-      - type: object
-        required:
-        - name
-        - title
-        - description
-        - target
-        - recurrencePolicy
-        - activationPolicy
-        - sandbox
-        - subscribedApplications
-        - timezone
-        properties:
-          sandbox:
-            type: boolean
-            description: Indicates if this achievement is a live or sandbox achievement. Achievements of a given type can only be connected to Applications of the same type.
-            title: Sandbox
-            example: true
-          timezone:
-            type: string
-            description: A string containing an IANA timezone descriptor.
-            minLength: 1
-            example: Europe/Berlin
-    CreateAchievementV2:
-      allOf:
-      - $ref: '#/components/schemas/AchievementBaseV2'
-      - type: object
-        required:
-        - name
-        - title
-        - description
-        - target
-        - timezone
-        - sandbox
-        properties:
-          sandbox:
-            type: boolean
-            description: Indicates if this achievement is a live or sandbox achievement. Achievements of a given type can only be connected to Applications of the same type.
-            title: Sandbox
-            example: true
-          timezone:
-            type: string
-            description: A string containing an IANA timezone descriptor.
-            minLength: 1
-            example: Europe/Berlin
-    AchievementProgressWithDefinition:
-      allOf:
-      - $ref: '#/components/schemas/AchievementProgress'
-      - type: object
-        required:
-        - achievementId
-        - name
-        - title
-        - description
-        - achievementRecurrencePolicy
-        - achievementActivationPolicy
-        - campaignId
-        properties:
-          achievementId:
-            type: integer
-            example: 3
-            description: The internal ID of the achievement.
-          name:
-            type: string
-            pattern: ^[a-zA-Z]\w+$
-            example: FreeCoffee10Orders
-            maxLength: 1000
-            minLength: 1
-            description: 'The internal name of the achievement used in API requests.
-
-              '
-          title:
-            type: string
-            description: The display name of the achievement in the Campaign Manager.
-            example: 50% off on 50th purchase.
-          description:
-            type: string
-            format: string
-            description: The description of the achievement in the Campaign Manager.
-            example: 50% off for every 50th purchase in a year.
-          campaignId:
-            type: integer
-            description: The ID of the campaign the achievement belongs to.
-            example: 3
-          target:
-            type: number
-            example: 10
-            description: The required number of actions or the transactional milestone to complete the achievement.
-          achievementRecurrencePolicy:
-            type: string
-            enum:
-            - no_recurrence
-            - on_expiration
-            - on_completion
-            example: no_recurrence
-            description: 'The policy that determines if and how the achievement recurs.
-
-              - `no_recurrence`: The achievement can be completed only once.
-
-              - `on_expiration`: The achievement resets after it expires and becomes available again.
-
-              - `on_completion`: When the customer progress status reaches `completed`, the achievement resets and becomes available again.
-
-              '
-          achievementActivationPolicy:
-            type: string
-            enum:
-            - user_action
-            - fixed_schedule
-            example: fixed_schedule
-            description: 'The policy that determines how the achievement starts, ends, or resets.
-
-              - `user_action`: The achievement ends or resets relative to when the customer started the achievement.
-
-              - `fixed_schedule`: The achievement starts, ends, or resets for all customers following a fixed schedule.
-
-              '
-          achievementFixedStartDate:
-            type: string
-            format: date-time
-            example: 2024-01-15T15:04:05Z07:00
-            description: 'The achievement''s start date when `achievementActivationPolicy` is equal to `fixed_schedule`.
-
-
-              **Note:** It is an RFC3339 timestamp string.
-
-              '
-          achievementEndDate:
-            type: string
-            format: date-time
-            example: 2024-02-15T15:04:05Z07:00
-            description: 'The achievement''s end date. If defined, customers cannot participate in the achievement after this date.
-
-
-              **Note:** It is an RFC3339 timestamp string.
-
-              '
-          achievementAllowRollbackAfterCompletion:
-            type: boolean
-            description: When `true`, customer progress can be rolled back in completed achievements.
-            example: false
-    UpdateAchievementV2:
-      allOf:
-      - $ref: '#/components/schemas/AchievementBaseV2'
-      - type: object
-        required:
-        - name
-        - title
-        - description
-        - target
-        - subscribedApplications
     Achievement:
       allOf:
       - $ref: '#/components/schemas/Entity'
       - $ref: '#/components/schemas/CreateAchievement'
       - $ref: '#/components/schemas/AchievementAdditionalProperties'
       - type: object
-    AchievementAdditionalPropertiesV2:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user that created this achievement.
-          example: 1234
-        createdBy:
-          type: string
-          description: 'Name of the user that created the achievement.
-
-
-            **Note**: This is not available if the user has been deleted.
-
-            '
-          example: John Doe
-        periodEndOverride:
-          $ref: '#/components/schemas/TimePoint'
-          deprecated: true
-        hasProgress:
-          type: boolean
-          description: Indicates if a customer has made progress in the achievement.
-        status:
-          type: string
-          enum:
-          - active
-          - scheduled
-          - expired
-          example: active
-          description: "The status of the achievement.                                                                                              \n- `active`: The achievement is available to customers.\n- `scheduled`: The achievement has a `fixedStartDate` set in the future.\n- `expired`: The achievement's `endDate` is in the past.\n"
-    AchievementAdditionalProperties:
-      type: object
-      required:
-      - campaignId
-      - userId
-      properties:
-        campaignId:
-          type: integer
-          description: The ID of the campaign the achievement belongs to.
-          example: 1
-        userId:
-          type: integer
-          description: ID of the user that created this achievement.
-          example: 1234
-        createdBy:
-          type: string
-          description: 'Name of the user that created the achievement.
-
-
-            **Note**: This is not available if the user has been deleted.
-
-            '
-          example: John Doe
-        hasProgress:
-          type: boolean
-          description: Indicates if a customer has made progress in the achievement.
-        status:
-          type: string
-          enum:
-          - inprogress
-          - expired
-          - not_started
-          - completed
-          example: inprogress
-          description: The status of the achievement.
-    UpdateAchievement:
-      allOf:
-      - $ref: '#/components/schemas/AchievementBase'
     AchievementBaseV2:
       type: object
       properties:
@@ -1675,6 +1450,231 @@ components:
           example:
           - 132
           - 97
+    CreateAchievementV2:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBaseV2'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+        - timezone
+        - sandbox
+        properties:
+          sandbox:
+            type: boolean
+            description: Indicates if this achievement is a live or sandbox achievement. Achievements of a given type can only be connected to Applications of the same type.
+            title: Sandbox
+            example: true
+          timezone:
+            type: string
+            description: A string containing an IANA timezone descriptor.
+            minLength: 1
+            example: Europe/Berlin
+    UpdateAchievement:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBase'
+    AchievementAdditionalProperties:
+      type: object
+      required:
+      - campaignId
+      - userId
+      properties:
+        campaignId:
+          type: integer
+          description: The ID of the campaign the achievement belongs to.
+          example: 1
+        userId:
+          type: integer
+          description: ID of the user that created this achievement.
+          example: 1234
+        createdBy:
+          type: string
+          description: 'Name of the user that created the achievement.
+
+
+            **Note**: This is not available if the user has been deleted.
+
+            '
+          example: John Doe
+        hasProgress:
+          type: boolean
+          description: Indicates if a customer has made progress in the achievement.
+        status:
+          type: string
+          enum:
+          - inprogress
+          - expired
+          - not_started
+          - completed
+          example: inprogress
+          description: The status of the achievement.
+    AchievementAdditionalPropertiesV2:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user that created this achievement.
+          example: 1234
+        createdBy:
+          type: string
+          description: 'Name of the user that created the achievement.
+
+
+            **Note**: This is not available if the user has been deleted.
+
+            '
+          example: John Doe
+        periodEndOverride:
+          $ref: '#/components/schemas/TimePoint'
+          deprecated: true
+        hasProgress:
+          type: boolean
+          description: Indicates if a customer has made progress in the achievement.
+        status:
+          type: string
+          enum:
+          - active
+          - scheduled
+          - expired
+          example: active
+          description: "The status of the achievement.                                                                                              \n- `active`: The achievement is available to customers.\n- `scheduled`: The achievement has a `fixedStartDate` set in the future.\n- `expired`: The achievement's `endDate` is in the past.\n"
+    AchievementProgressWithDefinition:
+      allOf:
+      - $ref: '#/components/schemas/AchievementProgress'
+      - type: object
+        required:
+        - achievementId
+        - name
+        - title
+        - description
+        - achievementRecurrencePolicy
+        - achievementActivationPolicy
+        - campaignId
+        properties:
+          achievementId:
+            type: integer
+            example: 3
+            description: The internal ID of the achievement.
+          name:
+            type: string
+            pattern: ^[a-zA-Z]\w+$
+            example: FreeCoffee10Orders
+            maxLength: 1000
+            minLength: 1
+            description: 'The internal name of the achievement used in API requests.
+
+              '
+          title:
+            type: string
+            description: The display name of the achievement in the Campaign Manager.
+            example: 50% off on 50th purchase.
+          description:
+            type: string
+            format: string
+            description: The description of the achievement in the Campaign Manager.
+            example: 50% off for every 50th purchase in a year.
+          campaignId:
+            type: integer
+            description: The ID of the campaign the achievement belongs to.
+            example: 3
+          target:
+            type: number
+            example: 10
+            description: The required number of actions or the transactional milestone to complete the achievement.
+          achievementRecurrencePolicy:
+            type: string
+            enum:
+            - no_recurrence
+            - on_expiration
+            - on_completion
+            example: no_recurrence
+            description: 'The policy that determines if and how the achievement recurs.
+
+              - `no_recurrence`: The achievement can be completed only once.
+
+              - `on_expiration`: The achievement resets after it expires and becomes available again.
+
+              - `on_completion`: When the customer progress status reaches `completed`, the achievement resets and becomes available again.
+
+              '
+          achievementActivationPolicy:
+            type: string
+            enum:
+            - user_action
+            - fixed_schedule
+            example: fixed_schedule
+            description: 'The policy that determines how the achievement starts, ends, or resets.
+
+              - `user_action`: The achievement ends or resets relative to when the customer started the achievement.
+
+              - `fixed_schedule`: The achievement starts, ends, or resets for all customers following a fixed schedule.
+
+              '
+          achievementFixedStartDate:
+            type: string
+            format: date-time
+            example: 2024-01-15T15:04:05Z07:00
+            description: 'The achievement''s start date when `achievementActivationPolicy` is equal to `fixed_schedule`.
+
+
+              **Note:** It is an RFC3339 timestamp string.
+
+              '
+          achievementEndDate:
+            type: string
+            format: date-time
+            example: 2024-02-15T15:04:05Z07:00
+            description: 'The achievement''s end date. If defined, customers cannot participate in the achievement after this date.
+
+
+              **Note:** It is an RFC3339 timestamp string.
+
+              '
+          achievementAllowRollbackAfterCompletion:
+            type: boolean
+            description: When `true`, customer progress can be rolled back in completed achievements.
+            example: false
+    UpdateAchievementV2:
+      allOf:
+      - $ref: '#/components/schemas/AchievementBaseV2'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+        - subscribedApplications
+    AchievementV2:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AchievementBaseV2'
+      - $ref: '#/components/schemas/AchievementAdditionalPropertiesV2'
+      - type: object
+        required:
+        - name
+        - title
+        - description
+        - target
+        - recurrencePolicy
+        - activationPolicy
+        - sandbox
+        - subscribedApplications
+        - timezone
+        properties:
+          sandbox:
+            type: boolean
+            description: Indicates if this achievement is a live or sandbox achievement. Achievements of a given type can only be connected to Applications of the same type.
+            title: Sandbox
+            example: true
+          timezone:
+            type: string
+            description: A string containing an IANA timezone descriptor.
+            minLength: 1
+            example: Europe/Berlin
   parameters:
     skip:
       name: skip

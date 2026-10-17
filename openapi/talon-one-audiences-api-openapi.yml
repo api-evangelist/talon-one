@@ -680,14 +680,6 @@ paths:
     servers:
     - url: https://yourbaseurl.talon.one
 components:
-  requestBodies:
-    AttributeQuery:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AttributeQuery'
-      description: body
-      required: true
   schemas:
     AttributeQuery:
       type: object
@@ -696,6 +688,111 @@ components:
         my_attribute_1: some value
         my_attribute_2: some other value
         my_attribute_3: some other value
+    UpdateAudience:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The human-friendly display name for this audience.
+          example: Travel audience
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications that are connected to this audience.
+          items:
+            type: integer
+          uniqueItems: true
+          example:
+          - 3
+          - 13
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    ErrorResponseWithStatus:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          description: An array of individual problems encountered during the request.
+          items:
+            $ref: '#/components/schemas/APIError'
+        StatusCode:
+          type: integer
+          description: The error code
+    NewInternalAudience:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: The human-friendly display name for this audience.
+          example: Travel audience
+        sandbox:
+          type: boolean
+          description: Indicates if this is a live or sandbox Application.
+          example: true
+        description:
+          type: string
+          description: A description of the audience.
+          example: Travel audience 18-27
+        subscribedApplicationsIds:
+          type: array
+          description: A list of the IDs of the Applications that are connected to this audience.
+          uniqueItems: true
+          items:
+            type: integer
+          example:
+          - 3
+          - 13
+    APIError:
+      type: object
+      required:
+      - source
+      - title
+      properties:
+        title:
+          type: string
+          description: Short description of the problem.
+        details:
+          type: string
+          description: Longer description of this specific instance of the problem.
+        source:
+          $ref: '#/components/schemas/ErrorSource'
+    CustomerProfileAudienceRequestItem:
+      type: object
+      required:
+      - action
+      - profileIntegrationId
+      - audienceId
+      properties:
+        action:
+          type: string
+          enum:
+          - add
+          - delete
+          description: "Defines the action to perform:\n- `add`: Adds the customer profile to the audience.\n\n  **Note**: If the customer profile does not exist, it will be created. The profile will not be visible in any Application\n  until a session or profile update is received for that profile.\n- `delete`: Removes the customer profile from the audience.\n"
+          example: add
+        profileIntegrationId:
+          type: string
+          description: The ID of this customer profile in the third-party integration.
+          example: R195412
+          maxLength: 1000
+        audienceId:
+          type: integer
+          description: The ID of the audience. You get it via the `id` property when [creating an audience](#tag/Audiences/operation/createAudienceV2).
+          example: 748
     NewAudience:
       allOf:
       - $ref: '#/components/schemas/NewInternalAudience'
@@ -735,52 +832,11 @@ components:
             format: date-time
             description: The last time that the audience memberships changed.
             example: '2022-04-26T11:02:38Z'
-    UpdateAudience:
-      type: object
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          description: The human-friendly display name for this audience.
-          example: Travel audience
-        subscribedApplicationsIds:
-          type: array
-          description: A list of the IDs of the Applications that are connected to this audience.
-          items:
-            type: integer
-          uniqueItems: true
-          example:
-          - 3
-          - 13
-    ErrorResponseWithStatus:
-      type: object
-      properties:
-        message:
-          type: string
-        errors:
-          type: array
-          description: An array of individual problems encountered during the request.
-          items:
-            $ref: '#/components/schemas/APIError'
-        StatusCode:
-          type: integer
-          description: The error code
-    APIError:
-      type: object
-      required:
-      - source
-      - title
-      properties:
-        title:
-          type: string
-          description: Short description of the problem.
-        details:
-          type: string
-          description: Longer description of this specific instance of the problem.
-        source:
-          $ref: '#/components/schemas/ErrorSource'
+    Audience:
+      allOf:
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/NewAudience'
     ErrorSource:
       type: object
       description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
@@ -799,15 +855,6 @@ components:
         resource:
           type: string
           description: Pointer to the resource that caused this error.
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
     CustomerProfileAudienceRequest:
       type: object
       properties:
@@ -815,61 +862,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CustomerProfileAudienceRequestItem'
-    CustomerProfileAudienceRequestItem:
-      type: object
-      required:
-      - action
-      - profileIntegrationId
-      - audienceId
-      properties:
-        action:
-          type: string
-          enum:
-          - add
-          - delete
-          description: "Defines the action to perform:\n- `add`: Adds the customer profile to the audience.\n\n  **Note**: If the customer profile does not exist, it will be created. The profile will not be visible in any Application\n  until a session or profile update is received for that profile.\n- `delete`: Removes the customer profile from the audience.\n"
-          example: add
-        profileIntegrationId:
-          type: string
-          description: The ID of this customer profile in the third-party integration.
-          example: R195412
-          maxLength: 1000
-        audienceId:
-          type: integer
-          description: The ID of the audience. You get it via the `id` property when [creating an audience](#tag/Audiences/operation/createAudienceV2).
-          example: 748
-    Audience:
-      allOf:
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/NewAudience'
-    NewInternalAudience:
-      type: object
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          description: The human-friendly display name for this audience.
-          example: Travel audience
-        sandbox:
-          type: boolean
-          description: Indicates if this is a live or sandbox Application.
-          example: true
-        description:
-          type: string
-          description: A description of the audience.
-          example: Travel audience 18-27
-        subscribedApplicationsIds:
-          type: array
-          description: A list of the IDs of the Applications that are connected to this audience.
-          uniqueItems: true
-          items:
-            type: integer
-          example:
-          - 3
-          - 13
     Entity:
       type: object
       required:
@@ -885,48 +877,6 @@ components:
           format: date-time
           description: The time this entity was created.
           example: '2020-06-10T09:05:27.993483Z'
-    UserEntity:
-      type: object
-      required:
-      - userId
-      properties:
-        userId:
-          type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
-    AudienceMembership:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id:
-          type: integer
-          title: Audience ID
-          description: The ID of the audience belonging to this entity.
-          example: 2
-        name:
-          type: string
-          title: Audience Name
-          description: The Name of the audience belonging to this entity.
-          example: Travel audience
-    IntegrationEntity:
-      type: object
-      required:
-      - integrationId
-      - created
-      properties:
-        integrationId:
-          type: string
-          format: string
-          example: URNGV8294NV
-          maxLength: 1000
-          description: The integration ID set by your integration layer.
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-02-07T08:15:22Z'
     CustomerProfile:
       allOf:
       - $ref: '#/components/schemas/CustomerProfileEntity'
@@ -1004,6 +954,32 @@ components:
         - totalSales
         - lastActivity
         - attributes
+    AudienceMembership:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          title: Audience ID
+          description: The ID of the audience belonging to this entity.
+          example: 2
+        name:
+          type: string
+          title: Audience Name
+          description: The Name of the audience belonging to this entity.
+          example: Travel audience
+    NewCustomerProfile:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+          description: Arbitrary properties associated with this item.
+          example:
+            Language: english
+            ShippingCountry: DE
     CustomerProfileEntity:
       type: object
       required:
@@ -1019,6 +995,27 @@ components:
           format: date-time
           description: The time the customer profile was created.
           example: '2020-06-10T09:05:27.993483Z'
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    AudienceAnalytics:
+      type: object
+      description: The audiences and their member count.
+      properties:
+        audienceId:
+          type: integer
+          description: The ID of the audience.
+          example: 1
+        membersCount:
+          type: integer
+          description: The member count of the audience.
+          example: 1234
     LoyaltyMembership:
       type: object
       required:
@@ -1035,6 +1032,23 @@ components:
           title: Loyalty program ID
           description: The ID of the loyalty program belonging to this entity.
           example: 323414846
+    IntegrationEntity:
+      type: object
+      required:
+      - integrationId
+      - created
+      properties:
+        integrationId:
+          type: string
+          format: string
+          example: URNGV8294NV
+          maxLength: 1000
+          description: The integration ID set by your integration layer.
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-02-07T08:15:22Z'
     ErrorResponse:
       type: object
       required:
@@ -1048,28 +1062,6 @@ components:
           description: An array of individual problems encountered during the request.
           items:
             $ref: '#/components/schemas/APIError'
-    NewCustomerProfile:
-      type: object
-      properties:
-        attributes:
-          type: object
-          additionalProperties: true
-          description: Arbitrary properties associated with this item.
-          example:
-            Language: english
-            ShippingCountry: DE
-    AudienceAnalytics:
-      type: object
-      description: The audiences and their member count.
-      properties:
-        audienceId:
-          type: integer
-          description: The ID of the audience.
-          example: 1
-        membersCount:
-          type: integer
-          description: The member count of the audience.
-          example: 1234
     Import:
       allOf:
       - $ref: '#/components/schemas/Entity'
@@ -1091,6 +1083,14 @@ components:
             minimum: 0
             example: 10
             description: The number of values that were imported.
+  requestBodies:
+    AttributeQuery:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AttributeQuery'
+      description: body
+      required: true
   parameters:
     sort:
       name: sort
@@ -1105,6 +1105,14 @@ components:
       example: name
       schema:
         type: string
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
     pageSize:
       name: pageSize
       in: query
@@ -1116,14 +1124,6 @@ components:
         minimum: 1
         maximum: 1000
         default: 1000
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
   securitySchemes:
     api_key_v1:
       type: apiKey

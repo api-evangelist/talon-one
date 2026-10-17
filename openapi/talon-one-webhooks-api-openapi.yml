@@ -124,6 +124,57 @@ paths:
                 $ref: '#/components/schemas/Webhook'
 components:
   schemas:
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    WebhookWithOutgoingIntegrationDetails:
+      allOf:
+      - $ref: '#/components/schemas/Webhook'
+      - type: object
+        properties:
+          outgoingIntegrationTemplateId:
+            type: integer
+            description: Identifier of the outgoing integration template.
+            example: 1
+          outgoingIntegrationTypeId:
+            type: integer
+            description: Identifier of the outgoing integration type.
+            example: 1
+          outgoingIntegrationTypeName:
+            type: string
+            description: Name of the outgoing integration.
+            example: Braze
+    TemplateArgDef:
+      allOf:
+      - $ref: '#/components/schemas/FuncArgDef'
+      - type: object
+        required:
+        - ui
+        - title
+        properties:
+          title:
+            type: string
+            description: A campaigner friendly name for the argument, this will be shown in the rule editor.
+            minLength: 1
+          ui:
+            type: object
+            description: Arbitrary metadata that may be used to render an input for this argument.
+          key:
+            type: string
+            description: The identifier for the associated value within the JSON object.
+          picklistID:
+            type: integer
+            description: ID of the picklist linked to a template.
+          restrictedByPicklist:
+            type: boolean
+            description: Whether or not this attribute's value is restricted by picklist (`picklist` property)
     NewWebhook:
       type: object
       required:
@@ -199,16 +250,6 @@ components:
           type: integer
           description: The ID of the credential that this webhook is using.
           example: 1
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
     FuncArgDef:
       type: object
       required:
@@ -228,52 +269,11 @@ components:
         description:
           type: string
           description: A campaigner-friendly description of the argument, this will also be shown in the rule editor.
-    WebhookWithOutgoingIntegrationDetails:
-      allOf:
-      - $ref: '#/components/schemas/Webhook'
-      - type: object
-        properties:
-          outgoingIntegrationTemplateId:
-            type: integer
-            description: Identifier of the outgoing integration template.
-            example: 1
-          outgoingIntegrationTypeId:
-            type: integer
-            description: Identifier of the outgoing integration type.
-            example: 1
-          outgoingIntegrationTypeName:
-            type: string
-            description: Name of the outgoing integration.
-            example: Braze
     Webhook:
       allOf:
       - $ref: '#/components/schemas/Entity'
       - $ref: '#/components/schemas/MutableEntity'
       - $ref: '#/components/schemas/NewWebhook'
-    TemplateArgDef:
-      allOf:
-      - $ref: '#/components/schemas/FuncArgDef'
-      - type: object
-        required:
-        - ui
-        - title
-        properties:
-          title:
-            type: string
-            description: A campaigner friendly name for the argument, this will be shown in the rule editor.
-            minLength: 1
-          ui:
-            type: object
-            description: Arbitrary metadata that may be used to render an input for this argument.
-          key:
-            type: string
-            description: The identifier for the associated value within the JSON object.
-          picklistID:
-            type: integer
-            description: ID of the picklist linked to a template.
-          restrictedByPicklist:
-            type: boolean
-            description: Whether or not this attribute's value is restricted by picklist (`picklist` property)
     Entity:
       type: object
       required:

@@ -75,6 +75,80 @@ paths:
               schema:
                 $ref: '#/components/schemas/CampaignGroup'
 components:
+  schemas:
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
+    AccountEntity:
+      type: object
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: integer
+          description: The ID of the account that owns this entity.
+          example: 3886
+    CampaignGroup:
+      allOf:
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/NewCampaignGroup'
+      - type: object
+    NewCampaignGroup:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the campaign access group.
+          minLength: 1
+          example: Europe access group
+        description:
+          type: string
+          description: A longer description of the campaign access group.
+          example: A group that gives access to all the campaigns for the Europe market.
+        subscribedApplicationsIds:
+          type: array
+          description: A list of IDs of the Applications that this campaign access group is enabled for.
+          items:
+            type: integer
+          example:
+          - 1
+          - 2
+          - 3
+        campaignIds:
+          type: array
+          description: A list of IDs of the campaigns that are part of the campaign access group.
+          items:
+            type: integer
+          example:
+          - 4
+          - 6
+          - 8
+      required:
+      - name
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
   parameters:
     sort:
       name: sort
@@ -108,80 +182,6 @@ components:
         minimum: 1
         maximum: 1000
         default: 1000
-  schemas:
-    NewCampaignGroup:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the campaign access group.
-          minLength: 1
-          example: Europe access group
-        description:
-          type: string
-          description: A longer description of the campaign access group.
-          example: A group that gives access to all the campaigns for the Europe market.
-        subscribedApplicationsIds:
-          type: array
-          description: A list of IDs of the Applications that this campaign access group is enabled for.
-          items:
-            type: integer
-          example:
-          - 1
-          - 2
-          - 3
-        campaignIds:
-          type: array
-          description: A list of IDs of the campaigns that are part of the campaign access group.
-          items:
-            type: integer
-          example:
-          - 4
-          - 6
-          - 8
-      required:
-      - name
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
-    CampaignGroup:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/NewCampaignGroup'
-      - type: object
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
   securitySchemes:
     manager_auth:
       type: apiKey

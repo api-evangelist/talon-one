@@ -821,25 +821,6 @@ components:
       example: name
       schema:
         type: string
-    pageSize:
-      name: pageSize
-      in: query
-      required: false
-      description: The number of items in the response.
-      example: 1000
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 1000
-        default: 1000
-    skip:
-      name: skip
-      in: query
-      required: false
-      description: The number of items to skip when paging through large result sets.
-      example: 100
-      schema:
-        type: integer
     campaignId:
       name: campaignId
       in: path
@@ -856,7 +837,51 @@ components:
       example: 42
       schema:
         type: integer
+    skip:
+      name: skip
+      in: query
+      required: false
+      description: The number of items to skip when paging through large result sets.
+      example: 100
+      schema:
+        type: integer
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: The number of items in the response.
+      example: 1000
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 1000
   schemas:
+    Entity:
+      type: object
+      required:
+      - id
+      - created
+      properties:
+        id:
+          type: integer
+          description: The internal ID of this entity.
+          example: 6
+        created:
+          type: string
+          format: date-time
+          description: The time this entity was created.
+          example: '2020-06-10T09:05:27.993483Z'
+    MutableEntity:
+      type: object
+      required:
+      - modified
+      properties:
+        modified:
+          type: string
+          format: date-time
+          description: The time this entity was last modified.
+          example: '2021-09-12T10:12:42Z'
     Collection:
       allOf:
       - $ref: '#/components/schemas/CollectionWithoutPayload'
@@ -871,28 +896,67 @@ components:
             - KTL-BL-ET-1
             items:
               type: string
-    NewCollection:
+    CollectionWithoutPayload:
       allOf:
-      - $ref: '#/components/schemas/UpdateCollection'
+      - $ref: '#/components/schemas/Entity'
+      - $ref: '#/components/schemas/AccountEntity'
+      - $ref: '#/components/schemas/MutableEntity'
+      - $ref: '#/components/schemas/NewCollection'
       - type: object
         required:
-        - name
+        - createdBy
         properties:
-          name:
+          modifiedBy:
+            type: integer
+            description: ID of the user who last updated this effect if available.
+            example: 48
+          createdBy:
+            type: integer
+            description: ID of the user who created this effect.
+            example: 134
+          applicationId:
+            type: integer
+            description: The ID of the Application that owns this entity.
+            example: 1
+          campaignId:
+            type: integer
+            description: The ID of the campaign that owns this entity.
+            example: 7
+    ErrorSource:
+      type: object
+      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
+
+        '
+      properties:
+        pointer:
+          type: string
+          description: Pointer to the path in the payload that caused this error.
+        parameter:
+          type: string
+          description: Query parameter that caused this error.
+        line:
+          type: string
+          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
+        resource:
+          type: string
+          description: Pointer to the resource that caused this error.
+    CollectionItem:
+      allOf:
+      - type: object
+        required:
+        - item
+        properties:
+          item:
             type: string
-            minLength: 1
-            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
-            description: The name of this collection.
-            example: My collection
-    UserEntity:
+    AccountEntity:
       type: object
       required:
-      - userId
+      - accountId
       properties:
-        userId:
+        accountId:
           type: integer
-          description: The ID of the user associated with this entity.
-          example: 388
+          description: The ID of the account that owns this entity.
+          example: 3886
     ErrorResponseWithStatus:
       type: object
       properties:
@@ -920,99 +984,6 @@ components:
           description: Longer description of this specific instance of the problem.
         source:
           $ref: '#/components/schemas/ErrorSource'
-    AccountEntity:
-      type: object
-      required:
-      - accountId
-      properties:
-        accountId:
-          type: integer
-          description: The ID of the account that owns this entity.
-          example: 3886
-    CollectionItem:
-      allOf:
-      - type: object
-        required:
-        - item
-        properties:
-          item:
-            type: string
-    ErrorSource:
-      type: object
-      description: 'The source of the current error, exactly one of `pointer`, `parameter` or `line` will be defined.
-
-        '
-      properties:
-        pointer:
-          type: string
-          description: Pointer to the path in the payload that caused this error.
-        parameter:
-          type: string
-          description: Query parameter that caused this error.
-        line:
-          type: string
-          description: Line number in uploaded multipart file that caused this error. 'N/A' if unknown.
-        resource:
-          type: string
-          description: Pointer to the resource that caused this error.
-    Entity:
-      type: object
-      required:
-      - id
-      - created
-      properties:
-        id:
-          type: integer
-          description: The internal ID of this entity.
-          example: 6
-        created:
-          type: string
-          format: date-time
-          description: The time this entity was created.
-          example: '2020-06-10T09:05:27.993483Z'
-    CollectionWithoutPayload:
-      allOf:
-      - $ref: '#/components/schemas/Entity'
-      - $ref: '#/components/schemas/AccountEntity'
-      - $ref: '#/components/schemas/MutableEntity'
-      - $ref: '#/components/schemas/NewCollection'
-      - type: object
-        required:
-        - createdBy
-        properties:
-          modifiedBy:
-            type: integer
-            description: ID of the user who last updated this effect if available.
-            example: 48
-          createdBy:
-            type: integer
-            description: ID of the user who created this effect.
-            example: 134
-          applicationId:
-            type: integer
-            description: The ID of the Application that owns this entity.
-            example: 1
-          campaignId:
-            type: integer
-            description: The ID of the campaign that owns this entity.
-            example: 7
-    UpdateCampaignCollection:
-      type: object
-      properties:
-        description:
-          type: string
-          description: A short description of the purpose of this collection.
-          example: My collection of SKUs
-    MutableEntity:
-      type: object
-      required:
-      - modified
-      properties:
-        modified:
-          type: string
-          format: date-time
-          description: The time this entity was last modified.
-          example: '2021-09-12T10:12:42Z'
     NewCampaignCollection:
       allOf:
       - $ref: '#/components/schemas/UpdateCampaignCollection'
@@ -1026,6 +997,22 @@ components:
             pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
             description: The name of this collection.
             example: My collection
+    UserEntity:
+      type: object
+      required:
+      - userId
+      properties:
+        userId:
+          type: integer
+          description: The ID of the user associated with this entity.
+          example: 388
+    UpdateCampaignCollection:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A short description of the purpose of this collection.
+          example: My collection of SKUs
     UpdateCollection:
       type: object
       properties:
@@ -1063,6 +1050,19 @@ components:
             minimum: 0
             example: 10
             description: The number of values that were imported.
+    NewCollection:
+      allOf:
+      - $ref: '#/components/schemas/UpdateCollection'
+      - type: object
+        required:
+        - name
+        properties:
+          name:
+            type: string
+            minLength: 1
+            pattern: ^[^[:cntrl:]\s][^[:cntrl:]]*$
+            description: The name of this collection.
+            example: My collection
   securitySchemes:
     manager_auth:
       type: apiKey

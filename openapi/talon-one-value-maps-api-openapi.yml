@@ -90,20 +90,20 @@ paths:
                 $ref: '#/components/schemas/ErrorResponseWithStatus'
 components:
   parameters:
-    campaignId:
-      name: campaignId
-      in: path
-      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
-      example: 18
-      required: true
-      schema:
-        type: integer
     applicationId:
       name: applicationId
       in: path
       required: true
       description: The ID of the Application. It is displayed in your Talon.One deployment URL.
       example: 42
+      schema:
+        type: integer
+    campaignId:
+      name: campaignId
+      in: path
+      description: The ID of the campaign. It is displayed in your Talon.One deployment URL.
+      example: 18
+      required: true
       schema:
         type: integer
   schemas:
